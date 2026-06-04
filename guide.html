@@ -191,6 +191,7 @@
       border-radius: 16px;
       padding: 40px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      min-width: 0; /* Fixes grid content width overflow */
     }
 
     .doc-section {
@@ -619,23 +620,23 @@ function generateSite(configPath, targetDir) {
   }
 
   // 2. index.html 템플릿 컴파일러
-  const htmlTemplate = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${metadata.title}</title>
-  <meta name="description" content="${metadata.description}">
-  <meta name="keywords" content="${metadata.keywords.join(', ')}">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${metadata.adsense_client}" crossorigin="anonymous"><\/script>
-  <style>
+  const htmlTemplate = `&lt;!DOCTYPE html&gt;
+&lt;html lang="ko"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;\${metadata.title}&lt;/title&gt;
+  &lt;meta name="description" content="\${metadata.description}"&gt;
+  &lt;meta name="keywords" content="\${metadata.keywords.join(', ')}"&gt;
+  &lt;script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=\${metadata.adsense_client}" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;style&gt;
     :root {
-      --primary: ${theme.primary};
-      --secondary: ${theme.secondary};
-      --bg: ${theme.background};
-      --panel: ${theme.panel};
-      --text: ${theme.text};
-      --accent: ${theme.accent};
+      --primary: \${theme.primary};
+      --secondary: \${theme.secondary};
+      --bg: \${theme.background};
+      --panel: \${theme.panel};
+      --text: \${theme.text};
+      --accent: \${theme.accent};
     }
     body {
       background: var(--bg);
@@ -645,13 +646,13 @@ function generateSite(configPath, targetDir) {
       padding: 0;
     }
     /* ... 화려한 UI 스타일링 컴파일 ... */
-  </style>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.jsx"><\/script>
-</body>
-</html>`;
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="app"&gt;&lt;/div&gt;
+  &lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;`;
 
   fs.writeFileSync(path.join(targetDir, 'index.html'), htmlTemplate);
   
