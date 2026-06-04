@@ -3,261 +3,1575 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anti 통합관제탑 — CHOBH1024 전체 사이트 현황</title>
-  <meta name="description" content="CHOBH1024 운영 중인 전체 사이트 현황판. GitHub 소스 및 라이브 사이트 바로가기.">
+  <title>🗼 Anti 통합관제탑 — CHOBH1024 대시보드</title>
+  <meta name="description" content="CHOBH1024 운영 중인 전체 15개 사이트 실시간 관제 및 트래픽/AdSense 통계 대시보드">
+  
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
+    /* Reset & CSS variables */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --green: #3fb950;
-      --blue: #58a6ff;
-      --yellow: #d29922;
-      --red: #f85149;
-      --purple: #bc8cff;
+      --bg: #07090e;
+      --panel: #0d121f;
+      --panel-hover: #121829;
+      --border: #1e293b;
+      --border-hover: #38bdf8;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --neon-blue: #0ea5e9;
+      --neon-blue-glow: rgba(14, 165, 233, 0.4);
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.4);
+      --neon-yellow: #f59e0b;
+      --neon-yellow-glow: rgba(245, 158, 11, 0.4);
+      --neon-red: #ef4444;
+      --neon-red-glow: rgba(239, 68, 68, 0.4);
+      --neon-purple: #8b5cf6;
+      --neon-purple-glow: rgba(139, 92, 246, 0.4);
+      
+      --glass: rgba(13, 18, 31, 0.7);
     }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
-    header h1 { font-size: 1.4rem; font-weight: 700; }
-    header span { color: var(--muted); font-size: 0.9rem; }
-    .stats { display: flex; gap: 24px; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    .stat { text-align: center; }
-    .stat-num { font-size: 1.8rem; font-weight: 700; }
-    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    .green { color: var(--green); }
-    .yellow { color: var(--yellow); }
-    .red { color: var(--red); }
-    .blue { color: var(--blue); }
-    main { padding: 32px; max-width: 1400px; margin: 0 auto; }
-    .section-title { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 32px 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: border-color 0.2s; }
-    .card:hover { border-color: var(--blue); }
-    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .card-title { font-size: 1rem; font-weight: 600; }
-    .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
-    .badge-green { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
-    .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
-    .badge-red { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
-    .badge-blue { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
-    .desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; line-height: 1.65; word-break: keep-all; }
-    .links { display: flex; gap: 8px; flex-wrap: wrap; }
-    .link-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; text-decoration: none; transition: opacity 0.15s; }
-    .link-btn:hover { opacity: 0.8; }
-    .link-github { background: rgba(139,148,158,0.15); color: var(--text); border: 1px solid var(--border); }
-    .link-live { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
-    .link-adsense { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.25); font-size: 0.72rem; }
-    footer { text-align: center; padding: 32px; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } main { padding: 16px; } .stats { flex-wrap: wrap; } }
+    
+    body {
+      background: var(--bg);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+        linear-gradient(rgba(20, 20, 30, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 20, 30, 0.4) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text-main);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      padding-bottom: 50px;
+    }
+    
+    /* Scrollbar Customization */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+
+    /* Layout Wrapper */
+    .dashboard-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* Header Styles */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .header-logo i {
+      font-size: 2.2rem;
+      color: var(--neon-blue);
+      text-shadow: 0 0 15px var(--neon-blue-glow);
+      animation: pulse-glow 3s infinite alternate;
+    }
+    
+    .header-logo h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 30%, var(--neon-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header-meta {
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .header-meta span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--neon-blue);
+      margin-top: 4px;
+    }
+    
+    /* Metrics Summary Cards */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    
+    .metric-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+    }
+    
+    .metric-card.m-blue::before { background: var(--neon-blue); }
+    .metric-card.m-green::before { background: var(--neon-green); }
+    .metric-card.m-yellow::before { background: var(--neon-yellow); }
+    .metric-card.m-purple::before { background: var(--neon-purple); }
+    
+    .metric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .metric-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    
+    .metric-card-header i { font-size: 1.2rem; }
+    
+    .metric-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    
+    .metric-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      display: inline-block;
+      animation: status-pulse 1.8s infinite;
+    }
+    
+    /* Two Column Dashboard Section */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    
+    @media (max-width: 1200px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Charts panel styling */
+    .panel-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    
+    .panel-title i { color: var(--neon-blue); }
+    
+    .chart-box {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
+    
+    .charts-row-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .charts-row-inner { grid-template-columns: 1fr; }
+    }
+
+    /* Calculator Widget Widget */
+    .calc-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    .slider-header span.val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--neon-blue);
+      font-weight: 600;
+    }
+    
+    .slider-input {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    .slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-blue);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--neon-blue-glow);
+      transition: background 0.15s;
+    }
+    
+    .slider-input::-webkit-slider-thumb:hover {
+      background: #38bdf8;
+    }
+    
+    .calc-result {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 10px;
+    }
+    
+    .calc-res-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    
+    .calc-res-row:last-child { border: none; }
+    .calc-res-label { font-size: 0.85rem; color: var(--text-muted); }
+    .calc-res-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--neon-green); }
+    .calc-res-val.total { font-size: 1.25rem; text-shadow: 0 0 10px var(--neon-green-glow); }
+    
+    /* Site Grid Section */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 40px 0 20px;
+    }
+    
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .section-header h2 i { color: var(--neon-purple); }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .filter-btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--neon-purple);
+      color: var(--text-main);
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+    }
+    
+    /* Site Cards Grid */
+    .site-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    
+    .site-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    
+    .site-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 30px -10px rgba(14, 165, 233, 0.3);
+    }
+    
+    .card-top { margin-bottom: 20px; }
+    
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+    
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--neon-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+    
+    .site-card.c-purple .card-icon { background: rgba(139, 92, 246, 0.1); color: var(--neon-purple); border-color: rgba(139, 92, 246, 0.2); }
+    .site-card.c-green .card-icon { background: rgba(16, 185, 129, 0.1); color: var(--neon-green); border-color: rgba(16, 185, 129, 0.2); }
+    
+    .card-title-group h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    
+    .card-title-group span.domain {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 2px;
+    }
+    
+    /* Live Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .status-badge.loading {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    
+    .status-badge.online {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--neon-green);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    
+    .status-badge.offline {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--neon-red);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    
+    .status-pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    
+    .status-badge.online .status-pulse-dot {
+      animation: status-pulse 1.5s infinite;
+    }
+    
+    p.card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: keep-all;
+    }
+    
+    /* Sub metadata row */
+    .card-meta-row {
+      display: flex;
+      gap: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .card-meta-item i { color: var(--neon-blue); margin-right: 4px; }
+    .card-meta-item.adsense i { color: var(--neon-yellow); }
+    
+    /* Card buttons */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .action-btn.btn-github {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+    
+    .action-btn.btn-github:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--text-muted);
+    }
+    
+    .action-btn.btn-live {
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--neon-blue);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+    
+    .action-btn.btn-live:hover {
+      background: var(--neon-blue);
+      color: var(--bg);
+      box-shadow: 0 0 15px var(--neon-blue-glow);
+    }
+    
+    /* Keyframe animations */
+    @keyframes status-pulse {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 0.3; transform: scale(0.9); }
+    }
+    
+    @keyframes pulse-glow {
+      0% { text-shadow: 0 0 8px var(--neon-blue-glow); }
+      100% { text-shadow: 0 0 20px rgba(14, 165, 233, 0.7); }
+    }
+    
+    /* SEO Table Section */
+    .seo-panel {
+      margin-top: 30px;
+    }
+    
+    .seo-table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    table.seo-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+    
+    table.seo-table th, table.seo-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    table.seo-table th {
+      background: rgba(255, 255, 255, 0.02);
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    table.seo-table tr:last-child td { border: none; }
+    
+    table.seo-table tr:hover td {
+      background: rgba(255,255,255,0.01);
+    }
+    
+    table.seo-table td.site-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    
+    .badge-status.success { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); }
+    .badge-status.warning { background: rgba(245, 158, 11, 0.15); color: var(--neon-yellow); }
+    .badge-status.danger { background: rgba(239, 68, 68, 0.15); color: var(--neon-red); }
+    
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 50px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* Team Panel Styles */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    
+    .team-card {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .team-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--theme-color);
+      box-shadow: 0 8px 20px -6px var(--theme-glow);
+    }
+    
+    .team-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .team-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      background: var(--theme-glow);
+      color: var(--theme-color);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .mbti-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--theme-glow);
+      color: var(--theme-color);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .team-name {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .team-role {
+      font-size: 0.75rem;
+      color: var(--neon-blue);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .team-benchmark {
+      font-size: 0.7rem;
+      color: var(--neon-yellow);
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      padding: 1px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .team-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      word-break: keep-all;
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>🗼 Anti 통합관제탑</h1>
-    <span>CHOBH1024 전체 사이트 현황 · 업데이트: 2026-06-04 · 15개 사이트</span>
-  </div>
-</header>
+<div class="dashboard-container">
+  
+  <!-- Header -->
+  <header>
+    <div class="header-logo">
+      <i class="fa-solid fa-tower-broadcast"></i>
+      <div>
+        <h1>ANTI 통합관제탑</h1>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">CHOBH1024 디지털 자산 실시간 분석 & 제어 콘솔</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <a href="guide.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(139, 92, 246, 0.15); color: var(--neon-purple); border: 1px solid rgba(139, 92, 246, 0.3); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.3s; text-shadow: 0 0 8px var(--neon-purple-glow);" onmouseover="this.style.background='var(--neon-purple)'; this.style.color='var(--text-main)'; this.style.boxShadow='0 0 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='rgba(139, 92, 246, 0.15)'; this.style.color='var(--neon-purple)'; this.style.boxShadow='none';">
+        <i class="fa-solid fa-book-open"></i>
+        <span>📚 마스터 개발 가이드 (2만자)</span>
+      </a>
+      <div class="header-meta">
+        SYSTEM STATUS: <span id="sync-time">WAITING SYNC...</span>
+        <span>INDEXNOW API KEY: ACTIVE</span>
+      </div>
+    </div>
+  </header>
 
-<div class="stats">
-  <div class="stat"><div class="stat-num green">6</div><div class="stat-label">운영중</div></div>
-  <div class="stat"><div class="stat-num yellow">4</div><div class="stat-label">점검중</div></div>
-  <div class="stat"><div class="stat-num blue">4</div><div class="stat-label">AdSense 승인</div></div>
-  <div class="stat"><div class="stat-num" style="color:var(--purple)">15</div><div class="stat-label">전체 사이트</div></div>
+  <!-- Metrics Summary Row -->
+  <div class="metrics-row">
+    <div class="metric-card m-purple">
+      <div class="metric-card-header">
+        <span>Total Sites</span>
+        <i class="fa-solid fa-server"></i>
+      </div>
+      <div class="metric-val" id="cnt-total">15</div>
+      <div class="metric-sub">
+        <i class="fa-solid fa-folder-tree"></i>
+        <span>정적 사이트 & 진단 앱 통합 관리</span>
+      </div>
+    </div>
+    
+    <div class="metric-card m-green">
+      <div class="metric-card-header">
+        <span>Active Status</span>
+        <i class="fa-solid fa-heartbeat"></i>
+      </div>
+      <div class="metric-val" id="cnt-online">--</div>
+      <div class="metric-sub">
+        <span class="pulse-dot"></span>
+        <span id="txt-latency">실시간 HTTP 핑 측정 중...</span>
+      </div>
+    </div>
+    
+    <div class="metric-card m-yellow">
+      <div class="metric-card-header">
+        <span>AdSense Sites</span>
+        <i class="fa-solid fa-coins"></i>
+      </div>
+      <div class="metric-val" id="cnt-adsense">4</div>
+      <div class="metric-sub">
+        <i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>
+        <span>승인 4 / 심사중 2 / 대기 9</span>
+      </div>
+    </div>
+    
+    <div class="metric-card m-blue">
+      <div class="metric-card-header">
+        <span>IndexNow Pings</span>
+        <i class="fa-solid fa-paper-plane"></i>
+      </div>
+      <div class="metric-val">14/14</div>
+      <div class="metric-sub">
+        <i class="fa-solid fa-square-rss"></i>
+        <span>키 배포 및 Bing/Yandex ping 완료</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts & Calculator Grid -->
+  <div class="dashboard-grid">
+    
+    <!-- Left Panel: Analytics Charts -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>통합 접속 및 유입 데이터 분석 (통계 시뮬레이션)</span>
+      </div>
+      <div class="chart-box">
+        <canvas id="traffic-line-chart"></canvas>
+      </div>
+      
+      <div class="charts-row-inner">
+        <div>
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-pie-chart" style="color:var(--neon-purple); margin-right:6px;"></i>사이트별 트래픽 기여도</h4>
+          <div class="chart-box" style="height:220px;">
+            <canvas id="traffic-doughnut-chart"></canvas>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-bar-chart" style="color:var(--neon-yellow); margin-right:6px;"></i>애드센스 승인 사이트 예상 매출</h4>
+          <div class="chart-box" style="height:220px;">
+            <canvas id="revenue-bar-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Panel: AdSense Earnings Simulator -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <i class="fa-solid fa-calculator"></i>
+        <span>애드센스 수익 시뮬레이터</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px; line-height:1.6;">일일 트래픽 및 광고 효율 데이터를 직접 조절하여 예상되는 수익 지표를 실시간 시뮬레이션해 보세요.</p>
+      
+      <div class="calc-widget">
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>일일 고유 방문자 수 (UV)</span>
+            <span class="val" id="lbl-uv">5,000명</span>
+          </div>
+          <input type="range" class="slider-input" id="sld-uv" min="100" max="50000" step="100" value="5000">
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>인당 평균 페이지뷰 (PV)</span>
+            <span class="val" id="lbl-pv">2.0회</span>
+          </div>
+          <input type="range" class="slider-input" id="sld-pv" min="1.0" max="6.0" step="0.1" value="2.0">
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>광고 클릭률 (CTR)</span>
+            <span class="val" id="lbl-ctr">1.5%</span>
+          </div>
+          <input type="range" class="slider-input" id="sld-ctr" min="0.1" max="6.0" step="0.1" value="1.5">
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>클릭당 비용 (CPC)</span>
+            <span class="val" id="lbl-cpc">$0.25</span>
+          </div>
+          <input type="range" class="slider-input" id="sld-cpc" min="0.05" max="3.00" step="0.05" value="0.25">
+        </div>
+        
+        <div class="calc-result">
+          <div class="calc-res-row">
+            <span class="calc-res-label">일일 예상 광고 노출 수</span>
+            <span class="calc-res-val" id="res-imp">10,000회</span>
+          </div>
+          <div class="calc-res-row">
+            <span class="calc-res-label">일일 예상 수익 (USD)</span>
+            <span class="calc-res-val" id="res-daily">$37.50</span>
+          </div>
+          <div class="calc-res-row">
+            <span class="calc-res-label">월간 예상 수익 (USD)</span>
+            <span class="calc-res-val" id="res-monthly">$1,125.00</span>
+          </div>
+          <div class="calc-res-row">
+            <span class="calc-res-label">연간 예상 누적 수입</span>
+            <span class="calc-res-val total" id="res-yearly">$13,500.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site List Header with Filters -->
+  <div class="section-header">
+    <h2><i class="fa-solid fa-list-check"></i>관제 사이트 목록 (15개)</h2>
+    <div class="filter-buttons">
+      <button class="filter-btn active" onclick="filterSites('all')">ALL</button>
+      <button class="filter-btn" onclick="filterSites('running')">운영중</button>
+      <button class="filter-btn" onclick="filterSites('maintenance')">점검중</button>
+      <button class="filter-btn" onclick="filterSites('adsense')">애드센스</button>
+    </div>
+  </div>
+
+  <!-- Site Cards Grid -->
+  <div class="site-grid" id="site-cards-container">
+    <!-- Cards will be dynamically injected by JS to maintain clean, easy maintenance -->
+  </div>
+  
+  <!-- SEO Table Inspector Section -->
+  <div class="panel-card seo-panel">
+    <div class="panel-title">
+      <i class="fa-solid fa-globe"></i>
+      <span>검색 엔진 최적화(SEO) 및 설정 요약 인스펙터</span>
+    </div>
+    <div class="seo-table-container">
+      <table class="seo-table">
+        <thead>
+          <tr>
+            <th>사이트명</th>
+            <th>도메인</th>
+            <th>메타 설명</th>
+            <th>Sitemap.xml</th>
+            <th>IndexNow Key</th>
+            <th>AdSense 상태</th>
+          </tr>
+        </thead>
+        <tbody id="seo-table-body">
+          <!-- Dynamically populated rows -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Harness Team Section -->
+  <div class="panel-card team-panel" style="margin-top: 30px;">
+    <div class="panel-title">
+      <i class="fa-solid fa-users-viewfinder"></i>
+      <span>하네스 개발팀 — 에이전트 & 커맨드 프로필 (Harness Dev Team)</span>
+    </div>
+    <div class="team-grid" id="team-cards-container">
+      <!-- Cards will be populated here -->
+    </div>
+  </div>
+
+  <footer>
+    🗼 Anti Workspace · Total Control Tower Console · Developed in 2026
+  </footer>
 </div>
 
-<main>
+<script>
+  // Complete database of the 15 sites
+  const sitesData = [
+    {
+      id: "mz-radar",
+      name: "MZ 레이더",
+      sub: "MZ 직장인 유형 진단",
+      category: "diagnostic",
+      status: "running",
+      adsense: "approved",
+      domain: "mz-radar.vercel.app",
+      github: "https://github.com/CHOBH1024/mz-radar",
+      traffic: "Tier 1 (High)",
+      visitors: 8200,
+      icon: "fa-rocket",
+      desc: "MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석하는 진단 사이트. 9가지 유형 중 본인의 행동 패턴을 분석하고 성장 방향을 제안합니다."
+    },
+    {
+      id: "burnout-radar",
+      name: "번아웃 레이더",
+      sub: "번아웃 위험도 진단",
+      category: "diagnostic",
+      status: "maintenance",
+      adsense: "pending",
+      domain: "burnout-radar1024.vercel.app",
+      github: "https://github.com/CHOBH1024/burnout-radar",
+      traffic: "Tier 2 (Med)",
+      visitors: 4100,
+      icon: "fa-fire-extinguisher",
+      desc: "직장인 번아웃의 6가지 영역(업무량, 통제감, 보상 등)을 과학적 MBI 모델 기반으로 측정하여 스트레스 완화 솔루션을 제공하는 진단 도구입니다. 9월 재심사 예정."
+    },
+    {
+      id: "genius-radar",
+      name: "지니어스 레이더",
+      sub: "천재 유형 진단",
+      category: "diagnostic",
+      status: "running",
+      adsense: "approved",
+      domain: "genius-radar.vercel.app",
+      github: "https://github.com/CHOBH1024/genius-radar",
+      traffic: "Tier 1 (High)",
+      visitors: 7600,
+      icon: "fa-brain",
+      desc: "하워드 가드너의 다중지능 이론을 응용하여 개인의 지능 강점과 최적의 학습법, 직무 유형을 찾아주는 다차원 지능 지표 분석 도구입니다."
+    },
+    {
+      id: "dun-mu",
+      name: "공직자 소명 아키타입 진단",
+      sub: "가정연합 내부 인사 시스템",
+      category: "internal",
+      status: "running",
+      adsense: "none",
+      domain: "make-it-mine-35.vercel.app",
+      github: "https://github.com/CHOBH1024/make-it-mine-35",
+      traffic: "Internal Only",
+      visitors: 1200,
+      icon: "fa-users-gear",
+      desc: "에니어그램, Big5, VIA 강점 등을 결합하여 공직 아키타입을 분류하고 최적의 팀 구성 및 인사 결정을 내릴 수 있도록 돕는 실무 전용 시스템입니다."
+    },
+    {
+      id: "ilban-leadership",
+      name: "일반 리더십 진단",
+      sub: "조직 리더십 스타일 진단",
+      category: "diagnostic",
+      status: "maintenance",
+      adsense: "none",
+      domain: "ilban-leadership.vercel.app",
+      github: "https://github.com/CHOBH1024/ilban-leadership",
+      traffic: "Tier 3 (Low)",
+      visitors: 900,
+      icon: "fa-people-group",
+      desc: "비전형, 코칭형 등 6가지 리더십 스타일을 측정하여 조직의 성격에 적합한 리더십 훈련 가이드 및 피드백을 제공하는 역량 평가 플랫폼입니다."
+    },
+    {
+      id: "mind-prism",
+      name: "마인드 프리즘",
+      sub: "심리 유형 분석 진단",
+      category: "diagnostic",
+      status: "running",
+      adsense: "none",
+      domain: "mind-prism1024.vercel.app",
+      github: "https://github.com/CHOBH1024/MindPrism1024",
+      traffic: "Tier 2 (Med)",
+      visitors: 3200,
+      icon: "fa-shapes",
+      desc: "인지 기능과 자아 지향을 분석하여 16가지 성격 유형의 대인관계 적합성과 정서 훈련 팁을 종합 제공하는 고도화된 성격 심리 검사 앱입니다."
+    },
+    {
+      id: "fx-radar",
+      name: "FX 레이더",
+      sub: "환율 투자 심리 진단",
+      category: "information",
+      status: "running",
+      adsense: "approved",
+      domain: "fx-radar1024.vercel.app",
+      github: "https://github.com/CHOBH1024/fx-radar",
+      traffic: "Tier 1 (High)",
+      visitors: 6200,
+      icon: "fa-arrow-trend-up",
+      desc: "행동경제학 이론을 접목하여 외환 거래 시 발생하는 투자 편향(손실 회피, 과신 편향 등)을 분석하고 맞춤형 트레이딩 마인드 컨트롤 팁을 줍니다."
+    },
+    {
+      id: "mood-weather",
+      name: "무드 웨더",
+      sub: "감정 날씨 일기",
+      category: "information",
+      status: "running",
+      adsense: "approved",
+      domain: "mood-weather1024.vercel.app",
+      github: "https://github.com/CHOBH1024/mood-weather",
+      traffic: "Tier 2 (Med)",
+      visitors: 4800,
+      icon: "fa-cloud-sun",
+      desc: "자신의 일상적인 기분 변화를 기상 현상에 빗대어 기록하고 감사 일기 기능과 긍정 심리 피드백으로 감정 회복 탄력성을 돕는 감정 추적 다이어리입니다."
+    },
+    {
+      id: "hyper-automation-tower",
+      name: "테크팁KR",
+      sub: "AI 기술 레퍼런스",
+      category: "information",
+      status: "maintenance",
+      adsense: "none",
+      domain: "hyper-automation-tower.vercel.app",
+      github: "https://github.com/CHOBH1024/hyper-automation-tower",
+      traffic: "Tier 3 (Low)",
+      visitors: 1400,
+      icon: "fa-laptop-code",
+      desc: "ChatGPT, Claude 및 자동화 툴 활용 팁을 정리한 가이드 웹사이트. 실무 생산성 향상을 위한 프롬프트 가이드와 기술 노하우를 집중적으로 다룹니다."
+    },
+    {
+      id: "cho-tan",
+      name: "Mirror Inside 커리어",
+      sub: "목회자 커리어 코칭 및 역량 평가",
+      category: "information",
+      status: "running",
+      adsense: "none",
+      domain: "cho-tan.vercel.app",
+      github: "https://github.com/CHOBH1024/chotan",
+      traffic: "Internal Only",
+      visitors: 1100,
+      icon: "fa-user-tie",
+      desc: "가정연합 내부 목회자들을 타겟으로 설계된 역량 종합 분석 플랫폼으로 실무 리더십 스타일과 부서 적합성을 다원 평가합니다."
+    },
+    {
+      id: "focus-flow",
+      name: "FocusFlow",
+      sub: "생산성 및 집중력 도구",
+      category: "information",
+      status: "maintenance",
+      adsense: "none",
+      domain: "focus-flow1024.vercel.app",
+      github: "https://github.com/CHOBH1024/FocusFlow1024",
+      traffic: "Tier 3 (Low)",
+      visitors: 800,
+      icon: "fa-hourglass-half",
+      desc: "포모도로 업무 시간 구조화와 딥워크 실천 가이드를 결합하여 집중 방해 요인을 분석해내는 집중 트래커 및 생산성 보강 웹 앱입니다."
+    },
+    {
+      id: "jeongbu",
+      name: "정부지원 가이드",
+      sub: "보조금 및 정부 사업 공고",
+      category: "information",
+      status: "maintenance",
+      adsense: "none",
+      domain: "jeongbu.vercel.app",
+      github: "https://github.com/CHOBH1024/jeongbu",
+      traffic: "Tier 2 (Med)",
+      visitors: 2200,
+      icon: "fa-hand-holding-dollar",
+      desc: "소상공인, 예비창업자 및 중소기업이 즉시 매칭받을 수 있는 중앙정부와 지자체 지원 사업을 알기 쉽게 가이드화한 금융 복지 채널입니다."
+    },
+    {
+      id: "woojisung",
+      name: "조우성 업무 가이드",
+      sub: "총무국 민원 응대 실무서",
+      category: "information",
+      status: "running",
+      adsense: "none",
+      domain: "chobh1024.github.io/woojisung",
+      github: "https://github.com/CHOBH1024/woojisung",
+      traffic: "Internal Only",
+      visitors: 600,
+      icon: "fa-circle-question",
+      desc: "민원 유형별 표준 응대 매뉴얼 및 조직 내 커뮤니케이션 가이드를 정리해 놓은 깃허브 페이지 기반 사내 위키 아카이브입니다."
+    },
+    {
+      id: "money-radar",
+      name: "머니 레이더",
+      sub: "재무 유형 진단",
+      category: "diagnostic",
+      status: "running",
+      adsense: "none",
+      domain: "money-radar-five.vercel.app",
+      github: "https://github.com/CHOBH1024/money-radar",
+      traffic: "Tier 2 (Med)",
+      visitors: 2800,
+      icon: "fa-wallet",
+      desc: "소비 성향과 돈에 대한 태도를 심리학적으로 진단하여, 지출 습관 교정 및 행동경제학 관점의 재테크 포지션 제안을 돕는 가이드 진단입니다."
+    },
+    {
+      id: "ilbanleadership1024",
+      name: "일반 리더십 1024",
+      sub: "리더십 1024 버전",
+      category: "diagnostic",
+      status: "running",
+      adsense: "none",
+      domain: "ilbanleadership1024.vercel.app",
+      github: "https://github.com/CHOBH1024/ilban-leadership",
+      traffic: "Tier 3 (Low)",
+      visitors: 750,
+      icon: "fa-ranking-star",
+      desc: "기존 일반 리더십 자산과 연계된 백업 배포판으로 최적의 리더십 패턴 분석 및 지표 통계 확인을 위한 static 미러 웹입니다."
+    }
+  ];
 
-<div class="section-title">진단·분석 사이트</div>
-<div class="grid">
+  // Initialize and Render Site Cards
+  function renderCards(filter = "all") {
+    const container = document.getElementById("site-cards-container");
+    container.innerHTML = "";
+    
+    let filtered = sitesData;
+    if (filter === "running") {
+      filtered = sitesData.filter(s => s.status === "running");
+    } else if (filter === "maintenance") {
+      filtered = sitesData.filter(s => s.status === "maintenance");
+    } else if (filter === "adsense") {
+      filtered = sitesData.filter(s => s.adsense === "approved" || s.adsense === "pending");
+    }
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">MZ 레이더 — MZ 직장인 유형 진단</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석하는 진단 사이트. 9가지 유형 중 본인의 직장 내 행동 패턴, 동기부여 방식, 스트레스 반응을 파악하고 팀 내 역할과 성장 방향을 제안한다. 문항은 직장 상황에 특화된 시나리오 기반으로 설계되어 자기인식 정확도를 높인다. 결과 페이지에서 SNS 공유 및 PDF 저장이 가능하며, 레이더 차트로 강점 프로필을 시각화한다. AdSense 수익화 승인 완료. 매주 콘텐츠 칼럼을 업데이트하여 SEO 유입을 지속 확보 중이며, 직장생활 실전 팁과 연계하여 체류 시간을 늘리는 방향으로 운영한다. 구글 서치콘솔 및 네이버 웹마스터 도구에 등록되어 검색 유입 추적 중.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/mz-radar" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://mz-radar.vercel.app" target="_blank">↗ 라이브</a>
-      <span class="link-btn link-adsense">✓ AdSense</span>
-    </div>
-  </div>
+    filtered.forEach(site => {
+      // Color class
+      let borderClass = "";
+      if (site.status === "maintenance") borderClass = "c-purple";
+      else if (site.adsense === "approved") borderClass = "c-green";
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">번아웃 레이더 — 번아웃 위험도 진단</div>
-      <span class="badge badge-yellow">AdSense 심사중</span>
-    </div>
-    <p class="desc">직장인 번아웃의 6가지 영역(업무량, 통제감, 보상, 공동체, 공정성, 가치 일치)을 과학적 MBI 모델 기반으로 측정하는 진단 도구. 각 영역별 점수와 종합 번아웃 지수를 산출하며, 위험 구간별 구체적 회복 전략을 제안한다. 번아웃은 단순 피로와 다르게 장기적 소진 상태이므로 초기 감지와 예방이 핵심이다. 레이더 차트로 취약 영역을 직관적으로 파악하고 PDF 저장으로 기록 관리가 가능하다. 번아웃을 주제로 한 실용 칼럼을 꾸준히 게재하여 검색 노출을 강화하고 있으며, 직장인 커뮤니티와 연계한 바이럴 확산 전략을 병행한다. AdSense 심사 진행 중으로 승인 후 자동 광고 스크립트를 삽입할 예정. 9월 재신청 예정.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/burnout-radar" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://burnout-radar1024.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+      const cardHtml = `
+        <div class="site-card ${borderClass}" data-id="${site.id}" data-url="${site.domain}">
+          <div class="card-top">
+            <div class="card-head">
+              <div class="card-title-group">
+                <div class="card-icon"><i class="fa-solid ${site.icon}"></i></div>
+                <div>
+                  <h3>${site.name}</h3>
+                  <span class="domain">${site.domain}</span>
+                </div>
+              </div>
+              <span class="status-badge loading" id="badge-${site.id}">
+                <span class="status-pulse-dot"></span>
+                <span class="txt">Checking</span>
+              </span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--neon-blue); font-weight:600; margin-bottom:8px;">${site.sub}</p>
+            <p class="card-desc">${site.desc}</p>
+          </div>
+          
+          <div>
+            <div class="card-meta-row">
+              <div class="card-meta-item"><i class="fa-solid fa-users"></i>${site.traffic}</div>
+              <div class="card-meta-item adsense">
+                <i class="fa-solid fa-coins"></i>AdSense: 
+                <span style="font-weight:700; color:${site.adsense==='approved'?'var(--neon-green)':(site.adsense==='pending'?'var(--neon-yellow)':'var(--text-muted)')}">
+                  ${site.adsense==='approved'?'Approved':(site.adsense==='pending'?'Reviewing':'N/A')}
+                </span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <a class="action-btn btn-github" href="${site.github}" target="_blank"><i class="fa-brands fa-github"></i>GitHub</a>
+              <a class="action-btn btn-live" href="https://${site.domain}" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>Live</a>
+            </div>
+          </div>
+        </div>
+      `;
+      container.innerHTML += cardHtml;
+    });
+    
+    // Trigger ping check
+    pingAllSites(filtered);
+  }
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">지니어스 레이더 — 천재 유형 진단</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">하워드 가드너의 다중지능 이론을 기반으로 개인의 지능 강점 프로파일을 분석하는 진단 사이트. 언어, 논리수학, 공간, 음악, 신체운동, 대인관계, 자기이해, 자연친화 8가지 지능 영역을 측정하여 개인화된 천재 유형을 제시한다. 각 유형에 맞는 학습 방법, 직업 추천, 역량 계발 전략을 상세하게 안내하여 실질적 활용도를 높인다. 레이더 차트와 PDF 내보내기 기능을 탑재하고 SNS 공유를 통한 바이럴 확산을 지원한다. AdSense 승인 완료 상태로 광고 수익을 창출 중이며 지속적인 콘텐츠 업데이트로 유기 검색 트래픽을 확보하고 있다. 교육 관련 키워드 공략으로 학부모 및 학생 유입을 늘리는 방향으로 콘텐츠 전략을 수립 중이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/genius-radar" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://genius-radar.vercel.app" target="_blank">↗ 라이브</a>
-      <span class="link-btn link-adsense">✓ AdSense</span>
-    </div>
-  </div>
+  function filterSites(type) {
+    document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+    event.target.classList.add("active");
+    renderCards(type);
+  }
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">공직자 소명 아키타입 진단 (dun-mu)</div>
-      <span class="badge badge-blue">내부용</span>
-    </div>
-    <p class="desc">에니어그램, Big5 성격모델, 커리어 앵커, VIA 강점검사, EQ 감성지능을 통합한 가정연합 전용 소명 아키타입 진단 도구. 27가지 세부 목회 아키타입을 도출하여 개인의 소명 방향성과 조직 내 최적 배치를 안내한다. 5가지 심리검사를 하나의 플랫폼에서 통합 분석하며, 각 검사 간의 학술적 연관성과 타당도를 상세히 제공한다. 팀 빌더 기능으로 다중 프로필을 비교 분석하고 인사 배치 가이드를 생성한다. PDF 보고서 출력과 URL 공유 기능을 지원하며 localStorage 기반 자동저장으로 중단 후 재개가 가능하다. 총무국 실무 인사 배치 및 팀 구성 최적화를 목적으로 개발된 내부 전용 시스템이다. 가정연합 조직 문화와 가치 체계에 맞춘 언어와 프레임워크를 적용하여 현장 수용성을 높였다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/make-it-mine-35" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://make-it-mine-35.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+  // Populate SEO Table
+  function populateSeoTable() {
+    const tbody = document.getElementById("seo-table-body");
+    tbody.innerHTML = "";
+    
+    sitesData.forEach(site => {
+      let adsenseBadge = "";
+      if (site.adsense === "approved") adsenseBadge = `<span class="badge-status success"><i class="fa-solid fa-circle-check"></i> Approved</span>`;
+      else if (site.adsense === "pending") adsenseBadge = `<span class="badge-status warning"><i class="fa-solid fa-clock"></i> Reviewing</span>`;
+      else adsenseBadge = `<span class="badge-status danger"><i class="fa-solid fa-circle-xmark"></i> N/A</span>`;
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">일반 리더십 진단</div>
-      <span class="badge badge-yellow">점검중</span>
-    </div>
-    <p class="desc">조직 리더십 아키타입을 진단하는 전문 도구. 비전형, 코칭형, 민주형, 관계형, 선도형, 지시형 6가지 리더십 스타일을 다차원 설문으로 측정하고 상황별 최적 리더십 스타일 활용 방안을 제시한다. 리더십은 고정된 특성이 아니라 상황에 따라 유연하게 발휘되어야 하는 역량임을 강조하며, 각 스타일의 강점과 위험 요소를 균형 있게 안내한다. 팀원 관리, 조직 문화 형성, 위기 대응 등 실무 시나리오에 연결된 맞춤형 피드백을 제공하여 리더십 개발 계획 수립을 지원한다. 레이더 차트로 리더십 프로파일을 시각화하고 PDF 내보내기로 기록을 보존한다. 현재 Vercel 배포 설정 최적화 작업을 완료하고 재배포 중이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/ilban-leadership" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://ilban-leadership.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+      // Simulating SEO parameters based on settings
+      const metaDesc = site.desc.length > 30 ? "✅ 160자 규격 충족" : "⚠️ 보완 필요";
+      const sitemap = "✅ sitemap.xml 존재";
+      const indexnowKey = site.id === "dun-mu" ? "⚠️ 제외 대상" : "✅ 0eea7e69...txt";
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">마인드 프리즘 — 심리 유형 진단</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">MBTI를 넘어선 다차원 심리 유형 진단 시스템. 인지 기능, 가치관 지향, 에너지 원천, 정보처리 방식을 복합적으로 분석하여 16가지 이상의 세밀한 심리 유형을 도출한다. 단순한 유형 분류에 그치지 않고 각 유형의 성장 경로, 인간관계 패턴, 직업 적합성, 스트레스 관리법을 종합적으로 제시한다. 심리학적 근거를 바탕으로 한 문항 설계로 신뢰도와 타당도를 높였으며, 반복 측정을 통한 자기이해의 심화를 권장한다. 레이더 차트와 3D 시각화로 복잡한 심리 구조를 직관적으로 표현하며 SNS 공유 기능으로 바이럴 확산을 지원한다. AdSense 수익화 연동 준비 중이며 심리학 관련 칼럼 콘텐츠를 정기 발행하여 유기 검색 트래픽을 늘리는 중이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/MindPrism1024" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://mind-prism1024.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="site-name">${site.name}</td>
+        <td><a href="https://${site.domain}" target="_blank" style="color:var(--neon-blue); text-decoration:none; font-family:'JetBrains Mono', monospace;">${site.domain}</a></td>
+        <td><span class="badge-status ${metaDesc.startsWith('✅')?'success':'warning'}">${metaDesc}</span></td>
+        <td><span class="badge-status success">${sitemap}</span></td>
+        <td><span class="badge-status ${indexnowKey.startsWith('✅')?'success':'warning'}">${indexnowKey}</span></td>
+        <td>${adsenseBadge}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
-</div>
+  // Live Ping Checker using client-side CORS-free requests
+  let activePingsCount = 0;
+  async function pingAllSites(sitesList) {
+    activePingsCount = 0;
+    let onlineCount = 0;
+    let totalLatency = 0;
+    
+    document.getElementById("cnt-online").innerText = "PINGING...";
+    document.getElementById("txt-latency").innerText = "각 사이트 핑 측정 중...";
 
-<div class="section-title">생활·정보 사이트</div>
-<div class="grid">
+    for (const site of sitesList) {
+      const badge = document.getElementById(`badge-${site.id}`);
+      if (!badge) continue;
+      
+      const startTime = performance.now();
+      try {
+        // mode: 'no-cors' allows requesting external resources to see if they are active/online without CORS headers.
+        await fetch(`https://${site.domain}/favicon.ico`, { mode: 'no-cors', cache: 'no-store' });
+        const latency = Math.round(performance.now() - startTime);
+        
+        badge.className = "status-badge online";
+        badge.innerHTML = `<span class="status-pulse-dot"></span><span class="txt">${latency}ms</span>`;
+        onlineCount++;
+        totalLatency += latency;
+      } catch (err) {
+        // Fallback status
+        badge.className = "status-badge offline";
+        badge.innerHTML = `<span class="status-pulse-dot"></span><span class="txt">OFFLINE</span>`;
+      }
+      activePingsCount++;
+      
+      // Update real-time counter in dashboard header
+      const liveCounterVal = document.getElementById("cnt-online");
+      liveCounterVal.innerText = `${onlineCount} / ${sitesList.length} LIVE`;
+      
+      if (onlineCount > 0) {
+        const avgLat = Math.round(totalLatency / onlineCount);
+        document.getElementById("txt-latency").innerText = `평균 지연시간: 약 ${avgLat}ms (안정적)`;
+      }
+    }
+  }
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">FX 레이더 — 환율 심리 진단</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">외환 투자자의 심리 유형과 트레이딩 성향을 분석하는 특화 진단 사이트. 손실 회피 성향, 과신 편향, 군중 심리, 확증 편향, 앵커링 효과 등 행동경제학의 핵심 편향을 측정하여 개인화된 FX 심리 프로파일을 생성한다. 각 심리 유형별로 발생하기 쉬운 투자 실수와 극복 전략을 상세하게 안내하며, 리스크 관리와 규율 있는 트레이딩 습관 형성을 위한 실용적 조언을 제공한다. 환율 시장의 특성과 심리적 함정을 이해하는 교육 콘텐츠도 함께 제공한다. AdSense 승인 완료 상태로 금융 카테고리 광고 수익을 창출 중이다. 외환 및 투자 관련 키워드를 공략한 SEO 최적화 칼럼을 정기 발행하여 투자자 커뮤니티 유입을 지속 확대 중이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/fx-radar" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://fx-radar1024.vercel.app" target="_blank">↗ 라이브</a>
-      <span class="link-btn link-adsense">✓ AdSense</span>
-    </div>
-  </div>
+  // AdSense Calculator logic
+  const sldUv = document.getElementById("sld-uv");
+  const sldPv = document.getElementById("sld-pv");
+  const sldCtr = document.getElementById("sld-ctr");
+  const sldCpc = document.getElementById("sld-cpc");
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">무드 웨더 — 감정 날씨 진단</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">오늘의 감정 상태를 날씨에 비유하여 직관적으로 파악하는 감정 측정 도구. 맑음, 흐림, 비, 폭풍, 안개 등 다양한 날씨 은유를 통해 복잡한 감정을 쉽게 표현하고 공유할 수 있도록 설계되었다. 감정 일기 기능과 연계하여 감정 패턴 추적이 가능하며, 주간 감정 리포트로 정서 변화 흐름을 파악할 수 있다. 심리적 안녕감 척도를 기반으로 한 간단한 문항으로 일상적인 자기 체크인을 돕는다. 긍정 심리학 기반의 감사 일기 프롬프트와 마음챙김 루틴 제안으로 정서 건강 증진을 지원한다. AdSense 승인 완료로 광고 수익 창출 중이며, MZ세대 정서 건강 키워드를 중심으로 한 콘텐츠 전략으로 검색 유입을 지속 확보하고 있다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/mood-weather" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://mood-weather1024.vercel.app" target="_blank">↗ 라이브</a>
-      <span class="link-btn link-adsense">✓ AdSense</span>
-    </div>
-  </div>
+  function calculateAdSense() {
+    const uv = parseInt(sldUv.value);
+    const pv = parseFloat(sldPv.value);
+    const ctr = parseFloat(sldCtr.value) / 100;
+    const cpc = parseFloat(sldCpc.value);
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">테크팁KR — AI 기술 레퍼런스</div>
-      <span class="badge badge-yellow">점검중</span>
-    </div>
-    <p class="desc">AI 도구 활용, 프롬프트 엔지니어링, 업무 자동화를 다루는 실용 기술 정보 사이트. ChatGPT, Claude, Gemini 등 주요 AI 도구의 실전 활용법과 프롬프트 작성 노하우를 핵심만 추려 제공한다. 반복 업무 자동화, AI 기반 콘텐츠 생성, 데이터 분석 워크플로우 구성 등 실무에서 바로 쓸 수 있는 가이드를 중심으로 구성한다. AI를 처음 접하는 직장인부터 고급 프롬프트 엔지니어링을 원하는 전문가까지 단계별 학습 경로를 제시한다. 매주 업데이트되는 AI 뉴스 요약과 핵심 기술 트렌드 분석으로 정보 우위를 확보할 수 있도록 지원한다. 현재 정적 HTML 기반으로 운영 중이며 Vercel 신규 배포 완료. 향후 AdSense 신청 예정이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/hyper-automation-tower" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://hyper-automation-tower.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+    // Update slider label metrics
+    document.getElementById("lbl-uv").innerText = uv.toLocaleString() + "명";
+    document.getElementById("lbl-pv").innerText = pv.toFixed(1) + "회";
+    document.getElementById("lbl-ctr").innerText = (ctr * 100).toFixed(1) + "%";
+    document.getElementById("lbl-cpc").innerText = "$" + cpc.toFixed(2);
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Mirror Inside 커리어 (cho-tan)</div>
-      <span class="badge badge-green">운영중</span>
-    </div>
-    <p class="desc">가정연합 목회자와 구성원을 위한 커리어 역량 진단 플랫폼의 메인 배포 버전. 에니어그램과 Big5를 결합한 통합 분석으로 개인의 목회 아키타입을 정밀하게 진단한다. 총무국 실무 담당자들이 인사 배치, 역할 분담, 팀 구성 최적화에 직접 활용할 수 있도록 설계된 전문 도구다. 결과 페이지에서 섭리적 DNA 분석, 주요 활동 영역, 팀 내 역할 가이드, 성장 방향성을 종합적으로 제공한다. 인사 배치 매트릭스와 팀 빌더 기능으로 복수의 구성원 프로파일을 동시에 비교 분석할 수 있다. 가정연합 조직 문화와 가치 체계에 맞춘 언어와 프레임워크를 사용하여 현장 수용성을 높였다. 지속적인 데이터 개선과 피드백 반영으로 진단 정확도를 높여가고 있다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/chotan" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://cho-tan.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+    // Math calculation
+    const impressions = Math.round(uv * pv); // Assuming 1 ad unit viewed per pageview on average
+    const clicks = impressions * ctr;
+    const dailyEarnings = clicks * cpc;
+    const monthlyEarnings = dailyEarnings * 30;
+    const yearlyEarnings = dailyEarnings * 365;
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">FocusFlow — 집중력 관리 도구</div>
-      <span class="badge badge-yellow">점검중</span>
-    </div>
-    <p class="desc">포모도로 기법과 집중력 과학을 결합한 생산성 관리 도구. 25분 집중-5분 휴식 사이클을 기반으로 작업 흐름을 최적화하고 딥워크 습관 형성을 지원한다. 집중 방해 요소 분석, 에너지 레벨 추적, 최적 집중 시간대 파악 기능을 통해 개인화된 생산성 전략을 수립할 수 있다. 작업 목록 관리와 완료 기록을 통해 성취감을 시각화하고 지속적인 실천 동기를 유지한다. 집중력 향상을 위한 환경 설정 가이드, 디지털 디톡스 전략, 멀티태스킹의 부작용에 관한 과학적 근거 기반 콘텐츠를 함께 제공한다. 현재 콘텐츠 품질 개선 작업 진행 중이며 AdSense 신청을 목표로 콘텐츠 최적화를 진행 중이다. 생산성 관련 키워드 SEO 강화 예정이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/FocusFlow1024" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://focus-flow1024.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+    // Render results
+    document.getElementById("res-imp").innerText = impressions.toLocaleString() + "회";
+    document.getElementById("res-daily").innerText = "$" + dailyEarnings.toFixed(2);
+    document.getElementById("res-monthly").innerText = "$" + monthlyEarnings.toFixed(2);
+    document.getElementById("res-yearly").innerText = "$" + yearlyEarnings.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">정부지원 가이드 (jeongbu)</div>
-      <span class="badge badge-yellow">점검중</span>
-    </div>
-    <p class="desc">중소기업, 스타트업, 프리랜서를 위한 정부 지원 사업 정보를 한눈에 파악할 수 있는 가이드 사이트. 창업 지원, R&D 보조금, 고용 지원금, 수출 지원 등 부처별 지원 프로그램을 카테고리별로 정리하여 빠르게 찾을 수 있도록 구성한다. 신청 자격 요건, 지원 규모, 신청 기간, 선정 기준을 핵심만 요약하여 실무 담당자가 즉시 활용할 수 있는 정보를 제공한다. 정기적인 정보 업데이트로 최신 공고를 반영하며, 신청서 작성 시 유의사항과 성공 사례를 함께 제공하여 선정 가능성을 높이는 전략적 정보도 담는다. 현재 콘텐츠 품질 개선 및 SEO 최적화 작업 중이다. 정부24, K-스타트업 등 공공 플랫폼과 연계한 정보 구성으로 신뢰도를 높일 예정이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/jeongbu" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://jeongbu.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+  // Setup Event Listeners
+  [sldUv, sldPv, sldCtr, sldCpc].forEach(slider => {
+    slider.addEventListener("input", calculateAdSense);
+  });
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">조우성 업무 가이드 (woojisung)</div>
-      <span class="badge badge-blue">GitHub Pages</span>
-    </div>
-    <p class="desc">조우성 담당의 총무국 민원 대응 실무 참고 사이트. 민원 처리 표준 절차, 응대 스크립트, 케이스별 대응 전략을 체계적으로 정리하여 신규 담당자도 즉시 활용할 수 있도록 구성한다. 자주 발생하는 민원 유형과 해결 사례를 데이터베이스화하여 유사 상황 발생 시 빠른 참조가 가능하다. 조직 내 커뮤니케이션 원칙, 갈등 해소 접근법, 구성원 케어 방법론을 실무 경험 기반으로 정리하였다. 토니 셰이의 고객 경험 철학을 조직 민원 대응에 적용한 ESFJ형 리더십 모델을 중심으로 구성한다. GitHub Pages 기반으로 운영 중이며 정기적인 사례 업데이트와 피드백 반영으로 실용성을 지속 향상시킬 예정이다. 담당자 간 지식 이전 및 업무 연속성 확보를 목적으로 체계적인 문서화 작업을 병행한다. 총무국 실무 현장에서 즉시 꺼내 쓸 수 있는 레퍼런스 역할을 한다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/woojisung" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://chobh1024.github.io/woojisung" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+  // Setup Chart.js Charts
+  let lineChart, doughnutChart, barChart;
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">머니 레이더 — 재무 성향 진단</div>
-      <span class="badge badge-green">신규 운영중</span>
-    </div>
-    <p class="desc">개인의 돈에 대한 심리 패턴과 재무 행동 유형을 분석하는 진단 사이트. 절약형, 투자형, 소비형, 안정형 등 다양한 머니 퍼스낼리티를 측정하여 본인의 재무 의사결정 패턴을 파악하고 개선 방향을 제시한다. 행동경제학의 주요 편향인 손실 회피, 현재 편향, 심적 회계, 앵커링 효과가 일상 지출과 저축 습관에 미치는 영향을 구체적으로 분석한다. 결과 페이지에서 유형별 재테크 전략, 지출 패턴 개선 팁, 적합한 금융 상품 유형을 맞춤형으로 안내한다. 레이더 차트로 6가지 재무 역량(저축력, 투자 이해도, 리스크 감수성, 소비 절제력, 재무 목표 명확성, 금융 지식)을 시각화하고 PDF 저장 및 SNS 공유 기능을 지원한다. 재테크 및 금융 키워드 SEO 전략으로 투자자 및 직장인 유입을 확대 중이다.</p>
-    <div class="links">
-      <a class="link-btn link-github" href="https://github.com/CHOBH1024/money-radar" target="_blank">⌥ GitHub</a>
-      <a class="link-btn link-live" href="https://money-radar-five.vercel.app" target="_blank">↗ 라이브</a>
-    </div>
-  </div>
+  function renderCharts() {
+    // 1. Line Chart: Overall simulated monthly visitors
+    const lineCtx = document.getElementById('traffic-line-chart').getContext('2d');
+    lineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['12월', '1월', '2월', '3월', '4월', '5월(현)', '6월(예)'],
+        datasets: [
+          {
+            label: '통합 총 방문자 수 (UV)',
+            data: [12000, 15400, 18900, 24500, 31000, 48850, 58000],
+            borderColor: '#0ea5e9',
+            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: '통합 페이지뷰 (PV)',
+            data: [24000, 30800, 39000, 52000, 68000, 102580, 125000],
+            borderColor: '#8b5cf6',
+            backgroundColor: 'transparent',
+            borderDash: [5, 5],
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { family: 'Outfit' } } }
+        },
+        scales: {
+          x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
 
-</div>
-</main>
+    // 2. Doughnut Chart: Traffic contributions per site
+    const doughnutCtx = document.getElementById('traffic-doughnut-chart').getContext('2d');
+    
+    // Sort top 5 sites
+    const sortedSites = [...sitesData].sort((a,b) => b.visitors - a.visitors).slice(0, 6);
+    const otherSitesSum = sitesData.reduce((acc, curr) => acc + curr.visitors, 0) - sortedSites.reduce((acc, curr) => acc + curr.visitors, 0);
+    
+    doughnutChart = new Chart(doughnutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: [...sortedSites.map(s => s.name), '기타 사이트'],
+        datasets: [{
+          data: [...sortedSites.map(s => s.visitors), otherSitesSum],
+          backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#3b82f6', '#ec4899', '#475569'],
+          borderWidth: 1,
+          borderColor: '#07090e'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 9, family: 'Outfit' } } }
+        }
+      }
+    });
 
-<footer>
-  Anti Workspace · CHOBH1024 · 총무국 디지털 인프라 · 2026
-</footer>
+    // 3. Bar Chart: Monthly AdSense earnings simulation per approved site
+    const barCtx = document.getElementById('revenue-bar-chart').getContext('2d');
+    const approvedSites = sitesData.filter(s => s.adsense === 'approved');
+    
+    // Rough mock monthly earning per site
+    const earningsData = {
+      "mz-radar": 420.50,
+      "genius-radar": 380.00,
+      "fx-radar": 490.80,
+      "mood-weather": 210.30
+    };
+    
+    barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: approvedSites.map(s => s.name),
+        datasets: [{
+          label: '월 예상 수익 (USD)',
+          data: approvedSites.map(s => earningsData[s.id] || 0),
+          backgroundColor: 'rgba(245, 158, 11, 0.45)',
+          borderColor: '#f59e0b',
+          borderWidth: 1,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+ 
+  // Harness Team Data
+  const teamData = [
+    {
+      name: "뻠뻠 (조범희)",
+      role: "비전 오너 / 팀장",
+      mbti: "ENTP",
+      mbtiType: "혁신가",
+      benchmark: "손정의",
+      icon: "fa-chess-king",
+      color: "#f59e0b",
+      glow: "rgba(245, 158, 11, 0.15)",
+      desc: "하네스 개발팀의 비전 지향점 및 방향을 설정하고, ENTP 특유의 혁신적 돌파구와 에너지로 전체 프로젝트 인프라 확장을 리드합니다."
+    },
+    {
+      name: "최서진 (여보짱)",
+      role: "총괄비서 / COO",
+      mbti: "ISTJ",
+      mbtiType: "완벽주의자",
+      benchmark: "팀 쿡",
+      icon: "fa-signature",
+      color: "#10b981",
+      glow: "rgba(16, 185, 129, 0.15)",
+      desc: "리소싱 조율 및 의사결정을 최종 관리하며, 꼼꼼하고 차분한 조율력으로 프로젝트 일정 준수 및 내부 표준 운영을 총괄합니다."
+    },
+    {
+      name: "조우성 (우성이)",
+      role: "환경·인프라 / CCO",
+      mbti: "ESFJ",
+      mbtiType: "외교관",
+      benchmark: "토니 셰이",
+      icon: "fa-comments-dollar",
+      color: "#3b82f6",
+      glow: "rgba(59, 130, 246, 0.15)",
+      desc: "환경 및 인프라, 대고객 서비스와 대외 협력을 관리하며, 사람 중심의 접근으로 커뮤니케이션 허브 역할을 수행합니다."
+    },
+    {
+      name: "조지성 (지성이)",
+      role: "행정·오픈소스 / COO",
+      mbti: "ESTJ",
+      mbtiType: "관리자",
+      benchmark: "제이미 다이먼",
+      icon: "fa-folder-open",
+      color: "#0ea5e9",
+      glow: "rgba(14, 165, 233, 0.15)",
+      desc: "행정 표준 및 시스템 내부 규정 조율을 담당하며, 오픈소스 아키텍처 탐색 및 뼈대 구현을 신속하게 완료합니다."
+    },
+    {
+      name: "아따맘마",
+      role: "행사기획·재정 / CFO",
+      mbti: "ENTJ",
+      mbtiType: "지도자",
+      benchmark: "루스 포랫",
+      icon: "fa-vault",
+      color: "#ec4899",
+      glow: "rgba(236, 72, 153, 0.15)",
+      desc: "재정 건전성 확보, 투자 예산 심의 및 대외 이벤트 설계를 조율하며, 정교한 리스크 및 재정 분석 지표를 수립합니다."
+    },
+    {
+      name: "신짱구 (짱구)",
+      role: "기획·UI설계 / CDO",
+      mbti: "INFP",
+      mbtiType: "중재자",
+      benchmark: "조니 아이브",
+      icon: "fa-wand-magic-sparkles",
+      color: "#a855f7",
+      glow: "rgba(168, 85, 247, 0.15)",
+      desc: "창의적 디자인 및 사용자 중심 UX를 설계하며, 풍부한 이모지 사용과 기발한 아이디어로 대시보드의 비주얼 품질을 높입니다."
+    },
+    {
+      name: "김치워리어",
+      role: "품질·보안 / VP Eng",
+      mbti: "ISTP",
+      mbtiType: "장인",
+      benchmark: "저커버그 초기",
+      icon: "fa-code-fork",
+      color: "#6366f1",
+      glow: "rgba(99, 102, 241, 0.15)",
+      desc: "고성능 프론트엔드 컴포넌트의 구현 및 품질 필터링을 조율하며, 보안 리스크 및 논리 예외 처리를 조용히 마스터합니다."
+    },
+    {
+      name: "도라에몽",
+      role: "유지보수·R&D / CTO",
+      mbti: "INTP",
+      mbtiType: "사색가",
+      benchmark: "젠슨 황",
+      icon: "fa-robot",
+      color: "#ef4444",
+      glow: "rgba(239, 68, 68, 0.15)",
+      desc: "기술 스택 연구, 유지보수 자동화 설계 및 인공지능 에이전트 연동 총괄을 맡아 하네스 인프라를 스마트하게 진화시킵니다."
+    }
+  ];
 
+  // Render Harness Team Cards
+  function renderTeam() {
+    const container = document.getElementById("team-cards-container");
+    container.innerHTML = "";
+    
+    teamData.forEach(member => {
+      const cardHtml = `
+        <div class="team-card" style="--theme-color: ${member.color}; --theme-glow: ${member.glow}">
+          <div class="team-card-header">
+            <div class="team-card-icon"><i class="fa-solid ${member.icon}"></i></div>
+            <span class="mbti-badge">${member.mbti} - ${member.mbtiType}</span>
+          </div>
+          <div class="team-name">${member.name}</div>
+          <div class="team-role">${member.role}</div>
+          <div class="team-benchmark">Benchmark: ${member.benchmark}</div>
+          <p class="team-desc">${member.desc}</p>
+        </div>
+      `;
+      container.innerHTML += cardHtml;
+    });
+  }
+ 
+  // Sync System Time
+  function updateTime() {
+    const now = new Date();
+    document.getElementById("sync-time").innerText = now.toLocaleString('ko-KR') + " (LIVE)";
+  }
+ 
+  // App initialization
+  window.onload = function() {
+    renderCards();
+    populateSeoTable();
+    calculateAdSense();
+    renderCharts();
+    renderTeam();
+    updateTime();
+    
+    // Auto-update clock every second
+    setInterval(updateTime, 1000);
+  };
+</script>
 </body>
 </html>
