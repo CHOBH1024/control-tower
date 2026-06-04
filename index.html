@@ -790,7 +790,274 @@
       color: var(--text-muted);
       line-height: 1.55;
       word-break: keep-all;
-    }(--text-muted);
+    }
+
+    /* Interactive Agent Modal Style */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 7, 12, 0.8);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .agent-modal {
+      background: rgba(13, 17, 28, 0.95);
+      border: 1px solid var(--theme-color, var(--aurora-blue));
+      border-radius: 28px;
+      padding: 36px;
+      max-width: 550px;
+      width: 90%;
+      box-shadow: 0 30px 60px -15px var(--theme-glow, rgba(99, 102, 241, 0.4));
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    
+    .modal-overlay.active .agent-modal {
+      transform: translateY(0) scale(1);
+    }
+    
+    .modal-close-btn {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .modal-close-btn:hover {
+      background: var(--aurora-rose);
+      color: var(--text-bright);
+      border-color: var(--aurora-rose);
+    }
+    
+    .modal-header {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .modal-avatar-box {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background: var(--theme-glow);
+      color: var(--theme-color);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .modal-title-group h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-bright);
+    }
+    
+    .modal-title-group .mbti-span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--theme-color);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    
+    .modal-quote {
+      font-style: italic;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--theme-color);
+      padding: 12px 18px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+    
+    /* Stats gauge bar styling */
+    .stat-bars-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .stat-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    
+    .stat-label-row span.val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-bright);
+    }
+    
+    .stat-bar-outer {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .stat-bar-inner {
+      height: 100%;
+      background: var(--theme-color);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .modal-footer-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px dashed rgba(255, 255, 255, 0.06);
+      padding-top: 16px;
+      line-height: 1.6;
+    }
+    
+    /* Agent Simulator Widget Style */
+    .sim-panel {
+      margin-top: 30px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+    }
+    
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .sim-btn {
+      background: linear-gradient(135deg, var(--aurora-blue), #6366f1);
+      border: none;
+      color: var(--text-bright);
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s;
+    }
+    
+    .sim-btn:hover {
+      box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    .sim-btn:disabled {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+    
+    .sim-terminal {
+      background: #060913;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      min-height: 240px;
+      max-height: 380px;
+      overflow-y: auto;
+      box-shadow: inset 0 10px 30px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    
+    .sim-terminal-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding-bottom: 8px;
+    }
+    
+    .sim-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    
+    .sim-dot.red { background: #ef4444; }
+    .sim-dot.yellow { background: #f59e0b; }
+    .sim-dot.green { background: #10b981; }
+    
+    .sim-terminal-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .sim-log-line {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      animation: fade-in-log 0.25s forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fade-in-log {
+      to { opacity: 1; }
+    }
+    
+    .sim-log-time {
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    
+    .sim-log-sender {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    
+    .sim-log-msg {
+      color: #cbd5e1;
+      word-break: break-all;
+    }
+    
+    .sim-log-system {
+      color: var(--aurora-mint);
+    }
+  </style>(--text-muted);
       line-height: 1.5;
       word-break: keep-all;
     }
@@ -1005,14 +1272,53 @@
     </div>
   </div>
 
+  <!-- Agent Collaboration Simulator Section -->
+  <div class="panel-card sim-panel" style="margin-top: 30px;">
+    <div class="panel-title sim-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <i class="fa-solid fa-laptop-code"></i>
+        <span>🤖 에이전트 자율 협업 배포 시뮬레이터 (Agent Sprint Console)</span>
+      </div>
+      <button class="sim-btn" id="start-sim-btn" onclick="startAgentSimulation()">
+        <i class="fa-solid fa-play"></i>
+        <span>자율 협업 스프린트 시작</span>
+      </button>
+    </div>
+    <div class="sim-terminal">
+      <div class="sim-terminal-bar">
+        <span class="sim-dot red"></span>
+        <span class="sim-dot yellow"></span>
+        <span class="sim-dot green"></span>
+        <span style="font-size:0.7rem; color:var(--text-muted); margin-left:8px; font-weight:600;">harness-agent-orchestrator@v1.0.0</span>
+      </div>
+      <div class="sim-terminal-content" id="sim-terminal-output">
+        <div class="sim-log-line">
+          <span class="sim-log-time">[16:00:00]</span>
+          <span class="sim-log-msg sim-log-system">System: 콘솔이 준비되었습니다. '자율 협업 스프린트 시작' 버튼을 누르면 8명의 에이전트가 가상 사이트 기획/배포 스프린트를 시작합니다.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Harness Team Section -->
   <div class="panel-card team-panel" style="margin-top: 30px;">
     <div class="panel-title">
       <i class="fa-solid fa-users-viewfinder"></i>
       <span>하네스 개발팀 — 에이전트 & 커맨드 프로필 (Harness Dev Team)</span>
     </div>
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px; line-height:1.6;">각 에이전트 카드를 클릭하면 상세 능력치(MBTI 역량 지표), 한마디 어록 및 시너지 관계 정보를 확인할 수 있습니다.</p>
     <div class="team-grid" id="team-cards-container">
       <!-- Cards will be populated here -->
+    </div>
+  </div>
+
+  <!-- Interactive Agent Modal Overlay -->
+  <div class="modal-overlay" id="agent-modal-overlay">
+    <div class="agent-modal" id="agent-modal-content">
+      <div class="modal-close-btn" onclick="closeAgentModal()"><i class="fa-solid fa-xmark"></i></div>
+      <div id="agent-modal-body">
+        <!-- Content will be dynamically injected by JavaScript -->
+      </div>
     </div>
   </div>
 
@@ -1533,7 +1839,15 @@
       icon: "fa-chess-king",
       color: "#f59e0b",
       glow: "rgba(245, 158, 11, 0.15)",
-      desc: "하네스 개발팀의 비전 지향점 및 방향을 설정하고, ENTP 특유의 혁신적 돌파구와 에너지로 전체 프로젝트 인프라 확장을 리드합니다."
+      desc: "하네스 개발팀의 비전 지향점 및 방향을 설정하고, ENTP 특유의 혁신적 돌파구와 에너지로 전체 프로젝트 인프라 확장을 리드합니다.",
+      quote: "안 될 게 어딨어? 일단 레포 파고 API부터 때려 박아보자고! 🚀",
+      skills: [
+        { name: "비전 및 기획력 (Vision)", val: 98 },
+        { name: "인프라 돌파력 (Execution)", val: 95 },
+        { name: "기술적 응용력 (R&D)", val: 90 },
+        { name: "규격 예외 디테일 (Detail)", val: 60 }
+      ],
+      synergy: "CDO 짱구(INFP)의 비주얼 감각과 COO 최서진(ISTJ)의 꼼꼼한 피드백이 만날 때 초광속 서비스 배포를 실현해냅니다."
     },
     {
       name: "최서진 (여보짱)",
@@ -1544,7 +1858,15 @@
       icon: "fa-signature",
       color: "#10b981",
       glow: "rgba(16, 185, 129, 0.15)",
-      desc: "리소싱 조율 및 의사결정을 최종 관리하며, 꼼꼼하고 차분한 조율력으로 프로젝트 일정 준수 및 내부 표준 운영을 총괄합니다."
+      desc: "리소싱 조율 및 의사결정을 최종 관리하며, 꼼꼼하고 차분한 조율력으로 프로젝트 일정 준수 및 내부 표준 운영을 총괄합니다.",
+      quote: "꼼꼼하지 못한 배포는 결국 장애로 돌아옵니다. 가이드 규격을 철저히 준수하세요. 📋",
+      skills: [
+        { name: "리스크 통제 (Risk Control)", val: 99 },
+        { name: "일정 및 리소스 관리 (PM)", val: 98 },
+        { name: "규격 검증력 (Audit)", val: 95 },
+        { name: "모험 및 과감성 (Risk)", val: 55 }
+      ],
+      synergy: "ENTP 뻠뻠이 끊임없이 던지는 아이디어 폭탄들을 논리적인 구조와 설계도로 다듬어 프로젝트가 붕괴하지 않게 지탱합니다."
     },
     {
       name: "조우성 (우성이)",
@@ -1555,7 +1877,15 @@
       icon: "fa-comments-dollar",
       color: "#3b82f6",
       glow: "rgba(59, 130, 246, 0.15)",
-      desc: "환경 및 인프라, 대고객 서비스와 대외 협력을 관리하며, 사람 중심의 접근으로 커뮤니케이션 허브 역할을 수행합니다."
+      desc: "환경 및 인프라, 대고객 서비스와 대외 협력을 관리하며, 사람 중심의 접근으로 커뮤니케이션 허브 역할을 수행합니다.",
+      quote: "개발도 결국 사람이 쓰는 거죠. 사용자들이 겪는 고민들을 우성 위키에 즉각 올려둘게요! 💬",
+      skills: [
+        { name: "사용자 분석 및 소통 (CS)", val: 98 },
+        { name: "커뮤니케이션 조율 (Diplomacy)", val: 95 },
+        { name: "매뉴얼 구축력 (Wiki)", val: 92 },
+        { name: "코드 로우레벨 구현 (Coding)", val: 65 }
+      ],
+      synergy: "ESTJ 조지성과 함께 행정과 소통의 양대 날개를 담당하며, 실제 사용자 불만과 요구사항을 파악하여 실질적인 트래픽 동선을 만듭니다."
     },
     {
       name: "조지성 (지성이)",
@@ -1566,7 +1896,15 @@
       icon: "fa-folder-open",
       color: "#0ea5e9",
       glow: "rgba(14, 165, 233, 0.15)",
-      desc: "행정 표준 및 시스템 내부 규정 조율을 담당하며, 오픈소스 아키텍처 탐색 및 뼈대 구현을 신속하게 완료합니다."
+      desc: "행정 표준 및 시스템 내부 규정 조율을 담당하며, 오픈소스 아키텍처 탐색 및 뼈대 구현을 신속하게 완료합니다.",
+      quote: "표준 규칙이 무너지면 협업 효율이 0이 됩니다. Git 브랜치 전략 똑바로 지켜주세요. 📊",
+      skills: [
+        { name: "규격 표준 준수 (Standard)", val: 96 },
+        { name: "오픈소스 탐색력 (Research)", val: 93 },
+        { name: "통제 및 행정력 (Gov)", val: 90 },
+        { name: "창의적 임기응변 (Flexibility)", val: 60 }
+      ],
+      synergy: "ISTJ 최서진과 환상의 호흡을 자랑하며, 14개 도메인에 IndexNow 및 sitemap.xml 규격이 빈틈없이 탑재되었는지 최종 승인합니다."
     },
     {
       name: "아따맘마",
@@ -1577,7 +1915,15 @@
       icon: "fa-vault",
       color: "#ec4899",
       glow: "rgba(236, 72, 153, 0.15)",
-      desc: "재정 건전성 확보, 투자 예산 심의 및 대외 이벤트 설계를 조율하며, 정교한 리스크 및 재정 분석 지표를 수립합니다."
+      desc: "재정 건전성 확보, 투자 예산 심의 및 대외 이벤트 설계를 조율하며, 정교한 리스크 및 재정 분석 지표를 수립합니다.",
+      quote: "감정은 배제하고 숫자로 말합시다. ROI(투자대비수익) 안 나오는 도메인은 가차 없이 정리합니다. 💰",
+      skills: [
+        { name: "재무 리스크 분석 (Finance)", val: 98 },
+        { name: "예산 투자 결단력 (Investment)", val: 95 },
+        { name: "수익 모델 설계 (Monetize)", val: 94 },
+        { name: "감정적 조율 (Empathy)", val: 50 }
+      ],
+      synergy: "뻠뻠의 무분별한 서버 인프라 확장을 리스크로 인지하고, 트래픽 유입이 확실한 머니 레이더 등 승인 도메인 중심의 광고 단가 최적화 예산을 통제합니다."
     },
     {
       name: "신짱구 (짱구)",
@@ -1588,7 +1934,15 @@
       icon: "fa-wand-magic-sparkles",
       color: "#a855f7",
       glow: "rgba(168, 85, 247, 0.15)",
-      desc: "창의적 디자인 및 사용자 중심 UX를 설계하며, 풍부한 이모지 사용과 기발한 아이디어로 대시보드의 비주얼 품질을 높입니다."
+      desc: "창의적 디자인 및 사용자 중심 UX를 설계하며, 풍부한 이모지 사용과 기발한 아이디어로 대시보드의 비주얼 품질을 높입니다.",
+      quote: "이 카드 모서리를 둥글게 깎고 바이올렛 그라디언트를 넣으면 너무 힙하고 이쁠 것 같아요! 🎨✨",
+      skills: [
+        { name: "디자인 미학 (Aesthetics)", val: 97 },
+        { name: "창의적 감각 (Creativity)", val: 94 },
+        { name: "이모지/비주얼 센스 (Emoji)", val: 99 },
+        { name: "시간 약속 (Deadline)", val: 62 }
+      ],
+      synergy: "VP 김치워리어(ISTP)의 정교한 프론트엔드 퍼포먼스 빌드를 통해 뜬구름 같던 UI 아이디어가 실제 최고급 브라우저 화면으로 구현됩니다."
     },
     {
       name: "김치워리어",
@@ -1599,7 +1953,15 @@
       icon: "fa-code-fork",
       color: "#6366f1",
       glow: "rgba(99, 102, 241, 0.15)",
-      desc: "고성능 프론트엔드 컴포넌트의 구현 및 품질 필터링을 조율하며, 보안 리스크 및 논리 예외 처리를 조용히 마스터합니다."
+      desc: "고성능 프론트엔드 컴포넌트의 구현 및 품질 필터링을 조율하며, 보안 리스크 및 논리 예외 처리를 조용히 마스터합니다.",
+      quote: "디자인 안 나왔으면 말 마세요. 빌드 에러 처리 끝났고, raw 스크립트 이스케이프 완료했습니다. 🛡️",
+      skills: [
+        { name: "코드 결함 디버깅 (Debug)", val: 96 },
+        { name: "보안 취약점 감쇄 (Security)", val: 94 },
+        { name: "리팩토링 및 클린코드 (Refactor)", val: 92 },
+        { name: "대외 커뮤니케이션 (Speech)", val: 40 }
+      ],
+      synergy: "INFP 짱구의 복잡하고 까다로운 UI 컴포넌트를 성능 저하 없이 가장 가볍고 안전한 Vanilla CSS와 마크업 형태로 코딩해냅니다."
     },
     {
       name: "도라에몽",
@@ -1610,7 +1972,15 @@
       icon: "fa-robot",
       color: "#ef4444",
       glow: "rgba(239, 68, 68, 0.15)",
-      desc: "기술 스택 연구, 유지보수 자동화 설계 및 인공지능 에이전트 연동 총괄을 맡아 하네스 인프라를 스마트하게 진화시킵니다."
+      desc: "기술 스택 연구, 유지보수 자동화 설계 및 인공지능 에이전트 연동 총괄을 맡아 하네스 인프라를 스마트하게 진화시킵니다.",
+      quote: "CORS 차단은 브라우저 fetch options에 mode: 'no-cors'를 적용해 우회하는 것이 논리적입니다. 🤖",
+      skills: [
+        { name: "자동화 로직 설계 (Automation)", val: 98 },
+        { name: "기술 아키텍처 (Tech Stack)", val: 95 },
+        { name: "비동기 API 링킹 (REST API)", val: 93 },
+        { name: "사교 활동 (Social)", val: 45 }
+      ],
+      synergy: "뻠뻠의 기획 지시 하에 Vercel API framework null 우회 로직을 발명하여, AI 에이전트가 단 몇 초 만에 사이트를 자동 릴리즈하게 돕습니다."
     }
   ];
 
@@ -1621,7 +1991,7 @@
     
     teamData.forEach(member => {
       const cardHtml = `
-        <div class="team-card" style="--theme-color: ${member.color}; --theme-glow: ${member.glow}">
+        <div class="team-card" style="--theme-color: ${member.color}; --theme-glow: ${member.glow}; cursor: pointer;" onclick="openAgentModal('${member.name}')">
           <div class="team-card-header">
             <div class="team-card-icon"><i class="fa-solid ${member.icon}"></i></div>
             <span class="mbti-badge">${member.mbti} - ${member.mbtiType}</span>
@@ -1635,7 +2005,149 @@
       container.innerHTML += cardHtml;
     });
   }
- 
+
+  // Interactive Agent Modal Controllers
+  function openAgentModal(name) {
+    const agent = teamData.find(a => a.name === name);
+    if (!agent) return;
+    
+    const overlay = document.getElementById("agent-modal-overlay");
+    const content = document.getElementById("agent-modal-content");
+    const body = document.getElementById("agent-modal-body");
+    
+    // Bind custom theme colors for the modal styling
+    content.style.setProperty("--theme-color", agent.color);
+    content.style.setProperty("--theme-glow", agent.glow);
+    
+    // Generate skill bars HTML
+    let skillsHtml = "";
+    agent.skills.forEach(skill => {
+      skillsHtml += `
+        <div class="stat-row">
+          <div class="stat-label-row">
+            <span>${skill.name}</span>
+            <span class="val">${skill.val}%</span>
+          </div>
+          <div class="stat-bar-outer">
+            <div class="stat-bar-inner" id="bar-${agent.name}-${skill.name.split(' ')[0]}" style="width: 0%"></div>
+          </div>
+        </div>
+      `;
+    });
+    
+    body.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar-box"><i class="fa-solid ${agent.icon}"></i></div>
+        <div class="modal-title-group">
+          <h2>${agent.name}</h2>
+          <div class="mbti-span">${agent.mbti} · ${agent.mbtiType} (Benchmark: ${agent.benchmark})</div>
+        </div>
+      </div>
+      <div class="modal-quote">"${agent.quote}"</div>
+      <div class="stat-bars-container">
+        <h4 style="font-size:0.85rem; color:var(--text-bright); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-chart-bar" style="margin-right:6px; color:${agent.color}"></i>MBTI 코어 역량 지표</h4>
+        ${skillsHtml}
+      </div>
+      <div class="modal-footer-meta">
+        <strong style="color:var(--text-bright)">🤝 협업 시너지 팩터:</strong><br>
+        <span style="font-size:0.78rem;">${agent.synergy}</span>
+      </div>
+    `;
+    
+    overlay.classList.add("active");
+    
+    // Trigger gauge bar animations after modal renders
+    setTimeout(() => {
+      agent.skills.forEach(skill => {
+        const bar = document.getElementById(`bar-${agent.name}-${skill.name.split(' ')[0]}`);
+        if (bar) bar.style.width = `${skill.val}%`;
+      });
+    }, 50);
+  }
+
+  function closeAgentModal() {
+    const overlay = document.getElementById("agent-modal-overlay");
+    overlay.classList.remove("active");
+  }
+
+  // Close modal when clicking outside content area
+  document.getElementById("agent-modal-overlay").addEventListener("click", function(e) {
+    if (e.target === this) {
+      closeAgentModal();
+    }
+  });
+
+  // Agent Collaboration Simulator Log Sequences
+  const simLogs = [
+    { sender: "System", type: "system", msg: "새로운 사이트 기획 배포 명령이 하사되었습니다. 프로젝트명: [머니 레이더 (money-radar)]" },
+    { sender: "뻠뻠 (CEO - ENTP)", type: "#f59e0b", msg: "이번에 행동경제학과 재무 심리를 타겟팅하는 '머니 레이더' 기획안 올림. 이거 유입 잘 타면 애드센스 고단가 무조건 터진다! 🚀" },
+    { sender: "아따맘마 (CFO - ENTJ)", type: "#ec4899", msg: "재무 심리 진단은 키워드 단가(CPC)가 평균 3.2배 높습니다. 일일 트래픽 5,000명 기준 월 매출 $1,100 달성 가능성 확인. 예산 승인합니다. 💰" },
+    { sender: "최서진 (COO - ISTJ)", type: "#10b981", msg: "기획 세부 가이드라인 수립. 번들 용량 한계치를 3MB로 규정하며, Vercel framework Vite 충돌 배제 옵션을 지키세요. 📋" },
+    { sender: "신짱구 (CDO - INFP)", type: "#a855f7", msg: "우와! 머니 컨셉이니까 아쿠아 민트랑 바이올렛 글라스모피즘 스타일링 시안 짰어요! 너무 산뜻하지 않나요? 🎨✨" },
+    { sender: "최서진 (COO - ISTJ)", type: "#10b981", msg: "디자인 검토. 둥글기 깎기와 섀도우 연출 상태 양호. 가이드 통과. CDO 시안대로 배포 진행 지시." },
+    { sender: "도라에몽 (CTO - INTP)", type: "#ef4444", msg: "자동 사이트 생성 엔진 `generate-site.js` 컴파일러 구동 시작. `new-site-config.json`을 읽고 리액트 컴포넌트 자동 빌드 완료. 💻" },
+    { sender: "김치워리어 (VP - ISTP)", type: "#6366f1", msg: "생성된 SPA index.html 코드 검사 중... 코드 내 script 블록 보안 취약 필터링 및 템플릿 토큰 마스킹 완료. 예외 없음. 🛡️" },
+    { sender: "조지성 (COO - ESTJ)", type: "#0ea5e9", msg: "Git 브랜치 규정 확인. `main` 브랜치에 안전 병합 완료. Vercel REST API `/v13/deployments` 전송 규격 승인. 📊" },
+    { sender: "도라에몽 (CTO - INTP)", type: "#ef4444", msg: "Vercel API를 통한 프로젝트 프레임워크 패치(framework: null) 처리 후 배포 트리거 생성. Vercel CDN 릴리즈 성공! URL: money-radar-five.vercel.app 🚀" },
+    { sender: "조우성 (CCO - ESFJ)", type: "#3b82f6", msg: "실시간 HTTP ping 및 CORS 우회 no-cors 패치 완료. 도메인 관제 상태 양호. woojisung 민원 위키에 가이드 등재 완료! 💬" },
+    { sender: "뻠뻠 (CEO - ENTP)", type: "#f59e0b", msg: "도메인 실시간 핑 돌았다! 이제 이 도메인 검색 로봇 호출해야 하니까 IndexNow 일제히 전송 돌려!" },
+    { sender: "조지성 (COO - ESTJ)", type: "#0ea5e9", msg: "IndexNow API 호출 진행. 0eea7e699d1fd5eddd032d47db106793.txt 키 인증을 통해 Bing, Yandex 로봇 핑 갱신 완료. 🔍" },
+    { sender: "System", type: "system", msg: "배포 파이프라인 가동 완료. 신규 자산이 정상 운영 상태로 감지되었습니다. 🗼" }
+  ];
+
+  let simIntervalId = null;
+  function startAgentSimulation() {
+    const btn = document.getElementById("start-sim-btn");
+    const output = document.getElementById("sim-terminal-output");
+    
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 스프린트 진행 중...`;
+    output.innerHTML = "";
+    
+    let currentStep = 0;
+    
+    function logNextStep() {
+      if (currentStep >= simLogs.length) {
+        clearInterval(simIntervalId);
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> 자율 협업 재실행`;
+        return;
+      }
+      
+      const step = simLogs[currentStep];
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+      
+      const logLine = document.createElement("div");
+      logLine.className = "sim-log-line";
+      
+      if (step.type === "system") {
+        logLine.innerHTML = `
+          <span class="sim-log-time">${timeStr}</span>
+          <span class="sim-log-msg sim-log-system">${step.msg}</span>
+        `;
+      } else {
+        logLine.innerHTML = `
+          <span class="sim-log-time">${timeStr}</span>
+          <span class="sim-log-sender" style="color: ${step.type}">${step.sender}:</span>
+          <span class="sim-log-msg">${step.msg}</span>
+        `;
+      }
+      
+      output.appendChild(logLine);
+      
+      // Auto-scroll to bottom of the terminal console
+      const terminal = document.querySelector(".sim-terminal");
+      terminal.scrollTop = terminal.scrollHeight;
+      
+      currentStep++;
+    }
+    
+    // Log the first step immediately, and subsequent steps every 1.5 seconds
+    logNextStep();
+    simIntervalId = setInterval(logNextStep, 1500);
+  }
+
   // Sync System Time
   function updateTime() {
     const now = new Date();
