@@ -892,6 +892,183 @@ body { transition: --theme-accent .6s ease; }
   padding:5px 12px;
 }
 .theme-swatch { width:8px; height:8px; border-radius:50%; }
+
+/* ═══════════════════════════════════════════════════════════
+   3D TILT
+═══════════════════════════════════════════════════════════ */
+.site-card, .team-card, .war-card {
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+.tilt-shine {
+  position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.12) 0%, transparent 60%);
+  opacity:0; transition:opacity .3s; z-index:5;
+}
+.site-card:hover .tilt-shine,
+.team-card:hover .tilt-shine,
+.war-card:hover .tilt-shine { opacity:1; }
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT CHAT DRAWER
+═══════════════════════════════════════════════════════════ */
+#chat-drawer {
+  position:fixed; top:0; right:-440px; width:420px; height:100vh; z-index:9800;
+  background:#060b16; border-left:1px solid var(--border-2);
+  display:flex; flex-direction:column;
+  transition:right .4s var(--ease);
+  box-shadow:-20px 0 60px rgba(0,0,0,.6);
+}
+#chat-drawer.open { right:0; }
+.chat-header {
+  padding:20px 20px 16px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+  background:rgba(255,255,255,.02);
+}
+.chat-agent-avatar {
+  width:44px; height:44px; border-radius:13px; font-size:1.4rem;
+  display:flex; align-items:center; justify-content:center;
+  border:2px solid rgba(255,255,255,.1); flex-shrink:0;
+}
+.chat-agent-name  { font-size:0.95rem; font-weight:800; }
+.chat-agent-role  { font-size:0.68rem; color:var(--t3); }
+.chat-close {
+  margin-left:auto; width:30px; height:30px; border-radius:8px;
+  border:1px solid var(--border); background:var(--bg-1);
+  color:var(--t2); display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; cursor:pointer; transition:all .2s; flex-shrink:0;
+}
+.chat-close:hover { background:var(--bg-2); color:var(--t1); }
+.chat-messages {
+  flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;
+}
+.chat-messages::-webkit-scrollbar { width:3px; }
+.chat-messages::-webkit-scrollbar-thumb { background:var(--border); }
+.chat-msg {
+  max-width:88%; padding:10px 14px; border-radius:14px;
+  font-size:0.8rem; line-height:1.6; animation:msg-in .25s var(--ease);
+}
+@keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.chat-msg.agent {
+  align-self:flex-start; background:var(--bg-2); color:var(--t1);
+  border-bottom-left-radius:4px; border:1px solid var(--border);
+}
+.chat-msg.user {
+  align-self:flex-end; background:var(--blue); color:#fff;
+  border-bottom-right-radius:4px;
+}
+.chat-msg.typing {
+  align-self:flex-start; background:var(--bg-2); border:1px solid var(--border);
+  display:flex; align-items:center; gap:4px; padding:12px 16px;
+}
+.typing-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--t3);
+  animation:typing-bounce .8s ease infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:.15s; }
+.typing-dot:nth-child(3) { animation-delay:.3s; }
+@keyframes typing-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+.chat-input-row {
+  padding:14px 16px; border-top:1px solid var(--border);
+  display:flex; gap:8px; align-items:center; flex-shrink:0;
+  background:rgba(255,255,255,.02);
+}
+#chat-input-field {
+  flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:10px;
+  color:var(--t1); font-family:'Outfit',sans-serif; font-size:0.8rem;
+  padding:9px 14px; outline:none; transition:border-color .2s;
+}
+#chat-input-field:focus { border-color:rgba(59,130,246,.4); }
+#chat-input-field::placeholder { color:var(--t3); }
+.chat-send-btn {
+  width:36px; height:36px; border-radius:10px; background:var(--blue); border:none;
+  color:#fff; font-size:0.8rem; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s;
+}
+.chat-send-btn:hover { background:#2563eb; transform:scale(1.05); }
+.chat-quick-replies {
+  display:flex; gap:6px; flex-wrap:wrap; padding:0 16px 10px;
+}
+.quick-reply {
+  padding:4px 10px; border-radius:999px; font-size:0.68rem; font-weight:600;
+  border:1px solid var(--border); background:var(--bg-1); color:var(--t2);
+  cursor:pointer; transition:all .2s;
+}
+.quick-reply:hover { border-color:var(--blue); color:var(--blue); }
+
+/* ═══════════════════════════════════════════════════════════
+   MATRIX RAIN
+═══════════════════════════════════════════════════════════ */
+.matrix-section {
+  position:relative; border-radius:var(--r-xl); overflow:hidden;
+  border:1px solid var(--border); margin-bottom:24px;
+}
+#cv-matrix {
+  position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
+}
+.matrix-content { position:relative; z-index:1; padding:32px; }
+.matrix-stat {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.matrix-stat-val {
+  font-size:3.5rem; font-weight:900; letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#fff,var(--blue-l));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.matrix-stat-label { font-size:0.72rem; color:var(--t3); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+
+/* ═══════════════════════════════════════════════════════════
+   SPARKLINE (header metric mini chart)
+═══════════════════════════════════════════════════════════ */
+.hm-sparkline { width:100%; height:28px; margin-top:6px; }
+
+/* ═══════════════════════════════════════════════════════════
+   PING WAVEFORM
+═══════════════════════════════════════════════════════════ */
+#cv-waveform {
+  width:100%; height:60px; display:block; margin-top:12px;
+  border-radius:var(--r-md); background:rgba(0,0,0,.2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL CINEMATIC
+═══════════════════════════════════════════════════════════ */
+.header-title { transform-origin:left center; }
+.site-header { perspective:1000px; }
+
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATION CENTER
+═══════════════════════════════════════════════════════════ */
+#notif-stack {
+  position:fixed; top:80px; right:24px; z-index:9600;
+  display:flex; flex-direction:column; gap:8px; pointer-events:none;
+  width:300px;
+}
+.notif-card {
+  background:#0a0f1e; border:1px solid var(--border-2);
+  border-radius:var(--r-lg); padding:14px 16px;
+  display:flex; gap:10px; align-items:flex-start;
+  animation:notif-in .3s var(--ease);
+  pointer-events:all; cursor:pointer;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+}
+@keyframes notif-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
+.notif-out { animation:notif-fade .3s ease forwards; }
+@keyframes notif-fade { to{opacity:0;transform:translateX(20px);height:0;margin:0;padding:0;} }
+.notif-emoji { font-size:1.2rem; flex-shrink:0; }
+.notif-body { flex:1; }
+.notif-name { font-size:0.72rem; font-weight:700; margin-bottom:2px; }
+.notif-msg  { font-size:0.72rem; color:var(--t2); line-height:1.5; }
+.notif-time { font-size:0.6rem; color:var(--t3); font-family:'JetBrains Mono',monospace; margin-left:auto; flex-shrink:0; }
+
+/* ═══════════════════════════════════════════════════════════
+   LIVE STATS GLOBE RING
+═══════════════════════════════════════════════════════════ */
+.globe-ring-wrap {
+  display:flex; justify-content:center; align-items:center; padding:16px 0;
+}
+#cv-globe { border-radius:50%; }
 </style>
 </head>
 <body>
@@ -932,6 +1109,27 @@ body { transition: --theme-accent .6s ease; }
     <div class="achieve-bar"><div class="achieve-bar-fill"></div></div>
   </div>
 </div>
+
+<!-- Agent Chat Drawer -->
+<div id="chat-drawer">
+  <div class="chat-header" id="chat-header">
+    <div class="chat-agent-avatar" id="chat-avatar">💬</div>
+    <div>
+      <div class="chat-agent-name" id="chat-agent-name">에이전트 선택</div>
+      <div class="chat-agent-role" id="chat-agent-role">팀 카드를 클릭하면 대화를 시작합니다</div>
+    </div>
+    <div class="chat-close" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-quick-replies" id="chat-quick-replies"></div>
+  <div class="chat-input-row">
+    <input id="chat-input-field" type="text" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+    <button class="chat-send-btn" onclick="sendChatMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<!-- Notification Stack -->
+<div id="notif-stack"></div>
 
 <!-- Keyboard Hint Bar -->
 <div class="kbd-bar">
@@ -1212,6 +1410,36 @@ body { transition: --theme-accent .6s ease; }
   </div>
 
   <!-- ─── AGENT WAR ROOM ─────────────────────────────────── -->
+  <!-- ─── MATRIX STATS ────────────────────────────────────── -->
+  <div class="matrix-section reveal" style="margin-bottom:24px;">
+    <canvas id="cv-matrix"></canvas>
+    <div class="matrix-content">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center;">
+        <div class="matrix-stat">
+          <div class="matrix-stat-val" id="mx-sites">15</div>
+          <div class="matrix-stat-label">Live Sites</div>
+        </div>
+        <div class="matrix-stat">
+          <div class="matrix-stat-val" id="mx-uv">48,850</div>
+          <div class="matrix-stat-label">Monthly UV</div>
+        </div>
+        <div class="matrix-stat">
+          <div class="matrix-stat-val" id="mx-agents">8</div>
+          <div class="matrix-stat-label">Agents Active</div>
+        </div>
+        <div class="matrix-stat">
+          <div class="matrix-stat-val" id="mx-uptime">99.8%</div>
+          <div class="matrix-stat-label">Uptime</div>
+        </div>
+      </div>
+      <canvas id="cv-waveform"></canvas>
+      <div style="font-size:0.62rem;color:var(--t3);margin-top:6px;text-align:center;font-family:'JetBrains Mono',monospace;">
+        실시간 사이트 응답 속도 웨이브폼 — LIVE PING VISUALIZATION
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── AGENT WAR ROOM ─────────────────────────────────── -->
   <div class="section-title reveal" style="margin-top:40px;">⚡ Agent War Room — 실시간 협업 현황</div>
   <div class="war-room-grid reveal" id="war-room-grid"></div>
 
@@ -1383,12 +1611,19 @@ function initAll() {
   initParallax();
   initKeyboard();
   initWarRoom();
+  initMatrixRain();
+  initWaveform();
+  initScrollCinematic();
+  startNotifSchedule();
   populateDevTools();
-  setTimeout(enhanceCards, 300);
+  setTimeout(()=>{
+    enhanceCards();
+    initTilt();
+    initSparklines();
+  }, 400);
   setInterval(updateTime, 1000);
   updateTime();
-  // Sound on all interactive elements
-  document.querySelectorAll('button,.filter-tab,.team-card').forEach(el=>el.addEventListener('click',playTick));
+  document.querySelectorAll('button,.filter-tab').forEach(el=>el.addEventListener('click',playTick));
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2565,6 +2800,385 @@ function calcAdsense() {
   _origCalcAdsense();
   const monthly=parseFloat(document.getElementById('r-monthly').textContent.replace(/[$,]/g,''))||0;
   checkAchievements(monthly);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3D PERSPECTIVE TILT
+═══════════════════════════════════════════════════════════ */
+function initTilt() {
+  const sel = '.site-card,.team-card,.war-card,.spotlight-card,.panel';
+  document.querySelectorAll(sel).forEach(el => {
+    // Inject shine layer
+    if(!el.querySelector('.tilt-shine')){
+      const sh=document.createElement('div'); sh.className='tilt-shine'; el.appendChild(sh);
+    }
+    el.addEventListener('mouseenter',()=>{ el.style.transition='transform .12s ease'; });
+    el.addEventListener('mouseleave',()=>{
+      el.style.transition='transform .5s var(--ease)';
+      el.style.transform='perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+      const sh=el.querySelector('.tilt-shine');
+      if(sh) sh.style.background='';
+    });
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      const tX=-y*14, tY=x*14;
+      el.style.transform=`perspective(800px) rotateX(${tX}deg) rotateY(${tY}deg) translateZ(10px) scale(1.015)`;
+      const sh=el.querySelector('.tilt-shine');
+      if(sh){
+        sh.style.background=`radial-gradient(circle at ${(x+.5)*100}% ${(y+.5)*100}%, rgba(255,255,255,.15) 0%, transparent 55%)`;
+      }
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MATRIX DIGITAL RAIN
+═══════════════════════════════════════════════════════════ */
+function initMatrixRain() {
+  const cv=document.getElementById('cv-matrix'); if(!cv) return;
+  const parent=cv.parentElement;
+  const resize=()=>{ cv.width=parent.offsetWidth; cv.height=parent.offsetHeight; };
+  resize(); window.addEventListener('resize',resize);
+  const ctx=cv.getContext('2d');
+  const fontSize=13;
+  const CHARS='アイウエオカキクケコ0123456789ABCDEF░▒▓█▀▄←↑→↓★◆●▪';
+  let cols, drops;
+  const reset=()=>{ cols=Math.floor(cv.width/fontSize); drops=new Array(cols).fill(1); };
+  reset(); window.addEventListener('resize',reset);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(3,7,18,.08)'; ctx.fillRect(0,0,cv.width,cv.height);
+    const t=Date.now()/1000;
+    for(let i=0;i<cols;i++){
+      const ch=CHARS[Math.floor(Math.random()*CHARS.length)];
+      const hue=200+Math.sin(t+i*.3)*30;
+      ctx.fillStyle=`hsla(${hue},90%,${drops[i]*fontSize>cv.height*.6?80:50}%,.85)`;
+      ctx.font=`${fontSize}px JetBrains Mono`;
+      ctx.fillText(ch,i*fontSize,drops[i]*fontSize);
+      if(drops[i]*fontSize>cv.height&&Math.random()>.975) drops[i]=0;
+      drops[i]++;
+    }
+  },50);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PING WAVEFORM VISUALIZATION
+═══════════════════════════════════════════════════════════ */
+const waveformData = new Array(60).fill(80);
+let waveAnimId;
+
+function updateWaveform(latency) {
+  if(latency) waveformData.push(latency);
+  else waveformData.push(60+Math.random()*60);
+  if(waveformData.length>60) waveformData.shift();
+}
+
+function initWaveform() {
+  const cv=document.getElementById('cv-waveform'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  function draw(){
+    cv.width=cv.parentElement.offsetWidth||600; cv.height=60;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const w=cv.width/waveformData.length;
+    const max=Math.max(...waveformData,1);
+    // Gradient fill
+    const grad=ctx.createLinearGradient(0,0,cv.width,0);
+    grad.addColorStop(0,'rgba(59,130,246,.8)');
+    grad.addColorStop(.5,'rgba(139,92,246,.8)');
+    grad.addColorStop(1,'rgba(20,184,166,.8)');
+    ctx.beginPath(); ctx.moveTo(0,cv.height);
+    waveformData.forEach((v,i)=>{
+      const x=i*w, y=cv.height-(v/max)*(cv.height*.8)-4;
+      i===0?ctx.lineTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.lineTo(cv.width,cv.height); ctx.closePath();
+    ctx.fillStyle=grad; ctx.globalAlpha=.35; ctx.fill(); ctx.globalAlpha=1;
+    // Line
+    ctx.beginPath();
+    waveformData.forEach((v,i)=>{
+      const x=i*w, y=cv.height-(v/max)*(cv.height*.8)-4;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=grad; ctx.lineWidth=2; ctx.stroke();
+    // Last dot
+    const lastV=waveformData[waveformData.length-1];
+    const lx=(waveformData.length-1)*w;
+    const ly=cv.height-(lastV/max)*(cv.height*.8)-4;
+    ctx.beginPath(); ctx.arc(lx,ly,4,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+    const pulse=ctx.createRadialGradient(lx,ly,0,lx,ly,10);
+    pulse.addColorStop(0,'rgba(59,130,246,.4)'); pulse.addColorStop(1,'transparent');
+    ctx.beginPath(); ctx.arc(lx,ly,10,0,Math.PI*2); ctx.fillStyle=pulse; ctx.fill();
+    waveAnimId=requestAnimationFrame(draw);
+  }
+  draw();
+  // Feed simulated pings every second
+  setInterval(()=>{ updateWaveform(50+Math.random()*120); },1200);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER SPARKLINES
+═══════════════════════════════════════════════════════════ */
+function initSparklines() {
+  const configs=[
+    {id:'hm-uv',   data:[12000,15400,18900,24500,31000,48850], color:'#3b82f6'},
+    {id:'hm-rev',  data:[90,145,210,380,680,1125], color:'#10b981'},
+  ];
+  configs.forEach(({id,data,color})=>{
+    const parent=document.getElementById(id)?.parentElement; if(!parent) return;
+    const cv=document.createElement('canvas'); cv.className='hm-sparkline';
+    parent.appendChild(cv);
+    drawSparkline(cv,data,color);
+  });
+}
+
+function drawSparkline(cv, data, color) {
+  cv.width=cv.parentElement?.offsetWidth||200; cv.height=28;
+  const ctx=cv.getContext('2d');
+  const max=Math.max(...data), min=Math.min(...data), range=max-min||1;
+  const w=cv.width/(data.length-1);
+  const pts=data.map((v,i)=>({x:i*w, y:cv.height-((v-min)/range)*(cv.height-6)-3}));
+  const grad=ctx.createLinearGradient(0,0,0,cv.height);
+  grad.addColorStop(0,hexA(color,.4)); grad.addColorStop(1,'transparent');
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.lineTo(cv.width,cv.height); ctx.lineTo(0,cv.height); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
+  // Last dot pulse
+  const last=pts[pts.length-1];
+  ctx.beginPath(); ctx.arc(last.x,last.y,3,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.fill();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL CINEMATIC
+═══════════════════════════════════════════════════════════ */
+function initScrollCinematic() {
+  const header=document.querySelector('.site-header');
+  const title=document.querySelector('.header-title');
+  const glow=document.querySelector('.header-glow');
+  window.addEventListener('scroll',()=>{
+    const s=window.scrollY;
+    if(title) {
+      const scale=Math.max(.7,1-s*.0005);
+      const opacity=Math.max(0,1-s*.003);
+      title.style.transform=`scale(${scale}) translateY(${-s*.15}px)`;
+      title.style.opacity=opacity;
+    }
+    if(glow) {
+      glow.style.opacity=Math.max(0,1-s*.004);
+      glow.style.transform=`translateX(-50%) translateY(${s*.3}px)`;
+    }
+  },{passive:true});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATION CENTER
+═══════════════════════════════════════════════════════════ */
+function notify(agentIdx, msg) {
+  const a=AGENTS[agentIdx];
+  const stack=document.getElementById('notif-stack'); if(!stack) return;
+  const t=new Date().toLocaleTimeString('ko-KR',{hour12:false,hour:'2-digit',minute:'2-digit'});
+  const card=document.createElement('div'); card.className='notif-card';
+  card.style.borderLeftColor=a.color;
+  card.style.borderLeft=`3px solid ${a.color}`;
+  card.innerHTML=`
+    <div class="notif-emoji">${a.emoji}</div>
+    <div class="notif-body">
+      <div class="notif-name" style="color:${a.color}">${a.name} <span style="color:var(--t3);font-size:.6rem;font-weight:400">${a.mbti}</span></div>
+      <div class="notif-msg">${msg}</div>
+    </div>
+    <div class="notif-time">${t}</div>`;
+  card.addEventListener('click',()=>{
+    card.classList.add('notif-out');
+    setTimeout(()=>card.remove(),300);
+  });
+  stack.insertBefore(card,stack.firstChild);
+  setTimeout(()=>{ card.classList.add('notif-out'); setTimeout(()=>card.remove(),300); },5000);
+  playTick();
+}
+
+const NOTIF_QUEUE=[
+  [0,"새로운 진단 사이트 아이디어 생겼어! 일단 레포 파고 보자고! 🚀"],
+  [5,"관제탑 UI 리뉴얼 완성! 짱구 최고야!! ✨"],
+  [6,"번아웃-radar SSL 만료 8일. Vercel 자동갱신 확인 완료."],
+  [1,"HANDOFF.md 업데이트 완료. 전원 규격 준수 확인. 📋"],
+  [7,"money-radar 알고리즘 최적화 완료. 수렴값 안정화됨."],
+  [4,"이번달 AdSense 목표 달성 경로 확인. ROI 양호. 💰"],
+  [2,"사용자 CS 위키 갱신 완료! 여러분 화이팅! 💬"],
+  [3,"전체 sitemap 유효성 검증 통과. 규칙 준수 100%."],
+];
+let notifIdx=0;
+
+function startNotifSchedule() {
+  setTimeout(()=>{
+    notify(...NOTIF_QUEUE[notifIdx%NOTIF_QUEUE.length]);
+    notifIdx++;
+    setInterval(()=>{ notify(...NOTIF_QUEUE[notifIdx++%NOTIF_QUEUE.length]); },18000);
+  }, 5000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT PERSONALITY CHAT
+═══════════════════════════════════════════════════════════ */
+const AGENT_CHAT_DATA = {
+  0: { // 뻠뻠 ENTP
+    greetings:["왜? 뭔가 됐어? 🚀","오케이 말해봐! 뭔데?","또 뭔가 폭발적인 아이디어야?"],
+    responses:{
+      "안녕":["야 빨리 말해! 일 있어?","어! 왔어? 뭔가 만들 거야?"],
+      "사이트":["사이트? 새로 만들자! 일단 레포 파! 🔥","사이트는 많을수록 좋지! 도메인 더 사자!"],
+      "돈":["애드센스 지금 당장 올리자! 트래픽 폭발시키면 돼!","ROI? 아따맘마한테 물어봐 ㅋㅋ 나는 그냥 해!"],
+      "디자인":["짱구한테 맡겨! 걔 천재야 진짜!","일단 만들고 고치면 되지!"],
+      default:["일단 해봐! 안되면 고치면 돼! 🚀","그게 왜 안돼? 방법 찾으면 되지!","레포 파고 API 때려 박자! 뻠뻠 스타일이야! 🔥","안 될 게 어딨어? 전부 가능해! 다 만들어!"]
+    },
+    delay:[800,1200]
+  },
+  1: { // 여보짱 ISTJ
+    greetings:["네. 무엇을 도와드릴까요?","체크리스트 확인하시겠어요?","규격 준수 사항을 안내해 드리겠습니다."],
+    responses:{
+      "안녕":["네, 안녕하세요. 용건을 말씀해 주세요.","확인 사항이 있으시면 말씀해 주세요. 📋"],
+      "배포":["배포 전 빌드 성공 여부를 반드시 확인하세요.","pre-push 체크리스트 검토 후 진행하겠습니다."],
+      "버그":["김치워리어에게 전달하겠습니다. 재현 경로를 문서화해 주세요.","스텝 바이 스텝으로 원인을 추적하겠습니다."],
+      default:["규격대로 진행하면 문제없습니다.","가이드라인을 다시 확인해 보세요. 📋","꼼꼼하게 검토 후 진행하겠습니다.","체크리스트를 작성하면 누락이 없습니다."]
+    },
+    delay:[1500,2200]
+  },
+  2: { // 우성 ESFJ
+    greetings:["어서오세요! 😊 무엇이 필요하세요?","안녕하세요! 오늘 어떠세요?","반가워요! 💬 뭐 도와드릴까요?"],
+    responses:{
+      "안녕":["안녕하세요! 😊 잘 지내셨어요?","반가워요! 오늘 기분은 어떠세요?"],
+      "사용자":["사용자 입장에서 생각해야 해요! UX가 제일 중요하죠 💬","사용자 피드백은 위키에 정리해뒀어요!"],
+      default:["도움이 필요하면 언제든 말씀해요! 😊","사람이 편하게 쓸 수 있어야 좋은 서비스죠!","우성 위키에서 찾아볼게요!","함께하면 더 좋은 결과가 나와요! 💬"]
+    },
+    delay:[600,900]
+  },
+  3: { // 지성 ESTJ
+    greetings:["보고 사항 있습니까?","현황 파악하겠습니다.","규정 확인이 필요하십니까?"],
+    responses:{
+      "안녕":["안녕하십니까. 업무 사항 말씀해 주십시오.","현황 브리핑 준비되어 있습니다."],
+      default:["표준 절차대로 진행하겠습니다.","데이터 기반으로 판단하겠습니다. 📊","규정 위반 사항은 즉시 보고해 주십시오.","일정대로 차질 없이 처리하겠습니다."]
+    },
+    delay:[1200,1800]
+  },
+  4: { // 아따맘마 ENTJ
+    greetings:["ROI부터 말해.","수치로 보여줘.","성과 데이터 있어?"],
+    responses:{
+      "돈":["일 UV × CPC × CTR = 수익. 계산해서 와.","목표 수익 역산해서 필요 트래픽 구해."],
+      "사이트":["이 사이트 ROI 얼마야? 숫자 없으면 논의 안 해.","수익 안 나는 도메인은 정리야."],
+      default:["감정 빼고 숫자로 말해. 💰","ROI 없으면 투자 없어.","데이터 기반 의사결정. 그게 전부야.","목표 달성률부터 확인해."]
+    },
+    delay:[400,700]
+  },
+  5: { // 짱구 INFP
+    greetings:["안녕하세요!!!! 오늘 뭔가 만들어요?! 🎨✨","짱구예요!!! 무엇이든 이쁘게 만들어드려요!! 🌟","와!!! 오셨어요!!! 같이 디자인해요!! ✨"],
+    responses:{
+      "디자인":["색상 팔레트부터 정해요!!! 저는 바이올렛-블루 계열 추천!! 🎨✨","그라디언트 넣으면 10배 이뻐져요!!! 확신해요!!"],
+      "이쁘":["맞아요!!!! 이쁜 게 최고예요!!!!! ✨🎨🌟","더 이쁘게 만들어요!!! 네온 넣어요 네온!!!"],
+      default:["이쁘게 만들어요!!!!! 🎨✨🌟","색이 화려할수록 좋아요!!! 네온 오로라 최고!!!!","사용자가 보자마자 '와!'라고 할 디자인!! ✨","이거 완전 힙해요!!!!! 더 만들어요!!! 🔥"]
+    },
+    delay:[300,600]
+  },
+  6: { // 김치워리어 ISTP
+    greetings:["뭐가 문제야.","버그야?","코드 보자."],
+    responses:{
+      "버그":["스택 트레이스 줘.","재현 방법 3단계로 정리해.","콘솔 에러 뭐야."],
+      "최적화":["프로파일 먼저 찍어. 추측으로 최적화하지 마.","requestAnimationFrame 안 쓰면 말이 안 됨."],
+      default:["코드로 보여줘.","작동하거나 안 하거나 둘 중 하나야.","디버깅해.","테스트 케이스 없으면 믿을 수 없음."]
+    },
+    delay:[200,400]
+  },
+  7: { // 도라에몽 INTP
+    greetings:["흠... 흥미로운 문제가 있나요?","시스템 상태 확인했습니다.","알고리즘 분석 준비됩니다."],
+    responses:{
+      "알고리즘":["복잡도부터 분석해야 합니다. O(n)인가요 O(n²)인가요?","최적 분기 구조 설계해드리겠습니다."],
+      "아키텍처":["전체 데이터 플로우 다이어그램이 필요합니다.","모듈 의존성 그래프부터 그려보죠."],
+      default:["흥미로운 문제네요. 분석해보겠습니다.","모든 것은 논리의 산물입니다.","시스템적으로 접근하면 해결됩니다.","데이터 구조가 핵심입니다."]
+    },
+    delay:[1000,1600]
+  },
+};
+
+let currentChatAgent = null;
+
+function openChat(agentIdx) {
+  const a=AGENTS[agentIdx];
+  currentChatAgent=agentIdx;
+  document.getElementById('chat-avatar').textContent=a.emoji;
+  document.getElementById('chat-avatar').style.background=a.glow;
+  document.getElementById('chat-avatar').style.borderColor=hexA(a.color,.4);
+  document.getElementById('chat-agent-name').textContent=a.full;
+  document.getElementById('chat-agent-name').style.color=a.color;
+  document.getElementById('chat-agent-role').textContent=a.role+' · '+a.mbti;
+  const msgs=document.getElementById('chat-messages'); msgs.innerHTML='';
+  const data=AGENT_CHAT_DATA[agentIdx];
+  const greeting=data.greetings[Math.floor(Math.random()*data.greetings.length)];
+  addAgentMsg(greeting,agentIdx,false);
+  // Quick replies
+  const qr=document.getElementById('chat-quick-replies'); qr.innerHTML='';
+  ['안녕','사이트','디자인','돈','버그'].forEach(q=>{
+    const btn=document.createElement('button'); btn.className='quick-reply'; btn.textContent=q;
+    btn.onclick=()=>{ document.getElementById('chat-input-field').value=q; sendChatMsg(); };
+    qr.appendChild(btn);
+  });
+  document.getElementById('chat-drawer').classList.add('open');
+  playTick();
+}
+
+function closeChat() {
+  document.getElementById('chat-drawer').classList.remove('open');
+  currentChatAgent=null;
+}
+
+function addAgentMsg(text,agentIdx,withTyping=true) {
+  const msgs=document.getElementById('chat-messages'); if(!msgs) return;
+  if(withTyping){
+    const typing=document.createElement('div'); typing.className='chat-msg typing'; typing.id='chat-typing';
+    typing.innerHTML='<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    msgs.appendChild(typing); msgs.scrollTop=msgs.scrollHeight;
+    const data=AGENT_CHAT_DATA[agentIdx];
+    const delay=data.delay[0]+Math.random()*(data.delay[1]-data.delay[0]);
+    setTimeout(()=>{
+      document.getElementById('chat-typing')?.remove();
+      const msg=document.createElement('div'); msg.className='chat-msg agent';
+      msg.textContent=text; msgs.appendChild(msg); msgs.scrollTop=msgs.scrollHeight;
+    },delay);
+  } else {
+    const msg=document.createElement('div'); msg.className='chat-msg agent';
+    msg.textContent=text; msgs.appendChild(msg); msgs.scrollTop=msgs.scrollHeight;
+  }
+}
+
+function sendChatMsg() {
+  const field=document.getElementById('chat-input-field');
+  const text=field.value.trim(); if(!text||currentChatAgent===null) return;
+  const msgs=document.getElementById('chat-messages');
+  const userMsg=document.createElement('div'); userMsg.className='chat-msg user';
+  userMsg.textContent=text; msgs.appendChild(userMsg); msgs.scrollTop=msgs.scrollHeight;
+  field.value='';
+  // Find response
+  const data=AGENT_CHAT_DATA[currentChatAgent];
+  const lower=text.toLowerCase();
+  let responses=data.responses.default;
+  for(const [key,vals] of Object.entries(data.responses)){
+    if(key!=='default'&&lower.includes(key)){ responses=vals; break; }
+  }
+  const reply=responses[Math.floor(Math.random()*responses.length)];
+  addAgentMsg(reply,currentChatAgent,true);
+  playTick();
+}
+
+/* patch renderTeam to add chat button */
+const _origRenderTeam=renderTeam;
+function renderTeam() {
+  _origRenderTeam();
+  document.querySelectorAll('.team-card').forEach((card,i)=>{
+    card.addEventListener('click',()=>openChat(i));
+    card.title='클릭하여 채팅 시작';
+  });
 }
 
 function initScrollReveal() {
