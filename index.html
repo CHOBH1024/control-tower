@@ -537,6 +537,43 @@
     .site-card:hover .aurora-ring { opacity: 1; animation-play-state: running; }
     @keyframes aurora-ring-spin { to { transform: rotate(360deg); } }
 
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* Synergy Heatmap Cells */
+    .syn-cell {
+      width: 32px; height: 24px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.58rem; font-weight: 700; cursor: default;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .syn-cell:hover { transform: scale(1.25); z-index: 10; position: relative; }
+
+    /* Mission Feed Entry */
+    .mission-entry {
+      display: flex; gap: 12px; padding: 10px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      animation: fadeInEntry 0.4s ease;
+    }
+    .mission-entry:last-child { border-bottom: none; }
+    @keyframes fadeInEntry {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .mission-avatar {
+      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; border: 1.5px solid rgba(255,255,255,0.1);
+    }
+    .mission-msg { font-size: 0.8rem; color: var(--text-main); line-height: 1.55; }
+    .mission-time { font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+
+    /* Skill bar in spotlight */
+    .skill-bar-row { display: flex; align-items: center; gap: 10px; }
+    .skill-bar-label { font-size: 0.72rem; color: var(--text-muted); min-width: 140px; }
+    .skill-bar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+    .skill-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .skill-bar-val { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; min-width: 30px; text-align: right; }
+
     /* Mouse-tracking glow spot */
     .site-card .glow-spot {
       position: absolute;
@@ -1183,7 +1220,14 @@
 </head>
 <body>
 
-<div class="dashboard-container">
+<!-- Particle atmosphere canvas (fixed behind everything) -->
+<canvas id="particle-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.55;"></canvas>
+
+<!-- Custom Cursor -->
+<div id="cursor-dot" style="position:fixed;width:8px;height:8px;border-radius:50%;background:var(--aurora-blue);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:background 0.3s;mix-blend-mode:screen;"></div>
+<div id="cursor-ring" style="position:fixed;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(56,189,248,0.5);pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform 0.12s ease,width 0.2s,height 0.2s,border-color 0.3s;"></div>
+
+<div class="dashboard-container" style="position:relative;z-index:1;">
   
   <!-- SSL Alert Banner (Feature 5) -->
   <div class="alert-banner" id="ssl-warning-banner">
@@ -1599,6 +1643,83 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ AGENT CONSTELLATION (LIVING NETWORK) ═══ -->
+  <div style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+
+    <!-- Constellation Canvas Panel -->
+    <div class="panel-card" style="padding:0; overflow:hidden; position:relative; min-height:480px;">
+      <div style="position:absolute;top:0;left:0;right:0;z-index:2;padding:20px 24px 0; background:linear-gradient(to bottom,rgba(9,11,17,0.9) 60%,transparent);">
+        <div class="panel-title" style="margin-bottom:0;">
+          <div class="panel-title-left">
+            <i class="fa-solid fa-circle-nodes" style="color:var(--aurora-purple)"></i>
+            <span>하네스 에이전트 — 생명체 시너지 네트워크</span>
+          </div>
+          <span id="constellation-selected-name" style="font-size:0.75rem;color:var(--aurora-gold);font-family:'JetBrains Mono',monospace;font-weight:700;">클릭하여 에이전트 선택</span>
+        </div>
+      </div>
+      <canvas id="constellation-canvas" style="width:100%;height:480px;display:block;cursor:pointer;"></canvas>
+    </div>
+
+    <!-- Agent Detail + Synergy Panel -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Selected Agent Detail Card -->
+      <div class="panel-card" id="agent-spotlight" style="min-height:220px;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);border-color:rgba(56,189,248,0.2);">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+          <div id="spotlight-avatar" style="width:56px;height:56px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;transition:all 0.4s;">🎯</div>
+          <div>
+            <div id="spotlight-name" style="font-size:1.2rem;font-weight:800;color:var(--text-bright);">에이전트를 선택하세요</div>
+            <div id="spotlight-role" style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;"></div>
+          </div>
+          <div id="spotlight-mbti" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:700;padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);"></div>
+        </div>
+        <div id="spotlight-desc" style="font-size:0.82rem;color:var(--text-muted);line-height:1.7;margin-bottom:14px;">컨스텔레이션에서 원하는 에이전트 노드를 클릭하면 상세 능력치와 시너지 파트너가 표시됩니다.</div>
+        <div id="spotlight-skills" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="spotlight-quote" style="margin-top:14px;padding:10px 14px;border-left:3px solid rgba(56,189,248,0.4);font-style:italic;font-size:0.78rem;color:var(--text-muted);background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0;"></div>
+      </div>
+
+      <!-- Synergy Heatmap -->
+      <div class="panel-card" style="padding:20px;">
+        <div class="panel-title" style="margin-bottom:14px;">
+          <div class="panel-title-left">
+            <i class="fa-solid fa-fire" style="color:var(--aurora-rose)"></i>
+            <span>시너지 강도 매트릭스</span>
+          </div>
+        </div>
+        <div id="synergy-heatmap" style="display:grid;gap:3px;font-size:0.6rem;font-family:'JetBrains Mono',monospace;overflow-x:auto;">
+          <!-- Populated by JS -->
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px;font-size:0.7rem;color:var(--text-muted);">
+          <span>낮음</span>
+          <div style="display:flex;gap:3px;">
+            <div style="width:14px;height:10px;border-radius:2px;background:rgba(56,189,248,0.1);"></div>
+            <div style="width:14px;height:10px;border-radius:2px;background:rgba(56,189,248,0.3);"></div>
+            <div style="width:14px;height:10px;border-radius:2px;background:rgba(56,189,248,0.5);"></div>
+            <div style="width:14px;height:10px;border-radius:2px;background:rgba(56,189,248,0.75);"></div>
+            <div style="width:14px;height:10px;border-radius:2px;background:var(--aurora-blue);"></div>
+          </div>
+          <span>높음</span>
+          <span style="margin-left:auto;color:var(--aurora-gold);">▲ = 시너지  ▼ = 긴장</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MISSION LIVE LOG ═══ -->
+  <div class="panel-card" style="margin-top:24px;">
+    <div class="panel-title">
+      <div class="panel-title-left">
+        <i class="fa-solid fa-satellite-dish" style="color:var(--aurora-mint)"></i>
+        <span>🛸 Mission Live — 에이전트 실시간 협업 피드</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--aurora-mint);display:inline-block;animation:blink 1.2s infinite;"></span>
+        <span style="font-size:0.72rem;color:var(--aurora-mint);font-family:'JetBrains Mono',monospace;font-weight:700;">LIVE</span>
+      </div>
+    </div>
+    <div id="mission-feed" style="display:flex;flex-direction:column;gap:0;max-height:240px;overflow-y:auto;"></div>
   </div>
 
   <!-- Harness Team Section -->
@@ -2912,6 +3033,429 @@ export const newColumn = {
     }
   }
 
+  // ═══════════════════════════════════════════════
+  //  PARTICLE ATMOSPHERE SYSTEM
+  // ═══════════════════════════════════════════════
+  function initParticles() {
+    const cv = document.getElementById('particle-canvas');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    const resize = () => { cv.width = window.innerWidth; cv.height = window.innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const colors = ['#38bdf8','#c084fc','#2dd4bf','#f472b6','#fbbf24'];
+    const pts = Array.from({length: 90}, () => ({
+      x: Math.random() * cv.width, y: Math.random() * cv.height,
+      vx: (Math.random()-0.5)*0.35, vy: (Math.random()-0.5)*0.35,
+      r: Math.random()*1.5+0.4,
+      color: colors[Math.floor(Math.random()*colors.length)]
+    }));
+
+    let mx = cv.width/2, my = cv.height/2;
+    window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    function tick() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      pts.forEach(p => {
+        const dx = mx - p.x, dy = my - p.y, d = Math.hypot(dx, dy);
+        if (d < 180) { p.vx += dx*0.00005; p.vy += dy*0.00005; }
+        p.vx *= 0.992; p.vy *= 0.992;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > cv.width) p.vx *= -1;
+        if (p.y < 0 || p.y > cv.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.65;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i+1; j < pts.length; j++) {
+          const d = Math.hypot(pts[i].x-pts[j].x, pts[i].y-pts[j].y);
+          if (d < 110) {
+            ctx.beginPath();
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.strokeStyle = `rgba(56,189,248,${0.12*(1-d/110)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  // ═══════════════════════════════════════════════
+  //  CUSTOM CURSOR
+  // ═══════════════════════════════════════════════
+  function initCursor() {
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    if (!dot || !ring) return;
+    document.body.style.cursor = 'none';
+    let rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+      rx += (e.clientX - rx) * 0.14; ry += (e.clientY - ry) * 0.14;
+    });
+    function updateRing() {
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(updateRing);
+    }
+    updateRing();
+    document.addEventListener('mousedown', () => {
+      ring.style.width = '24px'; ring.style.height = '24px';
+      dot.style.transform = 'translate(-50%,-50%) scale(1.8)';
+    });
+    document.addEventListener('mouseup', () => {
+      ring.style.width = '36px'; ring.style.height = '36px';
+      dot.style.transform = 'translate(-50%,-50%) scale(1)';
+    });
+    document.querySelectorAll('a,button,.site-card,.team-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.style.width = '50px'; ring.style.height = '50px';
+        ring.style.borderColor = 'rgba(192,132,252,0.7)';
+        dot.style.background = 'var(--aurora-purple)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width = '36px'; ring.style.height = '36px';
+        ring.style.borderColor = 'rgba(56,189,248,0.5)';
+        dot.style.background = 'var(--aurora-blue)';
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  //  AGENT CONSTELLATION — LIVING NETWORK
+  // ═══════════════════════════════════════════════
+  const synergyMatrix = [
+  //  뻠 여 우 지 아 짱 김 도
+    [  0, 80,60,55,70,95,65,70 ], // 뻠뻠
+    [ 80,  0,70,92,75,60,80,85 ], // 여보짱
+    [ 60, 70, 0,88,55,65,60,60 ], // 우성
+    [ 55, 92,88, 0,60,55,75,70 ], // 지성
+    [ 70, 75,55,60, 0,60,55,65 ], // 아따맘마
+    [ 95, 60,65,55,60, 0,90,70 ], // 짱구
+    [ 65, 80,60,75,55,90, 0,88 ], // 김치워리어
+    [ 70, 85,60,70,65,70,88, 0 ], // 도라에몽
+  ];
+
+  const agentEmojis = ['👑','📋','💬','📊','💰','🎨','⚔️','🤖'];
+
+  const missionFeedData = [
+    { agent: 0, msg: "새로운 진단 사이트 도메인 확장 방향 검토 중. 월 UV 10만 돌파 목표 재확인. 🚀" },
+    { agent: 5, msg: "관제탑 UI 레이아웃 2.0 시안 완성! 네온 오로라 색상 팔레트 3가지 버전 비교 중이에요 ✨🎨" },
+    { agent: 6, msg: "번아웃 레이더 SSL 만료 8일 남음. Vercel 자동갱신 확인 완료. no-cors 에러 마스킹 패치 배포." },
+    { agent: 1, msg: "주간 배포 체크리스트 갱신 완료. 14개 사이트 IndexNow 상태 100% 정상 확인. 📋" },
+    { agent: 7, msg: "money-radar 스코어링 알고리즘 최적화 분기 완료. 성능 23% 향상 측정값 수렴." },
+    { agent: 4, msg: "이번 달 AdSense 예상 수익 $1,125 달성 경로 확인. FX레이더 CPC 단가 상위 5% 진입." },
+    { agent: 2, msg: "네이버 서치어드바이저 소유권 인증 순차 완료 중! 사용자 CS 가이드 업데이트했어요 💬" },
+    { agent: 3, msg: "전체 15개 사이트 sitemap.xml 유효성 검증 통과. GSC 제출 대기열 확인 완료." },
+    { agent: 5, msg: "관제탑 에이전트 컨스텔레이션 디자인 시안 확정! 뻠뻠 이거 진짜 애플 부럽겠죠? 🌟" },
+    { agent: 6, msg: "Chart.js radarChart 퍼포먼스 마이너 버전 패치. canvas 캐싱 처리 적용." },
+    { agent: 0, msg: "구글 서치콘솔 sitemap 제출 완료. 14일 내 크롤링 예상. 인덱싱 모니터링 시작." },
+    { agent: 1, msg: "money-radar / ilban-leadership-site GitHub 레포 신규 생성 및 소스 업로드 완료. 📁" },
+  ];
+
+  function initMissionFeed() {
+    const feed = document.getElementById('mission-feed');
+    if (!feed) return;
+    let idx = missionFeedData.length - 1;
+
+    function addEntry(data) {
+      const a = teamData[data.agent];
+      const now = new Date();
+      const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      const entry = document.createElement('div');
+      entry.className = 'mission-entry';
+      entry.innerHTML = `
+        <div class="mission-avatar" style="background:${a.glow};border-color:${a.color}40;">${agentEmojis[data.agent]}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <span style="font-size:0.78rem;font-weight:700;color:${a.color}">${a.name.split(' ')[0]}</span>
+            <span style="font-size:0.65rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">${a.mbti}</span>
+            <span class="mission-time" style="margin-left:auto;">${t}</span>
+          </div>
+          <div class="mission-msg">${data.msg}</div>
+        </div>`;
+      feed.insertBefore(entry, feed.firstChild);
+      if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+    }
+
+    // Show last 4 on load
+    for (let i = Math.max(0, missionFeedData.length-4); i < missionFeedData.length; i++) {
+      addEntry(missionFeedData[i]);
+    }
+
+    // Auto-add new messages
+    setInterval(() => {
+      idx = (idx + 1) % missionFeedData.length;
+      addEntry(missionFeedData[idx]);
+    }, 6000);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  SYNERGY HEATMAP MATRIX
+  // ═══════════════════════════════════════════════
+  function initSynergyHeatmap() {
+    const container = document.getElementById('synergy-heatmap');
+    if (!container) return;
+    const shortNames = ['뻠뻠','여보','우성','지성','아따','짱구','김치','도라'];
+    const cols = shortNames.length + 1;
+    container.style.gridTemplateColumns = `auto repeat(${shortNames.length}, 32px)`;
+
+    // Header row
+    const hdrEmpty = document.createElement('div');
+    hdrEmpty.style.cssText = 'width:32px;height:24px;';
+    container.appendChild(hdrEmpty);
+    shortNames.forEach(n => {
+      const h = document.createElement('div');
+      h.className = 'syn-cell';
+      h.style.cssText = `background:none;color:var(--text-muted);font-size:0.56rem;`;
+      h.textContent = n;
+      container.appendChild(h);
+    });
+
+    // Data rows
+    shortNames.forEach((rowName, i) => {
+      const rowLabel = document.createElement('div');
+      rowLabel.className = 'syn-cell';
+      rowLabel.style.cssText = `background:none;color:var(--text-muted);width:32px;font-size:0.56rem;justify-content:flex-end;padding-right:4px;`;
+      rowLabel.textContent = rowName;
+      container.appendChild(rowLabel);
+
+      synergyMatrix[i].forEach((val, j) => {
+        const cell = document.createElement('div');
+        cell.className = 'syn-cell';
+        if (i === j) {
+          cell.style.cssText = `background:rgba(255,255,255,0.03);`;
+          cell.textContent = '–';
+        } else {
+          const alpha = val / 100;
+          const agentColor = teamData[i].color;
+          cell.style.background = `rgba(56,189,248,${alpha * 0.75})`;
+          cell.style.color = val > 75 ? '#fff' : 'rgba(255,255,255,0.6)';
+          cell.textContent = val >= 90 ? '★' : val >= 75 ? '▲' : val >= 60 ? '·' : '▽';
+          cell.title = `${shortNames[i]} ↔ ${shortNames[j]}: 시너지 ${val}%`;
+        }
+        container.appendChild(cell);
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════
+  //  CONSTELLATION CANVAS ENGINE
+  // ═══════════════════════════════════════════════
+  let selectedAgentIdx = null;
+
+  function initConstellation() {
+    const cv = document.getElementById('constellation-canvas');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+
+    function resize() {
+      const rect = cv.parentElement.getBoundingClientRect();
+      cv.width = rect.width; cv.height = 480;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); });
+
+    const agents = teamData.map((a, i) => ({
+      ...a, emoji: agentEmojis[i],
+      angle: (i / teamData.length) * Math.PI * 2 - Math.PI / 2,
+      x: 0, y: 0, pulse: i * 0.4, vAngle: 0
+    }));
+
+    // Synergy connections to draw
+    const connections = [
+      [0,5,0.95],[1,3,0.92],[2,3,0.88],[5,6,0.90],
+      [0,4,0.70],[7,1,0.85],[6,7,0.88],[1,0,0.80],
+      [0,1,0.80],[4,1,0.75]
+    ];
+
+    let rotation = 0;
+    let hoveredAgent = null;
+
+    cv.addEventListener('mousemove', e => {
+      const rect = cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      hoveredAgent = null;
+      agents.forEach((a, i) => {
+        if (Math.hypot(mx - a.x, my - a.y) < 34) hoveredAgent = i;
+      });
+      cv.style.cursor = hoveredAgent !== null ? 'pointer' : 'default';
+    });
+
+    cv.addEventListener('click', e => {
+      const rect = cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      let clicked = null;
+      agents.forEach((a, i) => {
+        if (Math.hypot(mx - a.x, my - a.y) < 34) clicked = i;
+      });
+      if (clicked !== null) {
+        selectedAgentIdx = selectedAgentIdx === clicked ? null : clicked;
+        updateSpotlight(selectedAgentIdx);
+      }
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      const cx = cv.width / 2, cy = cv.height / 2;
+      const R = Math.min(cx, cy) * 0.72;
+
+      // Update positions
+      agents.forEach(a => {
+        a.x = cx + R * Math.cos(a.angle + rotation);
+        a.y = cy + R * Math.sin(a.angle + rotation);
+        a.pulse += 0.025;
+      });
+
+      // Draw synergy lines
+      connections.forEach(([i, j, strength]) => {
+        const a = agents[i], b = agents[j];
+        const isActive = selectedAgentIdx === i || selectedAgentIdx === j;
+        const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+        const alpha = isActive ? strength * 0.9 : strength * 0.22;
+        grad.addColorStop(0, hexAlpha(a.color, alpha));
+        grad.addColorStop(0.5, hexAlpha('#ffffff', alpha * 0.3));
+        grad.addColorStop(1, hexAlpha(b.color, alpha));
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = isActive ? strength * 2.5 : strength * 1;
+        ctx.setLineDash(isActive ? [] : [4, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Draw center glow
+      const centerGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+      centerGlow.addColorStop(0, 'rgba(56,189,248,0.08)');
+      centerGlow.addColorStop(1, 'transparent');
+      ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI*2);
+      ctx.fillStyle = centerGlow; ctx.fill();
+      ctx.font = '18px Outfit'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillText('🗼', cx, cy);
+
+      // Draw orbit ring
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+      ctx.setLineDash([3, 8]); ctx.stroke(); ctx.setLineDash([]);
+
+      // Draw agent nodes
+      agents.forEach((a, idx) => {
+        const isSelected = selectedAgentIdx === idx;
+        const isHovered = hoveredAgent === idx;
+        const pulse = Math.sin(a.pulse) * 3;
+        const nodeR = isSelected ? 30 : isHovered ? 28 : 24;
+
+        // Outer aura
+        const aura = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, nodeR * 3 + pulse * 2);
+        aura.addColorStop(0, hexAlpha(a.color, isSelected ? 0.35 : 0.12));
+        aura.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(a.x, a.y, nodeR * 3 + pulse * 2, 0, Math.PI*2);
+        ctx.fillStyle = aura; ctx.fill();
+
+        // Node body
+        ctx.beginPath(); ctx.arc(a.x, a.y, nodeR + pulse * 0.5, 0, Math.PI*2);
+        ctx.fillStyle = a.glow; ctx.fill();
+        ctx.strokeStyle = a.color;
+        ctx.lineWidth = isSelected ? 2.5 : 1.5;
+        ctx.stroke();
+
+        // Inner highlight
+        ctx.beginPath(); ctx.arc(a.x - 5, a.y - 5, nodeR * 0.4, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fill();
+
+        // Emoji
+        ctx.font = `${isSelected ? 18 : 15}px serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(a.emoji, a.x, a.y);
+
+        // Name label
+        const labelY = a.y + nodeR + 16 + (Math.sin(a.angle + rotation) > 0 ? 4 : -24 - nodeR * 2);
+        const labelActualY = a.y + (Math.sin(a.angle + rotation) > -0.3 ? nodeR + 16 : -(nodeR + 20));
+        ctx.font = `${isSelected ? '700 11px' : '600 10px'} Outfit`;
+        ctx.fillStyle = isSelected ? a.color : 'rgba(255,255,255,0.65)';
+        ctx.fillText(a.name.split(' ')[0], a.x, labelActualY);
+        ctx.font = '500 9px JetBrains Mono';
+        ctx.fillStyle = a.color + 'aa';
+        ctx.fillText(a.mbti, a.x, labelActualY + 12);
+      });
+
+      rotation += 0.0015;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  function hexAlpha(hex, alpha) {
+    if (hex.startsWith('#')) {
+      const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+    return hex;
+  }
+
+  function updateSpotlight(idx) {
+    const nameEl = document.getElementById('constellation-selected-name');
+    const spotlight = document.getElementById('agent-spotlight');
+    if (idx === null) {
+      if (nameEl) nameEl.textContent = '클릭하여 에이전트 선택';
+      if (spotlight) spotlight.style.borderColor = 'rgba(56,189,248,0.2)';
+      document.getElementById('spotlight-avatar').textContent = '🎯';
+      document.getElementById('spotlight-name').textContent = '에이전트를 선택하세요';
+      document.getElementById('spotlight-role').textContent = '';
+      document.getElementById('spotlight-mbti').textContent = '';
+      document.getElementById('spotlight-desc').textContent = '컨스텔레이션에서 원하는 에이전트 노드를 클릭하면 상세 능력치와 시너지 파트너가 표시됩니다.';
+      document.getElementById('spotlight-skills').innerHTML = '';
+      document.getElementById('spotlight-quote').textContent = '';
+      return;
+    }
+    const a = teamData[idx];
+    if (nameEl) nameEl.textContent = `${agentEmojis[idx]} ${a.name.split(' ')[0]} 선택됨`;
+    if (spotlight) spotlight.style.borderColor = a.color + '50';
+
+    document.getElementById('spotlight-avatar').textContent = agentEmojis[idx];
+    document.getElementById('spotlight-avatar').style.background = a.glow;
+    document.getElementById('spotlight-avatar').style.borderColor = a.color + '60';
+    document.getElementById('spotlight-name').textContent = a.name;
+    document.getElementById('spotlight-name').style.color = a.color;
+    document.getElementById('spotlight-role').textContent = `${a.role} · ${a.mbtiType}`;
+    document.getElementById('spotlight-mbti').textContent = a.mbti;
+    document.getElementById('spotlight-mbti').style.color = a.color;
+    document.getElementById('spotlight-desc').textContent = a.desc;
+
+    const skillsEl = document.getElementById('spotlight-skills');
+    skillsEl.innerHTML = '';
+    a.skills.forEach(sk => {
+      const row = document.createElement('div');
+      row.className = 'skill-bar-row';
+      row.innerHTML = `
+        <span class="skill-bar-label">${sk.name}</span>
+        <div class="skill-bar-track">
+          <div class="skill-bar-fill" style="width:0%;background:${a.color};box-shadow:0 0 6px ${a.color}80;" data-target="${sk.val}"></div>
+        </div>
+        <span class="skill-bar-val" style="color:${a.color}">${sk.val}</span>`;
+      skillsEl.appendChild(row);
+    });
+    // Animate bars
+    setTimeout(() => {
+      skillsEl.querySelectorAll('.skill-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.target + '%';
+      });
+    }, 50);
+
+    document.getElementById('spotlight-quote').textContent = `"${a.quote}"`;
+    document.getElementById('spotlight-quote').style.borderLeftColor = a.color + '60';
+  }
+
   // Sync System Time
   function updateTime() {
     const now = new Date();
@@ -2920,6 +3464,8 @@ export const newColumn = {
  
   // App initialization
   window.onload = function() {
+    initParticles();
+    initCursor();
     renderCards();
     populateSeoTable();
     calculateAdSense();
@@ -2930,6 +3476,9 @@ export const newColumn = {
     populateDomainExpiries();
     startRealtimeVisitorLogs();
     populateMetaSelect();
+    initConstellation();
+    initSynergyHeatmap();
+    initMissionFeed();
     updateTime();
 
     setInterval(updateTime, 1000);
