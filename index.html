@@ -16,7 +16,10 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <!-- Chart.js CDN -->
-      /* Reset & CSS variables */
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* Reset & CSS variables */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
@@ -75,7 +78,27 @@
     .dashboard-container {
       max-width: 1540px;
       margin: 0 auto;
-      padding: 30px 20px;
+      padding: 10px 20px 30px;
+    }
+    
+    /* Alert Banner */
+    .alert-banner {
+      background: rgba(244, 114, 182, 0.12);
+      border: 1px solid rgba(244, 114, 182, 0.3);
+      border-radius: 14px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-bright);
+      box-shadow: 0 10px 20px -10px rgba(244, 114, 182, 0.3);
+      animation: alert-pulse 3s infinite alternate;
+    }
+    @keyframes alert-pulse {
+      0% { border-color: rgba(244, 114, 182, 0.2); }
+      100% { border-color: rgba(244, 114, 182, 0.5); }
     }
     
     /* Floating Header Styles */
@@ -232,6 +255,31 @@
       animation: status-pulse 2s infinite;
     }
     
+    /* AdSense Goal progress bar */
+    .goal-tracker-container {
+      margin-top: 10px;
+    }
+    .goal-tracker-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .goal-bar-outer {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .goal-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, var(--aurora-gold), var(--aurora-mint));
+      width: 0%;
+      border-radius: 2px;
+      transition: width 1s ease-in-out;
+    }
+    
     /* Two Column Dashboard Section */
     .dashboard-grid {
       display: grid;
@@ -262,10 +310,16 @@
       margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       padding-bottom: 16px;
       color: var(--text-bright);
+    }
+    
+    .panel-title-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     
     .panel-title i { 
@@ -441,12 +495,63 @@
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
     }
     
-    .site-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--border-hover);
-      box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.35);
-    }
+    /* Custom Glow classes based on type */
+    .site-card.c-purple { --glow-color: var(--aurora-purple); }
+    .site-card.c-green { --glow-color: var(--aurora-mint); }
+    .site-card.c-blue { --glow-color: var(--aurora-blue); }
     
+    .site-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      border-color: transparent;
+      box-shadow:
+        0 0 0 1.5px var(--glow-color, rgba(56,189,248,0.6)),
+        0 0 30px var(--glow-color, rgba(56,189,248,0.2)),
+        0 24px 50px -16px rgba(0,0,0,0.6);
+    }
+
+    /* Neon Aurora Spinning Border Ring */
+    .site-card { isolation: isolate; }
+    .aurora-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 22px;
+      padding: 2px;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        var(--glow-color, #38bdf8) 20%,
+        var(--aurora-purple) 40%,
+        transparent 55%,
+        var(--glow-color, #38bdf8) 80%,
+        transparent 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.45s ease;
+      animation: aurora-ring-spin 2.5s linear infinite paused;
+    }
+    .site-card:hover .aurora-ring { opacity: 1; animation-play-state: running; }
+    @keyframes aurora-ring-spin { to { transform: rotate(360deg); } }
+
+    /* Mouse-tracking glow spot */
+    .site-card .glow-spot {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow-color, rgba(56,189,248,0.18)) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 0;
+    }
+    .site-card:hover .glow-spot { opacity: 1; }
+
     .card-top { margin-bottom: 20px; }
     
     .card-head {
@@ -596,6 +701,7 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      cursor: pointer;
     }
     
     .action-btn.btn-github {
@@ -991,6 +1097,16 @@
       transform: none;
     }
     
+    /* Dual Terminal Design */
+    .terminals-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 992px) {
+      .terminals-row { grid-template-columns: 1fr; }
+    }
+    
     .sim-terminal {
       background: #060913;
       border: 1px solid rgba(255, 255, 255, 0.03);
@@ -998,7 +1114,7 @@
       padding: 20px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.8rem;
-      min-height: 240px;
+      min-height: 280px;
       max-height: 380px;
       overflow-y: auto;
       box-shadow: inset 0 10px 30px rgba(0,0,0,0.8);
@@ -1011,6 +1127,7 @@
       margin-bottom: 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       padding-bottom: 8px;
+      align-items: center;
     }
     
     .sim-dot {
@@ -1058,9 +1175,9 @@
     .sim-log-system {
       color: var(--aurora-mint);
     }
-  </style>(--text-muted);
-      line-height: 1.5;
-      word-break: keep-all;
+    .sim-log-warn {
+      color: var(--aurora-rose);
+      font-weight: 600;
     }
   </style>
 </head>
@@ -1068,6 +1185,17 @@
 
 <div class="dashboard-container">
   
+  <!-- SSL Alert Banner (Feature 5) -->
+  <div class="alert-banner" id="ssl-warning-banner">
+    <div>
+      <i class="fa-solid fa-triangle-exclamation" style="color:var(--aurora-rose); margin-right:8px;"></i>
+      <strong>🚨 SSL 만료 주의:</strong> <code>burnout-radar1024.vercel.app</code>의 SSL 인증서가 <strong>8일 후 만료</strong>될 예정입니다.
+    </div>
+    <button class="sim-btn" onclick="triggerManualRenew()" style="padding: 4px 14px; font-size: 0.72rem; background: rgba(244, 114, 182, 0.2); border: 1px solid rgba(244, 114, 182, 0.4); box-shadow: none;">
+      <i class="fa-solid fa-rotate"></i> 즉시 갱신 (재배포)
+    </button>
+  </div>
+
   <!-- Header -->
   <header>
     <div class="header-logo">
@@ -1078,7 +1206,7 @@
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 20px;">
-      <a href="guide.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(139, 92, 246, 0.15); color: var(--neon-purple); border: 1px solid rgba(139, 92, 246, 0.3); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.3s; text-shadow: 0 0 8px var(--neon-purple-glow);" onmouseover="this.style.background='var(--neon-purple)'; this.style.color='var(--text-main)'; this.style.boxShadow='0 0 15px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.background='rgba(139, 92, 246, 0.15)'; this.style.color='var(--neon-purple)'; this.style.boxShadow='none';">
+      <a href="guide.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(192, 132, 252, 0.15); color: var(--aurora-purple); border: 1px solid rgba(192, 132, 252, 0.3); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.3s; text-shadow: 0 0 8px var(--aurora-purple-glow);" onmouseover="this.style.background='var(--aurora-purple)'; this.style.color='#000';" onmouseout="this.style.background='rgba(192, 132, 252, 0.15)'; this.style.color='var(--aurora-purple)';">
         <i class="fa-solid fa-book-open"></i>
         <span>📚 마스터 개발 가이드 (2만자)</span>
       </a>
@@ -1117,13 +1245,23 @@
     
     <div class="metric-card m-yellow">
       <div class="metric-card-header">
-        <span>AdSense Sites</span>
+        <span>AdSense Goal Tracker (Feature 4)</span>
         <i class="fa-solid fa-coins"></i>
       </div>
-      <div class="metric-val" id="cnt-adsense">4</div>
+      <div class="metric-val" id="cnt-adsense-earnings">$37.50</div>
       <div class="metric-sub">
-        <i class="fa-solid fa-circle-check" style="color:var(--neon-green)"></i>
-        <span>승인 4 / 심사중 2 / 대기 9</span>
+        <i class="fa-solid fa-circle-check" style="color:var(--aurora-mint)"></i>
+        <span>목표 일수익: $35.00 / 일</span>
+      </div>
+      <!-- Goal Progress Bar -->
+      <div class="goal-tracker-container">
+        <div class="goal-tracker-header">
+          <span>Target Progress</span>
+          <span id="goal-progress-percent">107%</span>
+        </div>
+        <div class="goal-bar-outer">
+          <div class="goal-bar-inner" id="goal-progress-bar"></div>
+        </div>
       </div>
     </div>
     
@@ -1146,8 +1284,10 @@
     <!-- Left Panel: Analytics Charts -->
     <div class="panel-card">
       <div class="panel-title">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>통합 접속 및 유입 데이터 분석 (통계 시뮬레이션)</span>
+        <div class="panel-title-left">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>통합 접속 및 유입 데이터 분석 (통계 시뮬레이션)</span>
+        </div>
       </div>
       <div class="chart-box">
         <canvas id="traffic-line-chart"></canvas>
@@ -1155,13 +1295,13 @@
       
       <div class="charts-row-inner">
         <div>
-          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-pie-chart" style="color:var(--neon-purple); margin-right:6px;"></i>사이트별 트래픽 기여도</h4>
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-pie-chart" style="color:var(--aurora-purple); margin-right:6px;"></i>사이트별 트래픽 기여도</h4>
           <div class="chart-box" style="height:220px;">
             <canvas id="traffic-doughnut-chart"></canvas>
           </div>
         </div>
         <div>
-          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-bar-chart" style="color:var(--neon-yellow); margin-right:6px;"></i>애드센스 승인 사이트 예상 매출</h4>
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-bar-chart" style="color:var(--aurora-gold); margin-right:6px;"></i>애드센스 승인 사이트 예상 매출</h4>
           <div class="chart-box" style="height:220px;">
             <canvas id="revenue-bar-chart"></canvas>
           </div>
@@ -1172,8 +1312,10 @@
     <!-- Right Panel: AdSense Earnings Simulator -->
     <div class="panel-card">
       <div class="panel-title">
-        <i class="fa-solid fa-calculator"></i>
-        <span>애드센스 수익 시뮬레이터</span>
+        <div class="panel-title-left">
+          <i class="fa-solid fa-calculator"></i>
+          <span>애드센스 수익 시뮬레이터</span>
+        </div>
       </div>
       <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px; line-height:1.6;">일일 트래픽 및 광고 효율 데이터를 직접 조절하여 예상되는 수익 지표를 실시간 시뮬레이션해 보세요.</p>
       
@@ -1232,6 +1374,89 @@
     </div>
   </div>
 
+  <!-- Config Editor & AI Writer Section (Features 1 & 8) -->
+  <div class="dashboard-grid" style="margin-top: 30px;">
+    
+    <!-- JSON / AI Editor card -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <div class="panel-title-left">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>⚙️ 사이트 구성 파일 편집기 (JSON Editor) & AI SEO 칼럼 생성기</span>
+        </div>
+      </div>
+      <!-- Tabs for JSON Editor and AI Writer -->
+      <div class="filter-buttons" style="margin-bottom: 20px; width: fit-content; background: rgba(255,255,255,0.01);">
+        <button class="filter-btn active" id="btn-tab-json" onclick="switchEditorTab('json')">JSON 설정 편집기</button>
+        <button class="filter-btn" id="btn-tab-ai" onclick="switchEditorTab('ai')">AI SEO 칼럼 생성기</button>
+      </div>
+      
+      <!-- JSON Editor Tab Content -->
+      <div id="tab-content-json" class="editor-tab-content">
+        <div style="display:flex; gap:16px; margin-bottom:12px;">
+          <select id="select-edit-site" class="filter-btn" style="background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); border-radius:8px; outline:none;" onchange="loadSiteJsonConfig()">
+            <!-- Populated dynamically -->
+          </select>
+          <button class="sim-btn" onclick="saveSiteJsonConfig()" style="padding: 6px 16px; font-size:0.75rem;">
+            <i class="fa-solid fa-save"></i> 저장 및 Vercel 배포
+          </button>
+        </div>
+        <textarea id="json-editor-textarea" style="width:100%; height:250px; background:#060913; border:1px solid var(--border); border-radius:12px; color:#38bdf8; font-family:'JetBrains Mono',monospace; padding:16px; font-size:0.8rem; resize:vertical; outline:none;"></textarea>
+      </div>
+      
+      <!-- AI Writer Tab Content -->
+      <div id="tab-content-ai" class="editor-tab-content" style="display:none;">
+        <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+          <select id="select-ai-site" class="filter-btn" style="background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); border-radius:8px; outline:none;">
+            <!-- Populated dynamically -->
+          </select>
+          <input type="text" id="input-ai-keyword" placeholder="추천 키워드 (예: 직장인 번아웃 극복)" style="background:rgba(255,255,255,0.03); color:white; border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:0.8rem; flex:1; min-width:150px; outline:none;">
+          <button class="sim-btn" onclick="generateAiColumn()" style="padding: 6px 16px; font-size:0.75rem;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI 칼럼 기획
+          </button>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+          <div>
+            <h5 style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">생성 결과 (Markdown)</h5>
+            <textarea id="ai-markdown-output" readonly style="width:100%; height:180px; background:#060913; border:1px solid var(--border); border-radius:12px; color:#a5b4fc; font-family:'JetBrains Mono',monospace; padding:12px; font-size:0.75rem; outline:none; resize:none;"></textarea>
+          </div>
+          <div>
+            <h5 style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">자동 주입 확인</h5>
+            <div id="ai-inject-preview" style="width:100%; height:180px; background:rgba(255,255,255,0.01); border:1px solid var(--border); border-radius:12px; padding:12px; font-size:0.75rem; overflow-y:auto; color:var(--text-main); line-height:1.5; word-break:break-all;">
+              기획 버튼을 누르면 AI가 SEO 최적화 칼럼을 생성하여 해당 사이트 소스코드에 삽입할 준비를 합니다.
+            </div>
+          </div>
+        </div>
+        <button class="sim-btn" id="btn-ai-inject-deploy" disabled onclick="injectAndDeployColumn()" style="margin-top:10px; width:100%; justify-content:center; background:linear-gradient(135deg, var(--aurora-purple), var(--aurora-rose));">
+          <i class="fa-solid fa-cloud-arrow-up"></i> 생성된 칼럼 사이트에 자동 주입 및 배포
+        </button>
+      </div>
+    </div>
+
+    <!-- Multi-Dimensional Radar and SSL Health (Features 7 & 5) -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <div class="panel-title-left">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>📊 다차원 성과 분석 & 자산 유효기간 모니터</span>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:20px; height: calc(100% - 60px);">
+        <div class="chart-box" style="height:250px;">
+          <canvas id="performance-radar-chart"></canvas>
+        </div>
+        <div style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+          <div>
+            <h4 style="font-size:0.8rem; color:var(--text-bright); margin-bottom:12px; font-weight:700;"><i class="fa-solid fa-shield-halved" style="color:var(--aurora-rose); margin-right:6px;"></i>보안 & 도메인 헬스</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.75rem;" id="domain-expiry-list">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Site List Header with Filters -->
   <div class="section-header">
     <h2><i class="fa-solid fa-list-check"></i>관제 사이트 목록 (15개)</h2>
@@ -1245,14 +1470,16 @@
 
   <!-- Site Cards Grid -->
   <div class="site-grid" id="site-cards-container">
-    <!-- Cards will be dynamically injected by JS to maintain clean, easy maintenance -->
+    <!-- Cards injected by JS -->
   </div>
   
   <!-- SEO Table Inspector Section -->
   <div class="panel-card seo-panel">
     <div class="panel-title">
-      <i class="fa-solid fa-globe"></i>
-      <span>검색 엔진 최적화(SEO) 및 설정 요약 인스펙터</span>
+      <div class="panel-title-left">
+        <i class="fa-solid fa-globe"></i>
+        <span>검색 엔진 최적화(SEO) 및 설정 요약 인스펙터</span>
+      </div>
     </div>
     <div class="seo-table-container">
       <table class="seo-table">
@@ -1273,29 +1500,102 @@
     </div>
   </div>
 
-  <!-- Agent Collaboration Simulator Section -->
+  <!-- Metacode One-Click Injector (Feature 3) -->
+  <div class="panel-card" style="margin-top:30px;">
+    <div class="panel-title">
+      <div class="panel-title-left">
+        <i class="fa-solid fa-code"></i>
+        <span>🔐 검색엔진 소유권 메타코드 원클릭 주입기</span>
+      </div>
+      <span style="font-size:0.75rem; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">GitHub API 연동 · index.html 자동 수정 및 커밋</span>
+    </div>
+    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:18px;">네이버/구글 서치콘솔에서 발급한 소유권 확인 메타코드를 선택한 사이트의 <code style="color:var(--aurora-blue)">index.html</code>에 자동 주입하고 GitHub 커밋까지 원클릭으로 완료합니다.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:6px;"><i class="fa-brands fa-github" style="margin-right:5px;"></i>GitHub PAT 토큰 (repo 권한)</label>
+          <input type="password" id="meta-gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%; background:rgba(255,255,255,0.03); color:white; border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; outline:none;" oninput="saveMetaToken(this.value)">
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:6px;"><i class="fa-solid fa-globe" style="margin-right:5px;"></i>대상 사이트 선택</label>
+          <select id="meta-site-select" style="width:100%; background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:0.8rem; outline:none;" onchange="previewMetaInjection()">
+            <option value="">-- 사이트 선택 --</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:6px;"><i class="fa-solid fa-tag" style="margin-right:5px;"></i>소유권 확인 메타태그 (전체 붙여넣기)</label>
+          <textarea id="meta-code-input" rows="3" placeholder='<meta name="naver-site-verification" content="xxxxxxxx" />' style="width:100%; background:rgba(255,255,255,0.03); color:var(--aurora-mint); border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:0.76rem; outline:none; resize:none;" oninput="previewMetaInjection()"></textarea>
+        </div>
+        <button class="sim-btn" onclick="injectMetaCode()" style="justify-content:center; background:linear-gradient(135deg,var(--aurora-blue),var(--aurora-purple));">
+          <i class="fa-solid fa-cloud-arrow-up"></i> 주입 및 GitHub 커밋 실행
+        </button>
+      </div>
+      <div>
+        <label style="font-size:0.75rem; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;"><i class="fa-solid fa-terminal" style="margin-right:5px;"></i>주입 미리보기 & 실행 로그</label>
+        <div id="meta-inject-log" style="height:220px; background:#060913; border:1px solid var(--border); border-radius:12px; padding:12px; font-family:'JetBrains Mono',monospace; font-size:0.74rem; overflow-y:auto; color:var(--text-muted); line-height:1.8;">
+          <span style="color:var(--aurora-blue)">// 사이트와 메타코드를 선택하면 GitHub repo + branch 정보가 여기에 표시됩니다.</span>
+        </div>
+
+        <!-- Naver / Google status table -->
+        <div style="margin-top:14px;">
+          <h5 style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:8px;"><i class="fa-solid fa-list-check" style="margin-right:5px; color:var(--aurora-mint);"></i>사이트별 소유권 확인 현황</h5>
+          <div style="font-size:0.74rem; display:flex; flex-direction:column; gap:6px;" id="meta-status-list">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Collaboration & Vercel Build Monitor (Features 2 & 6) -->
   <div class="panel-card sim-panel" style="margin-top: 30px;">
     <div class="panel-title sim-header">
       <div style="display:flex; align-items:center; gap:12px;">
         <i class="fa-solid fa-laptop-code"></i>
-        <span>🤖 에이전트 자율 협업 배포 시뮬레이터 (Agent Sprint Console)</span>
+        <span>🤖 에이전트 자율 협업 & 실시간 빌드 로그 관제판 (Dual Stream Console)</span>
       </div>
       <button class="sim-btn" id="start-sim-btn" onclick="startAgentSimulation()">
         <i class="fa-solid fa-play"></i>
         <span>자율 협업 스프린트 시작</span>
       </button>
     </div>
-    <div class="sim-terminal">
-      <div class="sim-terminal-bar">
-        <span class="sim-dot red"></span>
-        <span class="sim-dot yellow"></span>
-        <span class="sim-dot green"></span>
-        <span style="font-size:0.7rem; color:var(--text-muted); margin-left:8px; font-weight:600;">harness-agent-orchestrator@v1.0.0</span>
+    
+    <div class="terminals-row">
+      <!-- Left Terminal: Agent and Visitor Logs -->
+      <div>
+        <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; font-weight:700;"><i class="fa-solid fa-user-clock" style="color:var(--aurora-blue); margin-right:6px;"></i>방문자 트래픽 및 에이전트 협업 로그</h4>
+        <div class="sim-terminal" id="terminal-left">
+          <div class="sim-terminal-bar">
+            <span class="sim-dot red"></span>
+            <span class="sim-dot yellow"></span>
+            <span class="sim-dot green"></span>
+            <span style="font-size:0.7rem; color:var(--text-muted); margin-left:8px; font-weight:600;">harness-agent-orchestrator@v1.0.0</span>
+          </div>
+          <div class="sim-terminal-content" id="sim-terminal-output">
+            <div class="sim-log-line">
+              <span class="sim-log-time">[16:00:00]</span>
+              <span class="sim-log-msg sim-log-system">System: 실시간 방문자 트래픽 로그 리스너가 구동되었습니다.</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="sim-terminal-content" id="sim-terminal-output">
-        <div class="sim-log-line">
-          <span class="sim-log-time">[16:00:00]</span>
-          <span class="sim-log-msg sim-log-system">System: 콘솔이 준비되었습니다. '자율 협업 스프린트 시작' 버튼을 누르면 8명의 에이전트가 가상 사이트 기획/배포 스프린트를 시작합니다.</span>
+      
+      <!-- Right Terminal: Vercel Deploy Log Monitor -->
+      <div>
+        <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px; font-weight:700;"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--aurora-purple); margin-right:6px;"></i>Vercel 프로덕션 빌드 로그 (Vercel Build Monitor)</h4>
+        <div class="sim-terminal" id="terminal-right">
+          <div class="sim-terminal-bar">
+            <span class="sim-dot red"></span>
+            <span class="sim-dot yellow"></span>
+            <span class="sim-dot green"></span>
+            <span style="font-size:0.7rem; color:var(--text-muted); margin-left:8px; font-weight:600;">vercel-api-link::build-inspector</span>
+          </div>
+          <div class="sim-terminal-content" id="vercel-build-output">
+            <div class="sim-log-line">
+              <span class="sim-log-time">[16:00:00]</span>
+              <span class="sim-log-msg sim-log-system">Vercel: 새로운 배포 요청 대기 중... JSON 저장 또는 AI 칼럼 주입을 수행하면 빌드 파이프라인이 여기에 실시간으로 기록됩니다.</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1304,12 +1604,14 @@
   <!-- Harness Team Section -->
   <div class="panel-card team-panel" style="margin-top: 30px;">
     <div class="panel-title">
-      <i class="fa-solid fa-users-viewfinder"></i>
-      <span>하네스 개발팀 — 에이전트 & 커맨드 프로필 (Harness Dev Team)</span>
+      <div class="panel-title-left">
+        <i class="fa-solid fa-users-viewfinder"></i>
+        <span>하네스 개발팀 — 에이전트 & 커맨드 프로필 (Harness Dev Team)</span>
+      </div>
     </div>
     <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:20px; line-height:1.6;">각 에이전트 카드를 클릭하면 상세 능력치(MBTI 역량 지표), 한마디 어록 및 시너지 관계 정보를 확인할 수 있습니다.</p>
     <div class="team-grid" id="team-cards-container">
-      <!-- Cards will be populated here -->
+      <!-- Cards populated here -->
     </div>
   </div>
 
@@ -1318,7 +1620,7 @@
     <div class="agent-modal" id="agent-modal-content">
       <div class="modal-close-btn" onclick="closeAgentModal()"><i class="fa-solid fa-xmark"></i></div>
       <div id="agent-modal-body">
-        <!-- Content will be dynamically injected by JavaScript -->
+        <!-- Content injected by JavaScript -->
       </div>
     </div>
   </div>
@@ -1343,7 +1645,10 @@
       traffic: "Tier 1 (High)",
       visitors: 8200,
       icon: "fa-rocket",
-      desc: "MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석하는 진단 사이트. 9가지 유형 중 본인의 행동 패턴을 분석하고 성장 방향을 제안합니다."
+      desc: "MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석하는 진단 사이트. 9가지 유형 중 본인의 행동 패턴을 분석하고 성장 방향을 제안합니다.",
+      performance: [85, 90, 95, 80, 95], // [트래픽, 수익성, SEO 지수, 공유 활성, 핑 안정]
+      sslExpiryDays: 45,
+      domainExpiryDays: 280
     },
     {
       id: "burnout-radar",
@@ -1357,7 +1662,10 @@
       traffic: "Tier 2 (Med)",
       visitors: 4100,
       icon: "fa-fire-extinguisher",
-      desc: "직장인 번아웃의 6가지 영역(업무량, 통제감, 보상 등)을 과학적 MBI 모델 기반으로 측정하여 스트레스 완화 솔루션을 제공하는 진단 도구입니다. 9월 재심사 예정."
+      desc: "직장인 번아웃의 6가지 영역(업무량, 통제감, 보상 등)을 과학적 MBI 모델 기반으로 측정하여 스트레스 완화 솔루션을 제공하는 진단 도구입니다. 9월 재심사 예정.",
+      performance: [60, 50, 80, 45, 90],
+      sslExpiryDays: 8, // Triggers alert!
+      domainExpiryDays: 140
     },
     {
       id: "genius-radar",
@@ -1371,7 +1679,10 @@
       traffic: "Tier 1 (High)",
       visitors: 7600,
       icon: "fa-brain",
-      desc: "하워드 가드너의 다중지능 이론을 응용하여 개인의 지능 강점과 최적의 학습법, 직무 유형을 찾아주는 다차원 지능 지표 분석 도구입니다."
+      desc: "하워드 가드너의 다중지능 이론을 응용하여 개인의 지능 강점과 최적의 학습법, 직무 유형을 찾아주는 다차원 지능 지표 분석 도구입니다.",
+      performance: [90, 85, 90, 88, 96],
+      sslExpiryDays: 60,
+      domainExpiryDays: 320
     },
     {
       id: "dun-mu",
@@ -1385,7 +1696,10 @@
       traffic: "Internal Only",
       visitors: 1200,
       icon: "fa-users-gear",
-      desc: "에니어그램, Big5, VIA 강점 등을 결합하여 공직 아키타입을 분류하고 최적의 팀 구성 및 인사 결정을 내릴 수 있도록 돕는 실무 전용 시스템입니다."
+      desc: "에니어그램, Big5, VIA 강점 등을 결합하여 공직 아키타입을 분류하고 최적의 팀 구성 및 인사 결정을 내릴 수 있도록 돕는 실무 전용 시스템입니다.",
+      performance: [40, 20, 85, 30, 98],
+      sslExpiryDays: 85,
+      domainExpiryDays: 350
     },
     {
       id: "ilban-leadership",
@@ -1399,7 +1713,10 @@
       traffic: "Tier 3 (Low)",
       visitors: 900,
       icon: "fa-people-group",
-      desc: "비전형, 코칭형 등 6가지 리더십 스타일을 측정하여 조직의 성격에 적합한 리더십 훈련 가이드 및 피드백을 제공하는 역량 평가 플랫폼입니다."
+      desc: "비전형, 코칭형 등 6가지 리더십 스타일을 측정하여 조직의 성격에 적합한 리더십 훈련 가이드 및 피드백을 제공하는 역량 평가 플랫폼입니다.",
+      performance: [30, 10, 75, 25, 88],
+      sslExpiryDays: 42,
+      domainExpiryDays: 120
     },
     {
       id: "mind-prism",
@@ -1413,7 +1730,10 @@
       traffic: "Tier 2 (Med)",
       visitors: 3200,
       icon: "fa-shapes",
-      desc: "인지 기능과 자아 지향을 분석하여 16가지 성격 유형의 대인관계 적합성과 정서 훈련 팁을 종합 제공하는 고도화된 성격 심리 검사 앱입니다."
+      desc: "인지 기능과 자아 지향을 분석하여 16가지 성격 유형의 대인관계 적합성과 정서 훈련 팁을 종합 제공하는 고도화된 성격 심리 검사 앱입니다.",
+      performance: [65, 40, 85, 50, 94],
+      sslExpiryDays: 52,
+      domainExpiryDays: 160
     },
     {
       id: "fx-radar",
@@ -1427,7 +1747,10 @@
       traffic: "Tier 1 (High)",
       visitors: 6200,
       icon: "fa-arrow-trend-up",
-      desc: "행동경제학 이론을 접목하여 외환 거래 시 발생하는 투자 편향(손실 회피, 과신 편향 등)을 분석하고 맞춤형 트레이딩 마인드 컨트롤 팁을 줍니다."
+      desc: "행동경제학 이론을 접목하여 외환 거래 시 발생하는 투자 편향(손실 회피, 과신 편향 등)을 분석하고 맞춤형 트레이딩 마인드 컨트롤 팁을 줍니다.",
+      performance: [88, 92, 94, 85, 95],
+      sslExpiryDays: 55,
+      domainExpiryDays: 310
     },
     {
       id: "mood-weather",
@@ -1441,7 +1764,10 @@
       traffic: "Tier 2 (Med)",
       visitors: 4800,
       icon: "fa-cloud-sun",
-      desc: "자신의 일상적인 기분 변화를 기상 현상에 빗대어 기록하고 감사 일기 기능과 긍정 심리 피드백으로 감정 회복 탄력성을 돕는 감정 추적 다이어리입니다."
+      desc: "자신의 일상적인 기분 변화를 기상 현상에 빗대어 기록하고 감사 일기 기능과 긍정 심리 피드백으로 감정 회복 탄력성을 돕는 감정 추적 다이어리입니다.",
+      performance: [72, 78, 88, 70, 92],
+      sslExpiryDays: 48,
+      domainExpiryDays: 290
     },
     {
       id: "hyper-automation-tower",
@@ -1455,7 +1781,10 @@
       traffic: "Tier 3 (Low)",
       visitors: 1400,
       icon: "fa-laptop-code",
-      desc: "ChatGPT, Claude 및 자동화 툴 활용 팁을 정리한 가이드 웹사이트. 실무 생산성 향상을 위한 프롬프트 가이드와 기술 노하우를 집중적으로 다룹니다."
+      desc: "ChatGPT, Claude 및 자동화 툴 활용 팁을 정리한 가이드 웹사이트. 실무 생산성 향상을 위한 프롬프트 가이드와 기술 노하우를 집중적으로 다룹니다.",
+      performance: [50, 30, 80, 40, 86],
+      sslExpiryDays: 35,
+      domainExpiryDays: 115
     },
     {
       id: "cho-tan",
@@ -1469,7 +1798,10 @@
       traffic: "Internal Only",
       visitors: 1100,
       icon: "fa-user-tie",
-      desc: "가정연합 내부 목회자들을 타겟으로 설계된 역량 종합 분석 플랫폼으로 실무 리더십 스타일과 부서 적합성을 다원 평가합니다."
+      desc: "가정연합 내부 목회자들을 타겟으로 설계된 역량 종합 분석 플랫폼으로 실무 리더십 스타일과 부서 적합성을 다원 평가합니다.",
+      performance: [45, 25, 82, 35, 96],
+      sslExpiryDays: 78,
+      domainExpiryDays: 340
     },
     {
       id: "focus-flow",
@@ -1483,7 +1815,10 @@
       traffic: "Tier 3 (Low)",
       visitors: 800,
       icon: "fa-hourglass-half",
-      desc: "포모도로 업무 시간 구조화와 딥워크 실천 가이드를 결합하여 집중 방해 요인을 분석해내는 집중 트래커 및 생산성 보강 웹 앱입니다."
+      desc: "포모도로 업무 시간 구조화와 딥워크 실천 가이드를 결합하여 집중 방해 요인을 분석해내는 집중 트래커 및 생산성 보강 웹 앱입니다.",
+      performance: [35, 15, 78, 30, 84],
+      sslExpiryDays: 14, // Warning!
+      domainExpiryDays: 95
     },
     {
       id: "jeongbu",
@@ -1497,7 +1832,10 @@
       traffic: "Tier 2 (Med)",
       visitors: 2200,
       icon: "fa-hand-holding-dollar",
-      desc: "소상공인, 예비창업자 및 중소기업이 즉시 매칭받을 수 있는 중앙정부와 지자체 지원 사업을 알기 쉽게 가이드화한 금융 복지 채널입니다."
+      desc: "소상공인, 예비창업자 및 중소기업이 즉시 매칭받을 수 있는 중앙정부와 지자체 지원 사업을 알기 쉽게 가이드화한 금융 복지 채널입니다.",
+      performance: [55, 35, 85, 45, 90],
+      sslExpiryDays: 25,
+      domainExpiryDays: 180
     },
     {
       id: "woojisung",
@@ -1511,7 +1849,10 @@
       traffic: "Internal Only",
       visitors: 600,
       icon: "fa-circle-question",
-      desc: "민원 유형별 표준 응대 매뉴얼 및 조직 내 커뮤니케이션 가이드를 정리해 놓은 깃허브 페이지 기반 사내 위키 아카이브입니다."
+      desc: "민원 유형별 표준 응대 매뉴얼 및 조직 내 커뮤니케이션 가이드를 정리해 놓은 깃허브 페이지 기반 사내 위키 아카이브입니다.",
+      performance: [30, 5, 70, 20, 99],
+      sslExpiryDays: 99,
+      domainExpiryDays: 365
     },
     {
       id: "money-radar",
@@ -1525,7 +1866,10 @@
       traffic: "Tier 2 (Med)",
       visitors: 2800,
       icon: "fa-wallet",
-      desc: "소비 성향과 돈에 대한 태도를 심리학적으로 진단하여, 지출 습관 교정 및 행동경제학 관점의 재테크 포지션 제안을 돕는 가이드 진단입니다."
+      desc: "소비 성향과 돈에 대한 태도를 심리학적으로 진단하여, 지출 습관 교정 및 행동경제학 관점의 재테크 포지션 제안을 돕는 가이드 진단입니다.",
+      performance: [78, 80, 88, 65, 94],
+      sslExpiryDays: 58,
+      domainExpiryDays: 220
     },
     {
       id: "ilbanleadership1024",
@@ -1539,7 +1883,10 @@
       traffic: "Tier 3 (Low)",
       visitors: 750,
       icon: "fa-ranking-star",
-      desc: "기존 일반 리더십 자산과 연계된 백업 배포판으로 최적의 리더십 패턴 분석 및 지표 통계 확인을 위한 static 미러 웹입니다."
+      desc: "기존 일반 리더십 자산과 연계된 백업 배포판으로 최적의 리더십 패턴 분석 및 지표 통계 확인을 위한 static 미러 웹입니다.",
+      performance: [32, 12, 74, 24, 87],
+      sslExpiryDays: 44,
+      domainExpiryDays: 122
     }
   ];
 
@@ -1559,12 +1906,14 @@
 
     filtered.forEach(site => {
       // Color class
-      let borderClass = "";
+      let borderClass = "c-blue";
       if (site.status === "maintenance") borderClass = "c-purple";
       else if (site.adsense === "approved") borderClass = "c-green";
 
       const cardHtml = `
-        <div class="site-card ${borderClass}" data-id="${site.id}" data-url="${site.domain}">
+        <div class="site-card ${borderClass}" data-id="${site.id}" data-url="${site.domain}" onclick="selectSiteForRadar('${site.id}')" onmousemove="trackGlow(event,this)" onmouseleave="resetGlow(this)">
+          <div class="aurora-ring"></div>
+          <div class="glow-spot"></div>
           <div class="card-top">
             <div class="card-head">
               <div class="card-title-group">
@@ -1579,7 +1928,7 @@
                 <span class="txt">Checking</span>
               </span>
             </div>
-            <p style="font-size:0.75rem; color:var(--neon-blue); font-weight:600; margin-bottom:8px;">${site.sub}</p>
+            <p style="font-size:0.75rem; color:var(--aurora-blue); font-weight:600; margin-bottom:8px;">${site.sub}</p>
             <p class="card-desc">${site.desc}</p>
           </div>
           
@@ -1588,7 +1937,7 @@
               <div class="card-meta-item"><i class="fa-solid fa-users"></i>${site.traffic}</div>
               <div class="card-meta-item adsense">
                 <i class="fa-solid fa-coins"></i>AdSense: 
-                <span style="font-weight:700; color:${site.adsense==='approved'?'var(--neon-green)':(site.adsense==='pending'?'var(--neon-yellow)':'var(--text-muted)')}">
+                <span style="font-weight:700; color:${site.adsense==='approved'?'var(--aurora-mint)':(site.adsense==='pending'?'var(--aurora-gold)':'var(--text-muted)')}">
                   ${site.adsense==='approved'?'Approved':(site.adsense==='pending'?'Reviewing':'N/A')}
                 </span>
               </div>
@@ -1608,7 +1957,7 @@
   }
 
   function filterSites(type) {
-    document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".filter-buttons:first-of-type .filter-btn").forEach(btn => btn.classList.remove("active"));
     event.target.classList.add("active");
     renderCards(type);
   }
@@ -1624,7 +1973,6 @@
       else if (site.adsense === "pending") adsenseBadge = `<span class="badge-status warning"><i class="fa-solid fa-clock"></i> Reviewing</span>`;
       else adsenseBadge = `<span class="badge-status danger"><i class="fa-solid fa-circle-xmark"></i> N/A</span>`;
 
-      // Simulating SEO parameters based on settings
       const metaDesc = site.desc.length > 30 ? "✅ 160자 규격 충족" : "⚠️ 보완 필요";
       const sitemap = "✅ sitemap.xml 존재";
       const indexnowKey = site.id === "dun-mu" ? "⚠️ 제외 대상" : "✅ 0eea7e69...txt";
@@ -1632,7 +1980,7 @@
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td class="site-name">${site.name}</td>
-        <td><a href="https://${site.domain}" target="_blank" style="color:var(--neon-blue); text-decoration:none; font-family:'JetBrains Mono', monospace;">${site.domain}</a></td>
+        <td><a href="https://${site.domain}" target="_blank" style="color:var(--aurora-blue); text-decoration:none; font-family:'JetBrains Mono', monospace;">${site.domain}</a></td>
         <td><span class="badge-status ${metaDesc.startsWith('✅')?'success':'warning'}">${metaDesc}</span></td>
         <td><span class="badge-status success">${sitemap}</span></td>
         <td><span class="badge-status ${indexnowKey.startsWith('✅')?'success':'warning'}">${indexnowKey}</span></td>
@@ -1658,7 +2006,6 @@
       
       const startTime = performance.now();
       try {
-        // mode: 'no-cors' allows requesting external resources to see if they are active/online without CORS headers.
         await fetch(`https://${site.domain}/favicon.ico`, { mode: 'no-cors', cache: 'no-store' });
         const latency = Math.round(performance.now() - startTime);
         
@@ -1667,13 +2014,11 @@
         onlineCount++;
         totalLatency += latency;
       } catch (err) {
-        // Fallback status
         badge.className = "status-badge offline";
         badge.innerHTML = `<span class="status-pulse-dot"></span><span class="txt">OFFLINE</span>`;
       }
       activePingsCount++;
       
-      // Update real-time counter in dashboard header
       const liveCounterVal = document.getElementById("cnt-online");
       liveCounterVal.innerText = `${onlineCount} / ${sitesList.length} LIVE`;
       
@@ -1684,7 +2029,7 @@
     }
   }
 
-  // AdSense Calculator logic
+  // AdSense Calculator logic & Goal Tracker (Feature 4)
   const sldUv = document.getElementById("sld-uv");
   const sldPv = document.getElementById("sld-pv");
   const sldCtr = document.getElementById("sld-ctr");
@@ -1696,36 +2041,39 @@
     const ctr = parseFloat(sldCtr.value) / 100;
     const cpc = parseFloat(sldCpc.value);
 
-    // Update slider label metrics
     document.getElementById("lbl-uv").innerText = uv.toLocaleString() + "명";
     document.getElementById("lbl-pv").innerText = pv.toFixed(1) + "회";
     document.getElementById("lbl-ctr").innerText = (ctr * 100).toFixed(1) + "%";
     document.getElementById("lbl-cpc").innerText = "$" + cpc.toFixed(2);
 
-    // Math calculation
-    const impressions = Math.round(uv * pv); // Assuming 1 ad unit viewed per pageview on average
+    const impressions = Math.round(uv * pv); 
     const clicks = impressions * ctr;
     const dailyEarnings = clicks * cpc;
     const monthlyEarnings = dailyEarnings * 30;
     const yearlyEarnings = dailyEarnings * 365;
 
-    // Render results
     document.getElementById("res-imp").innerText = impressions.toLocaleString() + "회";
     document.getElementById("res-daily").innerText = "$" + dailyEarnings.toFixed(2);
     document.getElementById("res-monthly").innerText = "$" + monthlyEarnings.toFixed(2);
     document.getElementById("res-yearly").innerText = "$" + yearlyEarnings.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Update Goal Tracker Progress (Daily target: $35.00)
+    const targetDaily = 35.0;
+    const percent = Math.round((dailyEarnings / targetDaily) * 100);
+    document.getElementById("cnt-adsense-earnings").innerText = "$" + dailyEarnings.toFixed(2);
+    document.getElementById("goal-progress-percent").innerText = percent + "%";
+    document.getElementById("goal-progress-bar").style.width = Math.min(percent, 100) + "%";
   }
 
-  // Setup Event Listeners
   [sldUv, sldPv, sldCtr, sldCpc].forEach(slider => {
     slider.addEventListener("input", calculateAdSense);
   });
 
   // Setup Chart.js Charts
-  let lineChart, doughnutChart, barChart;
+  let lineChart, doughnutChart, barChart, radarChart;
 
   function renderCharts() {
-    // 1. Line Chart: Overall simulated monthly visitors
+    // 1. Line Chart
     const lineCtx = document.getElementById('traffic-line-chart').getContext('2d');
     lineChart = new Chart(lineCtx, {
       type: 'line',
@@ -1763,10 +2111,8 @@
       }
     });
 
-    // 2. Doughnut Chart: Traffic contributions per site
+    // 2. Doughnut Chart
     const doughnutCtx = document.getElementById('traffic-doughnut-chart').getContext('2d');
-    
-    // Sort top 5 sites
     const sortedSites = [...sitesData].sort((a,b) => b.visitors - a.visitors).slice(0, 6);
     const otherSitesSum = sitesData.reduce((acc, curr) => acc + curr.visitors, 0) - sortedSites.reduce((acc, curr) => acc + curr.visitors, 0);
     
@@ -1790,11 +2136,9 @@
       }
     });
 
-    // 3. Bar Chart: Monthly AdSense earnings simulation per approved site
+    // 3. Bar Chart
     const barCtx = document.getElementById('revenue-bar-chart').getContext('2d');
     const approvedSites = sitesData.filter(s => s.adsense === 'approved');
-    
-    // Rough mock monthly earning per site
     const earningsData = {
       "mz-radar": 420.50,
       "genius-radar": 380.00,
@@ -1827,6 +2171,51 @@
         }
       }
     });
+
+    // 4. Radar Chart: Multi-Dimensional Performance Rating (Feature 7)
+    const radarCtx = document.getElementById('performance-radar-chart').getContext('2d');
+    radarChart = new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['트래픽', '수익성', 'SEO 지수', '공유도', '핑 안정성'],
+        datasets: [{
+          label: '종합 성과 평점',
+          data: [85, 90, 95, 80, 95], // Default mz-radar values
+          borderColor: '#38bdf8',
+          backgroundColor: 'rgba(56, 189, 248, 0.15)',
+          borderWidth: 2,
+          pointBackgroundColor: '#38bdf8'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          r: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            angleLines: { color: 'rgba(255, 255, 255, 0.05)' },
+            pointLabels: { color: '#64748b', font: { size: 9, family: 'Outfit' } },
+            ticks: { display: false },
+            suggestedMin: 0,
+            suggestedMax: 100
+          }
+        }
+      }
+    });
+  }
+
+  // Select Site for Radar Chart Update
+  function selectSiteForRadar(siteId) {
+    const site = sitesData.find(s => s.id === siteId);
+    if (!site || !radarChart) return;
+    
+    radarChart.data.datasets[0].data = site.performance;
+    radarChart.data.datasets[0].borderColor = site.status === 'maintenance' ? '#c084fc' : (site.adsense === 'approved' ? '#2dd4bf' : '#38bdf8');
+    radarChart.data.datasets[0].backgroundColor = site.status === 'maintenance' ? 'rgba(192, 132, 252, 0.15)' : (site.adsense === 'approved' ? 'rgba(45, 212, 191, 0.15)' : 'rgba(56, 189, 248, 0.15)');
+    radarChart.update();
   }
  
   // Harness Team Data
@@ -2016,11 +2405,9 @@
     const content = document.getElementById("agent-modal-content");
     const body = document.getElementById("agent-modal-body");
     
-    // Bind custom theme colors for the modal styling
     content.style.setProperty("--theme-color", agent.color);
     content.style.setProperty("--theme-glow", agent.glow);
     
-    // Generate skill bars HTML
     let skillsHtml = "";
     agent.skills.forEach(skill => {
       skillsHtml += `
@@ -2057,7 +2444,6 @@
     
     overlay.classList.add("active");
     
-    // Trigger gauge bar animations after modal renders
     setTimeout(() => {
       agent.skills.forEach(skill => {
         const bar = document.getElementById(`bar-${agent.name}-${skill.name.split(' ')[0]}`);
@@ -2071,12 +2457,248 @@
     overlay.classList.remove("active");
   }
 
-  // Close modal when clicking outside content area
   document.getElementById("agent-modal-overlay").addEventListener("click", function(e) {
     if (e.target === this) {
       closeAgentModal();
     }
   });
+
+  // Editor Tabs Switcher
+  function switchEditorTab(tabName) {
+    document.getElementById("btn-tab-json").classList.toggle("active", tabName === 'json');
+    document.getElementById("btn-tab-ai").classList.toggle("active", tabName === 'ai');
+    document.getElementById("tab-content-json").style.display = tabName === 'json' ? 'block' : 'none';
+    document.getElementById("tab-content-ai").style.display = tabName === 'ai' ? 'block' : 'none';
+  }
+
+  // Populate Select Options for JSON Editor and AI Writer
+  function populateSelects() {
+    const selectEdit = document.getElementById("select-edit-site");
+    const selectAi = document.getElementById("select-ai-site");
+    selectEdit.innerHTML = "";
+    selectAi.innerHTML = "";
+
+    sitesData.forEach(site => {
+      const opt1 = document.createElement("option");
+      opt1.value = site.id;
+      opt1.innerText = site.name;
+      opt1.style.color = "black";
+      selectEdit.appendChild(opt1);
+
+      const opt2 = document.createElement("option");
+      opt2.value = site.id;
+      opt2.innerText = site.name;
+      opt2.style.color = "black";
+      selectAi.appendChild(opt2);
+    });
+  }
+
+  // Mock Configurations database
+  const siteConfigs = {};
+  sitesData.forEach(s => {
+    siteConfigs[s.id] = {
+      projectName: s.id,
+      siteTitle: s.name + " (" + s.sub + ")",
+      siteDescription: s.desc,
+      siteUrl: "https://" + s.domain,
+      adsenseId: s.adsense === 'approved' ? "pub-9992037844935954" : "N/A",
+      primaryColor: s.status === 'maintenance' ? "#c084fc" : "#38bdf8",
+      surveyId: s.id,
+      questionsCount: 18,
+      keywords: ["진단", s.name, "테스트"]
+    };
+  });
+
+  function loadSiteJsonConfig() {
+    const siteId = document.getElementById("select-edit-site").value;
+    const config = siteConfigs[siteId] || {};
+    document.getElementById("json-editor-textarea").value = JSON.stringify(config, null, 2);
+  }
+
+  // Save Config and Trigger Vercel Build simulator (Feature 1 & 6)
+  function saveSiteJsonConfig() {
+    const siteId = document.getElementById("select-edit-site").value;
+    const text = document.getElementById("json-editor-textarea").value;
+    try {
+      siteConfigs[siteId] = JSON.parse(text);
+      triggerVercelBuild(siteId, "JSON Configuration updated.");
+    } catch(err) {
+      alert("올바른 JSON 형식이 아닙니다: " + err.message);
+    }
+  }
+
+  // AI Column Generator logic (Feature 8)
+  function generateAiColumn() {
+    const siteId = document.getElementById("select-ai-site").value;
+    const keyword = document.getElementById("input-ai-keyword").value.trim() || "성공 공식";
+    const siteName = sitesData.find(s => s.id === siteId).name;
+
+    const markdown = `# 💡 ${siteName} 맞춤형: '${keyword}' 핵심 가이드\n\n` +
+      `이 칼럼은 **${siteName}** 진단을 바탕으로한 행동 제안서입니다.\n\n` +
+      `## 1. 개요 및 트렌드\n` +
+      `현대 비즈니스 현장에서 '${keyword}'은(는) 단순한 역량을 넘어 필수적인 생존 지표로 간주됩니다.\n\n` +
+      `## 2. 실천적인 적용 로드맵\n` +
+      `- **자가 검증**: 당신의 역량을 데이터로 증명하세요.\n` +
+      `- **마일스톤 수립**: 단기 피드백 루프를 장착하여 실패를 복습하세요.\n` +
+      `- **인터링크 가치 극대화**: 관련 자산들과의 링크 공유로 가성비를 높이십시오.`;
+
+    document.getElementById("ai-markdown-output").value = markdown;
+    
+    // Show Injection preview
+    const preview = document.getElementById("ai-inject-preview");
+    preview.innerHTML = `
+      <span style="color:var(--aurora-mint); font-weight:700;">[주입 대상 파일]</span><br>
+      <code>D:\\OneDrive\\Anti\\${siteId}\\src\\data\\seoContent.ts</code><br><br>
+      <span style="color:var(--aurora-purple); font-weight:700;">[주입될 코드 스니펫]</span><br>
+      <pre style="background:rgba(0,0,0,0.4); padding:6px; border-radius:6px; font-family:monospace; margin-top:4px;">
+export const newColumn = {
+  title: "${siteName}과 ${keyword}",
+  date: "${new Date().toLocaleDateString('ko-KR')}",
+  content: "마크다운 칼럼 내용 주입 완료..."
+};</pre>
+    `;
+
+    document.getElementById("btn-ai-inject-deploy").removeAttribute("disabled");
+  }
+
+  // Inject & Deploy (Feature 8 & 6)
+  function injectAndDeployColumn() {
+    const siteId = document.getElementById("select-ai-site").value;
+    triggerVercelBuild(siteId, "AI Generated SEO Column injected to public/seoContent.ts");
+    document.getElementById("btn-ai-inject-deploy").setAttribute("disabled", "true");
+  }
+
+  // Vercel Build Simulator (Feature 6)
+  let buildIntervalId = null;
+  function triggerVercelBuild(siteId, triggerReason) {
+    const output = document.getElementById("vercel-build-output");
+    output.innerHTML = "";
+    
+    let step = 0;
+    const site = sitesData.find(s => s.id === siteId);
+    
+    const logs = [
+      { type: "sys", msg: `Vercel: 새로운 배포 요청 수신 [사유: ${triggerReason}]` },
+      { type: "sys", msg: `Vercel: 프로젝트 framework (null) 패치 적용 완료.` },
+      { type: "info", msg: `Vercel: 소스 파일 업로드 상태 검증 중 (Target: ${site.domain})...` },
+      { type: "info", msg: `Vercel: 빌드 명령 실행: 'npm run build' (static html export)...` },
+      { type: "log", msg: `[Vite] building client assets...` },
+      { type: "log", msg: `[Vite] ✓ 128 modules transformed.` },
+      { type: "log", msg: `[Vite] dist/index.html           1.27 KiB` },
+      { type: "log", msg: `[Vite] dist/assets/index.js      345.82 KiB` },
+      { type: "info", msg: `Vercel: 정적 파일 릴리즈 업로드 완료.` },
+      { type: "sys", msg: `Vercel: 도메인 바인딩 완료 -> https://${site.domain} (Status: READY) 🚀` }
+    ];
+
+    if (buildIntervalId) clearInterval(buildIntervalId);
+    
+    function logBuildStep() {
+      if (step >= logs.length) {
+        clearInterval(buildIntervalId);
+        // Refresh site status badge
+        const badge = document.getElementById(`badge-${siteId}`);
+        if (badge) {
+          badge.className = "status-badge online";
+          badge.innerHTML = `<span class="status-pulse-dot"></span><span class="txt">ACTIVE</span>`;
+        }
+        return;
+      }
+      
+      const entry = logs[step];
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+      
+      const logLine = document.createElement("div");
+      logLine.className = "sim-log-line";
+      
+      if (entry.type === "sys") {
+        logLine.innerHTML = `<span class="sim-log-time">${timeStr}</span><span class="sim-log-msg sim-log-system">${entry.msg}</span>`;
+      } else if (entry.type === "info") {
+        logLine.innerHTML = `<span class="sim-log-time">${timeStr}</span><span class="sim-log-msg" style="color:var(--aurora-blue)">${entry.msg}</span>`;
+      } else {
+        logLine.innerHTML = `<span class="sim-log-time">${timeStr}</span><span class="sim-log-msg" style="color:#64748b">${entry.msg}</span>`;
+      }
+      
+      output.appendChild(logLine);
+      const term = document.getElementById("terminal-right");
+      term.scrollTop = term.scrollHeight;
+      step++;
+    }
+
+    logBuildStep();
+    buildIntervalId = setInterval(logBuildStep, 1000);
+  }
+
+  // SSL renew handler
+  function triggerManualRenew() {
+    alert("Vercel SSL 재발급 명령이 서버에 전달되었습니다. Vercel API 갱신 및 재배포가 실행됩니다.");
+    triggerVercelBuild("burnout-radar", "Manual SSL certificate renewal triggered.");
+    document.getElementById("ssl-warning-banner").style.display = "none";
+  }
+
+  // Populate Domain Expiry List (Feature 5)
+  function populateDomainExpiries() {
+    const container = document.getElementById("domain-expiry-list");
+    container.innerHTML = "";
+
+    // Show top 5 sites with least expiry days
+    const sorted = [...sitesData].sort((a,b) => a.sslExpiryDays - b.sslExpiryDays).slice(0, 5);
+    sorted.forEach(s => {
+      const isWarn = s.sslExpiryDays < 15;
+      const progressPercent = Math.max(0, Math.min(100, Math.round((s.sslExpiryDays / 90) * 100)));
+      const item = document.createElement("div");
+      item.style.marginBottom = "6px";
+      item.innerHTML = `
+        <div style="display:flex; justify-content:space-between; font-weight:600; color:${isWarn ? 'var(--aurora-rose)' : 'var(--text-main)'}">
+          <span>${s.name} (SSL)</span>
+          <span>${s.sslExpiryDays}일 남음</span>
+        </div>
+        <div class="goal-bar-outer" style="height:3px;">
+          <div class="goal-bar-inner" style="width: ${progressPercent}%; background: ${isWarn ? 'var(--aurora-rose)' : 'var(--aurora-blue)'}"></div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  // Real-Time Visitor Logs Simulation loop (Feature 2)
+  const userLocations = ["서울 강남구", "부산 해운대구", "인천 송도", "대구 수성구", "대전 유성구", "광주 광산구", "울산 남구", "제주 서귀포"];
+  const actions = [
+    { site: "mz-radar", msg: "방문자가 MZ 직장 성향 진단을 개시했습니다." },
+    { site: "genius-radar", msg: "방문자가 잠재 천재성 문항 응답 중입니다. (12/18)" },
+    { site: "fx-radar", msg: "방문자가 투자 심리 진단을 완료하여 결과 보고서를 수령했습니다." },
+    { site: "mood-weather", msg: "방문자가 오늘의 감정 일기를 작성하였습니다." },
+    { site: "money-radar", msg: "방문자가 소비 유형 성향 진단을 종료하였습니다." }
+  ];
+
+  function startRealtimeVisitorLogs() {
+    setInterval(() => {
+      const location = userLocations[Math.floor(Math.random() * userLocations.length)];
+      const action = actions[Math.floor(Math.random() * actions.length)];
+      const site = sitesData.find(s => s.id === action.site);
+      
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+      
+      const output = document.getElementById("sim-terminal-output");
+      const line = document.createElement("div");
+      line.className = "sim-log-line";
+      line.innerHTML = `
+        <span class="sim-log-time">${timeStr}</span>
+        <span class="sim-log-sender" style="color:var(--aurora-blue)">${location} 사용자:</span>
+        <span class="sim-log-msg">${action.msg} (${site.name})</span>
+      `;
+      output.appendChild(line);
+      
+      // Keep only last 50 lines to prevent memory leak
+      while (output.children.length > 50) {
+        output.removeChild(output.firstChild);
+      }
+      
+      const term = document.getElementById("terminal-left");
+      term.scrollTop = term.scrollHeight;
+    }, 3500);
+  }
 
   // Agent Collaboration Simulator Log Sequences
   const simLogs = [
@@ -2103,7 +2725,6 @@
     
     btn.disabled = true;
     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 스프린트 진행 중...`;
-    output.innerHTML = "";
     
     let currentStep = 0;
     
@@ -2137,16 +2758,158 @@
       
       output.appendChild(logLine);
       
-      // Auto-scroll to bottom of the terminal console
-      const terminal = document.querySelector(".sim-terminal");
-      terminal.scrollTop = terminal.scrollHeight;
+      const term = document.getElementById("terminal-left");
+      term.scrollTop = term.scrollHeight;
       
       currentStep++;
     }
     
-    // Log the first step immediately, and subsequent steps every 1.5 seconds
     logNextStep();
     simIntervalId = setInterval(logNextStep, 1500);
+  }
+
+  // Mouse-tracking glow spot for site cards
+  function trackGlow(e, card) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const spot = card.querySelector('.glow-spot');
+    if (spot) { spot.style.left = x + 'px'; spot.style.top = y + 'px'; }
+  }
+  function resetGlow(card) {
+    const spot = card.querySelector('.glow-spot');
+    if (spot) { spot.style.opacity = '0'; }
+  }
+
+  // ── Metacode Injector (Feature 3) ──────────────────────────────
+  const metaGhMap = {
+    "mz-radar":          { repo: "CHOBH1024/mz-radar",           branch: "master" },
+    "burnout-radar":     { repo: "CHOBH1024/burnout-radar",       branch: "master" },
+    "genius-radar":      { repo: "CHOBH1024/genius-radar",        branch: "master" },
+    "dun-mu":            { repo: "CHOBH1024/make-it-mine-35",     branch: "main" },
+    "ilban-leadership":  { repo: "CHOBH1024/ilban-leadership-site",branch: "master" },
+    "mind-prism":        { repo: "CHOBH1024/MindPrism1024",       branch: "master" },
+    "fx-radar":          { repo: "CHOBH1024/fx-radar",            branch: "master" },
+    "mood-weather":      { repo: "CHOBH1024/mood-weather",        branch: "master" },
+    "hyper-automation-tower": { repo: "CHOBH1024/Gajeong",       branch: "main" },
+    "cho-tan":           { repo: "CHOBH1024/chotan",              branch: "main" },
+    "focus-flow":        { repo: "CHOBH1024/FocusFlow1024",       branch: "main" },
+    "jeongbu":           { repo: "CHOBH1024/jeongbu",             branch: "main" },
+    "aikiugihimdulda":   { repo: "CHOBH1024/aikiugihimdulda",     branch: "main" },
+    "money-radar":       { repo: "CHOBH1024/money-radar",         branch: "master" },
+    "serverguchuk":      { repo: "CHOBH1024/serverguchuk1024",    branch: "main" },
+  };
+
+  const metaVerifiedMap = {
+    "mz-radar": true, "genius-radar": true, "fx-radar": true, "mood-weather": true,
+    "burnout-radar": true, "money-radar": true, "hyper-automation-tower": true,
+    "ilban-leadership": true, "aikiugihimdulda": true, "mind-prism": true,
+    "focus-flow": true, "serverguchuk": true, "cho-tan": false, "jeongbu": false, "dun-mu": false
+  };
+
+  function saveMetaToken(v) { try { localStorage.setItem('gh_token', v); } catch(e) {} }
+
+  function populateMetaSelect() {
+    const sel = document.getElementById('meta-site-select');
+    if (!sel) return;
+    sitesData.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id; opt.textContent = `${s.name} (${s.domain})`;
+      sel.appendChild(opt);
+    });
+    const saved = localStorage.getItem('gh_token');
+    if (saved) document.getElementById('meta-gh-token').value = saved;
+
+    // Status list
+    const list = document.getElementById('meta-status-list');
+    if (!list) return;
+    sitesData.forEach(s => {
+      const ok = metaVerifiedMap[s.id];
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:5px 10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);';
+      row.innerHTML = `
+        <span style="color:var(--text-main)">${s.name}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:${ok?'var(--aurora-mint)':'var(--aurora-rose)'}">
+          ${ok ? '✅ 네이버 확인 완료' : '⏳ 확인 대기'}
+        </span>`;
+      list.appendChild(row);
+    });
+  }
+
+  function previewMetaInjection() {
+    const siteId = document.getElementById('meta-site-select').value;
+    const metaRaw = document.getElementById('meta-code-input').value.trim();
+    const log = document.getElementById('meta-inject-log');
+    if (!siteId || !metaRaw) return;
+
+    const info = metaGhMap[siteId];
+    const site = sitesData.find(s => s.id === siteId);
+    if (!info || !site) return;
+
+    log.innerHTML = `
+      <span style="color:var(--aurora-blue)">// 주입 대상 정보</span><br>
+      <span style="color:var(--text-muted)">사이트:</span> <span style="color:white">${site.name}</span><br>
+      <span style="color:var(--text-muted)">레포:</span> <span style="color:var(--aurora-mint)">${info.repo}</span><br>
+      <span style="color:var(--text-muted)">브랜치:</span> <span style="color:var(--aurora-gold)">${info.branch}</span><br>
+      <span style="color:var(--text-muted)">파일:</span> <span style="color:var(--aurora-purple)">index.html (root)</span><br><br>
+      <span style="color:var(--aurora-blue)">// 주입될 코드</span><br>
+      <span style="color:var(--aurora-mint)">${metaRaw.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>
+    `;
+  }
+
+  async function injectMetaCode() {
+    const token = document.getElementById('meta-gh-token').value.trim();
+    const siteId = document.getElementById('meta-site-select').value;
+    const metaRaw = document.getElementById('meta-code-input').value.trim();
+    const log = document.getElementById('meta-inject-log');
+
+    if (!token) { log.innerHTML += '<br><span style="color:var(--aurora-rose)">❌ GitHub PAT 토큰을 입력해주세요.</span>'; return; }
+    if (!siteId) { log.innerHTML += '<br><span style="color:var(--aurora-rose)">❌ 사이트를 선택해주세요.</span>'; return; }
+    if (!metaRaw) { log.innerHTML += '<br><span style="color:var(--aurora-rose)">❌ 메타코드를 입력해주세요.</span>'; return; }
+
+    const info = metaGhMap[siteId];
+    if (!info) { log.innerHTML += '<br><span style="color:var(--aurora-rose)">❌ 해당 사이트의 레포 정보가 없습니다.</span>'; return; }
+
+    const addLog = (msg, color='var(--text-main)') => {
+      const now = new Date();
+      const t = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+      log.innerHTML += `<br><span style="color:var(--text-muted)">${t}</span> <span style="color:${color}">${msg}</span>`;
+      log.scrollTop = log.scrollHeight;
+    };
+
+    try {
+      addLog('GitHub API: index.html SHA 조회 중...', 'var(--aurora-blue)');
+      const headers = { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' };
+      const fileRes = await fetch(`https://api.github.com/repos/${info.repo}/contents/index.html?ref=${info.branch}`, { headers });
+      if (!fileRes.ok) { addLog(`❌ 파일 조회 실패: ${fileRes.status} ${fileRes.statusText}`, 'var(--aurora-rose)'); return; }
+      const fileData = await fileRes.json();
+      const sha = fileData.sha;
+      addLog(`SHA 조회 완료: ${sha.substring(0,10)}...`, 'var(--aurora-mint)');
+
+      addLog('index.html 디코딩 및 메타태그 삽입 중...', 'var(--aurora-blue)');
+      const decoded = atob(fileData.content.replace(/\n/g,''));
+      let updated;
+      if (decoded.includes('naver-site-verification') || decoded.includes('google-site-verification')) {
+        updated = decoded.replace(/<meta name="(naver|google)-site-verification"[^>]*>/gi, metaRaw);
+        addLog('기존 태그 교체 완료', 'var(--aurora-gold)');
+      } else {
+        updated = decoded.replace('<head>', `<head>\n    ${metaRaw}`);
+        addLog('신규 태그 삽입 완료', 'var(--aurora-mint)');
+      }
+
+      const encoded = btoa(unescape(encodeURIComponent(updated)));
+      addLog('GitHub API: 커밋 중...', 'var(--aurora-blue)');
+      const putRes = await fetch(`https://api.github.com/repos/${info.repo}/contents/index.html`, {
+        method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `feat: inject search engine verification meta tag`, content: encoded, sha, branch: info.branch })
+      });
+      if (!putRes.ok) { const e = await putRes.json(); addLog(`❌ 커밋 실패: ${e.message}`, 'var(--aurora-rose)'); return; }
+      addLog('✅ 커밋 성공! Vercel 자동배포 트리거됨.', 'var(--aurora-mint)');
+      addLog('60초 후 소유확인 버튼을 클릭하세요.', 'var(--aurora-gold)');
+      triggerVercelBuild(siteId, 'metacode injection committed');
+    } catch(err) {
+      addLog(`❌ 오류: ${err.message}`, 'var(--aurora-rose)');
+    }
   }
 
   // Sync System Time
@@ -2162,9 +2925,13 @@
     calculateAdSense();
     renderCharts();
     renderTeam();
+    populateSelects();
+    loadSiteJsonConfig();
+    populateDomainExpiries();
+    startRealtimeVisitorLogs();
+    populateMetaSelect();
     updateTime();
-    
-    // Auto-update clock every second
+
     setInterval(updateTime, 1000);
   };
 </script>
