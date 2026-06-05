@@ -754,16 +754,195 @@ input[type=password].meta-input { letter-spacing:.12em; }
 @media(max-width:600px) {
   .header-metrics { grid-template-columns:repeat(2,1fr); }
   #app { padding:0 12px 60px; }
+  .war-room-grid { grid-template-columns:1fr 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   COMMAND PALETTE
+═══════════════════════════════════════════════════════════ */
+#cmd-overlay {
+  position:fixed; inset:0; z-index:99000; background:rgba(3,7,18,.75);
+  backdrop-filter:blur(16px); display:none; align-items:flex-start;
+  justify-content:center; padding-top:15vh;
+}
+#cmd-overlay.open { display:flex; }
+.cmd-box {
+  width:min(600px,90vw); background:#0a0f1e;
+  border:1px solid var(--border-2); border-radius:var(--r-xl);
+  box-shadow:0 40px 100px -20px rgba(0,0,0,.9), 0 0 0 1px rgba(59,130,246,.1);
+  overflow:hidden; animation:cmd-in .2s var(--ease);
+}
+@keyframes cmd-in { from{opacity:0;transform:scale(.96) translateY(-8px)} to{opacity:1;transform:none} }
+.cmd-input-row {
+  display:flex; align-items:center; gap:12px;
+  padding:16px 20px; border-bottom:1px solid var(--border);
+}
+.cmd-input-row i { color:var(--t3); font-size:0.9rem; }
+#cmd-input {
+  flex:1; background:none; border:none; outline:none; color:var(--t1);
+  font-size:1rem; font-family:'Outfit',sans-serif; font-weight:500;
+}
+#cmd-input::placeholder { color:var(--t3); }
+.cmd-esc-key {
+  padding:2px 7px; border-radius:5px; font-size:0.62rem;
+  font-family:'JetBrains Mono',monospace; border:1px solid var(--border);
+  color:var(--t3); cursor:pointer; flex-shrink:0;
+}
+.cmd-section { padding:8px 0; }
+.cmd-section-label { font-size:0.62rem; color:var(--t3); font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:6px 20px; }
+.cmd-item {
+  display:flex; align-items:center; gap:12px; padding:10px 20px; cursor:pointer;
+  transition:background .1s; font-size:0.83rem; color:var(--t2);
+}
+.cmd-item:hover, .cmd-item.selected { background:rgba(59,130,246,.1); color:var(--t1); }
+.cmd-item.selected .cmd-item-icon { color:var(--blue); }
+.cmd-item-icon { width:28px; height:28px; border-radius:7px; background:var(--bg-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--t3); flex-shrink:0; }
+.cmd-item-label { flex:1; }
+.cmd-item-sub { font-size:0.68rem; color:var(--t3); }
+.cmd-item-kbd { font-size:0.6rem; font-family:'JetBrains Mono',monospace; color:var(--t3); padding:2px 6px; border:1px solid var(--border); border-radius:4px; }
+.cmd-empty { padding:32px 20px; text-align:center; color:var(--t3); font-size:0.82rem; }
+#cmd-results { max-height:400px; overflow-y:auto; }
+#cmd-results::-webkit-scrollbar { width:3px; }
+#cmd-results::-webkit-scrollbar-thumb { background:var(--border); }
+
+/* ═══════════════════════════════════════════════════════════
+   ACHIEVEMENT TOAST
+═══════════════════════════════════════════════════════════ */
+#achievement-toast {
+  position:fixed; bottom:80px; right:24px; z-index:9500;
+  background:#0a0f1e; border:1px solid var(--border-2);
+  border-radius:var(--r-xl); padding:18px 22px; width:320px;
+  display:flex; align-items:flex-start; gap:14px;
+  box-shadow:0 20px 60px -10px rgba(0,0,0,.7);
+  transform:translateX(360px); transition:transform .5s var(--ease);
+}
+#achievement-toast.show { transform:translateX(0); }
+.achieve-icon { font-size:2.2rem; flex-shrink:0; }
+.achieve-body { flex:1; }
+.achieve-label { font-size:0.62rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--amber); margin-bottom:4px; }
+.achieve-title { font-size:0.95rem; font-weight:800; color:var(--t1); margin-bottom:3px; }
+.achieve-desc  { font-size:0.74rem; color:var(--t2); line-height:1.5; }
+.achieve-bar { height:3px; background:rgba(255,255,255,.06); border-radius:2px; margin-top:10px; overflow:hidden; }
+.achieve-bar-fill { height:100%; background:linear-gradient(90deg,var(--amber),var(--rose)); border-radius:2px; animation:achieve-drain 4s linear forwards; }
+@keyframes achieve-drain { to { width:0%; } }
+
+/* ═══════════════════════════════════════════════════════════
+   CONFETTI CANVAS
+═══════════════════════════════════════════════════════════ */
+#cv-confetti { position:fixed; inset:0; pointer-events:none; z-index:9400; }
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT WAR ROOM
+═══════════════════════════════════════════════════════════ */
+.war-room-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+}
+.war-card {
+  border:1px solid var(--border); border-radius:var(--r-lg);
+  background:var(--bg-1); padding:16px;
+  transition:border-color .3s, box-shadow .3s;
+  position:relative; overflow:hidden;
+}
+.war-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--wc, var(--blue)); opacity:.6;
+}
+.war-card:hover { border-color:var(--wc, var(--blue)); box-shadow:0 0 20px -8px var(--wc,var(--blue-g)); }
+.war-agent-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.war-avatar { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; border:1.5px solid rgba(255,255,255,.08); flex-shrink:0; }
+.war-name { font-size:0.82rem; font-weight:700; }
+.war-mbti { font-size:0.62rem; font-family:'JetBrains Mono',monospace; color:var(--t3); }
+.war-status-dot { width:7px; height:7px; border-radius:50%; margin-left:auto; flex-shrink:0; }
+.war-task {
+  font-size:0.72rem; color:var(--t2); line-height:1.55; min-height:44px;
+  font-family:'JetBrains Mono',monospace;
+}
+.war-progress { margin-top:10px; }
+.war-progress-label { display:flex; justify-content:space-between; font-size:0.64rem; color:var(--t3); margin-bottom:4px; }
+.war-bar-track { height:3px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
+.war-bar-fill { height:100%; border-radius:2px; transition:width 1.2s var(--ease); }
+
+/* ═══════════════════════════════════════════════════════════
+   KEYBOARD HINT BAR
+═══════════════════════════════════════════════════════════ */
+.kbd-bar {
+  position:fixed; bottom:0; left:0; right:0; z-index:8000;
+  background:rgba(3,7,18,.92); backdrop-filter:blur(10px);
+  border-top:1px solid var(--border); padding:7px 24px;
+  display:flex; gap:20px; align-items:center;
+  font-size:0.62rem; color:var(--t3); font-family:'JetBrains Mono',monospace;
+}
+.kbd-hint { display:flex; align-items:center; gap:5px; }
+kbd {
+  padding:2px 6px; border-radius:4px; background:var(--bg-2);
+  border:1px solid var(--border); font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem; color:var(--t2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THEME TRANSITION
+═══════════════════════════════════════════════════════════ */
+body { transition: --theme-accent .6s ease; }
+#app { --accent: var(--blue); }
+.theme-indicator {
+  position:fixed; top:24px; right:24px; z-index:8500;
+  display:flex; align-items:center; gap:6px;
+  font-size:0.62rem; color:var(--t3); font-family:'JetBrains Mono',monospace;
+  background:var(--bg-1); border:1px solid var(--border); border-radius:999px;
+  padding:5px 12px;
+}
+.theme-swatch { width:8px; height:8px; border-radius:50%; }
 </style>
 </head>
 <body>
 
 <!-- Noise Canvas -->
 <canvas id="cv-noise"></canvas>
+<!-- Confetti Canvas -->
+<canvas id="cv-confetti"></canvas>
 
 <!-- Audio Toggle -->
-<div class="audio-dot" id="audio-dot" onclick="toggleAudio()" title="사운드 토글">🔇</div>
+<div class="audio-dot" id="audio-dot" onclick="toggleAudio()" title="사운드 토글 (S)">🔇</div>
+
+<!-- Theme Indicator -->
+<div class="theme-indicator" id="theme-indicator">
+  <div class="theme-swatch" id="theme-swatch" style="background:var(--blue)"></div>
+  <span id="theme-agent-name">기본 테마</span>
+</div>
+
+<!-- Command Palette -->
+<div id="cmd-overlay" onclick="closeCmdPalette(event)">
+  <div class="cmd-box">
+    <div class="cmd-input-row">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="cmd-input" type="text" placeholder="검색: 사이트, 에이전트, 기능..." autocomplete="off" oninput="cmdSearch()" onkeydown="cmdKey(event)">
+      <span class="cmd-esc-key" onclick="closeCmdPalette()">ESC</span>
+    </div>
+    <div id="cmd-results"></div>
+  </div>
+</div>
+
+<!-- Achievement Toast -->
+<div id="achievement-toast">
+  <div class="achieve-icon" id="achieve-icon">🏆</div>
+  <div class="achieve-body">
+    <div class="achieve-label">Achievement Unlocked</div>
+    <div class="achieve-title" id="achieve-title"></div>
+    <div class="achieve-desc"  id="achieve-desc"></div>
+    <div class="achieve-bar"><div class="achieve-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- Keyboard Hint Bar -->
+<div class="kbd-bar">
+  <div class="kbd-hint"><kbd>Ctrl</kbd><kbd>K</kbd><span>커맨드 팔레트</span></div>
+  <div class="kbd-hint"><kbd>S</kbd><span>사운드 토글</span></div>
+  <div class="kbd-hint"><kbd>F</kbd><span>컨스텔레이션 풀스크린</span></div>
+  <div class="kbd-hint"><kbd>1</kbd><span>전체</span></div>
+  <div class="kbd-hint"><kbd>2</kbd><span>운영중</span></div>
+  <div class="kbd-hint"><kbd>3</kbd><span>점검중</span></div>
+  <div class="kbd-hint"><kbd>Esc</kbd><span>닫기</span></div>
+</div>
 
 <!-- Boot Screen -->
 <div id="boot">
@@ -1032,6 +1211,10 @@ input[type=password].meta-input { letter-spacing:.12em; }
     </div>
   </div>
 
+  <!-- ─── AGENT WAR ROOM ─────────────────────────────────── -->
+  <div class="section-title reveal" style="margin-top:40px;">⚡ Agent War Room — 실시간 협업 현황</div>
+  <div class="war-room-grid reveal" id="war-room-grid"></div>
+
   <!-- ─── TEAM ───────────────────────────────────────────── -->
   <div class="section-title reveal" style="margin-top:40px;">Harness Dev Team</div>
   <div class="team-grid reveal" id="team-grid"></div>
@@ -1197,6 +1380,9 @@ function initAll() {
   initScrollReveal();
   initCountUp();
   initNoise();
+  initParallax();
+  initKeyboard();
+  initWarRoom();
   populateDevTools();
   setTimeout(enhanceCards, 300);
   setInterval(updateTime, 1000);
@@ -2089,6 +2275,296 @@ function runBuildSimFor(siteId, reason) {
     if(i>=steps.length){clearInterval(iv);return;}
     addLog(log,...steps[i++]);
   },700);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMMAND PALETTE
+═══════════════════════════════════════════════════════════ */
+const CMD_COMMANDS = [
+  ...SITES.map(s=>({type:'site',icon:'🌐',label:s.name,sub:s.domain,action:()=>window.open('https://'+s.domain,'_blank')})),
+  ...AGENTS.map((a,i)=>({type:'agent',icon:a.emoji,label:a.full.split('(')[0].trim(),sub:a.role+' · '+a.mbti,action:()=>updateSpotlight(i)})),
+  {type:'action',icon:'🔊',label:'사운드 토글',sub:'Web Audio on/off',action:toggleAudio},
+  {type:'action',icon:'🎆',label:'컨페티 발사',sub:'Achievement confetti!',action:()=>launchConfetti(100)},
+  {type:'action',icon:'⚙️',label:'JSON 에디터 열기',sub:'Developer Tools',action:()=>document.getElementById('etab-json')?.scrollIntoView({behavior:'smooth'})},
+  {type:'action',icon:'🔐',label:'메타코드 주입기',sub:'GitHub API 연동',action:()=>{switchEtab('meta',document.querySelectorAll('.etab')[1]);}},
+  {type:'action',icon:'1️⃣',label:'전체 사이트 보기',sub:'Filter: ALL',action:()=>{document.querySelectorAll('.filter-tab')[0].click();}},
+  {type:'action',icon:'2️⃣',label:'운영중 사이트만',sub:'Filter: 운영중',action:()=>{document.querySelectorAll('.filter-tab')[1].click();}},
+  {type:'action',icon:'📊',label:'SEO 인스펙터',sub:'검색 최적화 현황',action:()=>document.querySelector('.seo-table-wrap')?.scrollIntoView({behavior:'smooth'})},
+  {type:'action',icon:'🔭',label:'컨스텔레이션 풀스크린',sub:'F키 단축키',action:toggleConstellationFS},
+];
+let cmdIdx = -1;
+
+function openCmdPalette() {
+  document.getElementById('cmd-overlay').classList.add('open');
+  document.getElementById('cmd-input').value='';
+  cmdSearch();
+  setTimeout(()=>document.getElementById('cmd-input').focus(),50);
+  playTick();
+}
+function closeCmdPalette(e) {
+  if(e&&e.target!==document.getElementById('cmd-overlay'))return;
+  document.getElementById('cmd-overlay').classList.remove('open');
+}
+function cmdSearch() {
+  const q=(document.getElementById('cmd-input').value||'').toLowerCase();
+  const results=CMD_COMMANDS.filter(c=>!q||(c.label+c.sub).toLowerCase().includes(q));
+  const box=document.getElementById('cmd-results');
+  cmdIdx=-1;
+  if(!results.length){box.innerHTML='<div class="cmd-empty">검색 결과 없음</div>';return;}
+  const groups={site:[],agent:[],action:[]};
+  results.forEach(r=>groups[r.type]?.push(r));
+  const labels={site:'🌐 사이트',agent:'🤖 에이전트',action:'⚡ 기능'};
+  box.innerHTML='';
+  ['site','agent','action'].forEach(type=>{
+    if(!groups[type].length)return;
+    const sec=document.createElement('div');sec.className='cmd-section';
+    sec.innerHTML=`<div class="cmd-section-label">${labels[type]}</div>`;
+    groups[type].forEach(cmd=>{
+      const item=document.createElement('div');item.className='cmd-item';
+      item.innerHTML=`<div class="cmd-item-icon">${cmd.icon}</div><div class="cmd-item-label">${cmd.label}<div class="cmd-item-sub">${cmd.sub}</div></div>`;
+      item.addEventListener('click',()=>{cmd.action();document.getElementById('cmd-overlay').classList.remove('open');playTick();});
+      sec.appendChild(item);
+    });
+    box.appendChild(sec);
+  });
+}
+function cmdKey(e) {
+  const items=document.querySelectorAll('#cmd-results .cmd-item');
+  if(e.key==='ArrowDown'){e.preventDefault();cmdIdx=Math.min(cmdIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdIdx=Math.max(cmdIdx-1,0);}
+  else if(e.key==='Enter'){if(cmdIdx>=0)items[cmdIdx].click();}
+  else if(e.key==='Escape'){document.getElementById('cmd-overlay').classList.remove('open');}
+  items.forEach((item,i)=>item.classList.toggle('selected',i===cmdIdx));
+  if(cmdIdx>=0&&items[cmdIdx])items[cmdIdx].scrollIntoView({block:'nearest'});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL PARALLAX
+═══════════════════════════════════════════════════════════ */
+function initParallax() {
+  const layers = [
+    {el:document.querySelector('.site-header'), depth:.008},
+    {el:document.querySelector('.constellation-grid'), depth:.015},
+    {el:document.querySelector('.sites-grid'), depth:.005},
+  ];
+  let cx=innerWidth/2, cy=innerHeight/2;
+  document.addEventListener('mousemove',e=>{
+    const dx=e.clientX-cx, dy=e.clientY-cy;
+    layers.forEach(({el,depth})=>{
+      if(!el)return;
+      el.style.transform=`translate(${dx*depth}px,${dy*depth}px)`;
+    });
+    cx+=(e.clientX-cx)*.05; cy+=(e.clientY-cy)*.05;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT THEME SWITCHING
+═══════════════════════════════════════════════════════════ */
+const AGENT_THEMES = AGENTS.map(a => ({color:a.color, name:a.name}));
+let currentThemeAgent = null;
+
+function applyAgentTheme(idx) {
+  if(idx===null){
+    document.documentElement.style.removeProperty('--blue');
+    document.documentElement.style.removeProperty('--blue-l');
+    document.documentElement.style.removeProperty('--blue-g');
+    const ti=document.getElementById('theme-indicator');
+    const sw=document.getElementById('theme-swatch');
+    const tn=document.getElementById('theme-agent-name');
+    if(sw)sw.style.background='#3b82f6';
+    if(tn)tn.textContent='기본 테마';
+    currentThemeAgent=null; return;
+  }
+  const a=AGENTS[idx];
+  const hex=a.color;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  document.documentElement.style.setProperty('--blue',hex);
+  document.documentElement.style.setProperty('--blue-l',lightenHex(hex,60));
+  document.documentElement.style.setProperty('--blue-g',`rgba(${r},${g},${b},.18)`);
+  const sw=document.getElementById('theme-swatch');
+  const tn=document.getElementById('theme-agent-name');
+  if(sw)sw.style.background=hex;
+  if(tn)tn.textContent=`${a.emoji} ${a.name} 테마`;
+  currentThemeAgent=idx;
+  playTick();
+}
+
+function lightenHex(hex, amount) {
+  const r=Math.min(255,parseInt(hex.slice(1,3),16)+amount);
+  const g=Math.min(255,parseInt(hex.slice(3,5),16)+amount);
+  const b=Math.min(255,parseInt(hex.slice(5,7),16)+amount);
+  return `rgb(${r},${g},${b})`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONFETTI ENGINE
+═══════════════════════════════════════════════════════════ */
+function launchConfetti(count=80) {
+  const cv=document.getElementById('cv-confetti'); if(!cv) return;
+  cv.width=innerWidth; cv.height=innerHeight;
+  const ctx=cv.getContext('2d');
+  const colors=['#3b82f6','#8b5cf6','#14b8a6','#f43f5e','#f59e0b','#10b981','#f472b6','#60a5fa'];
+  const particles=Array.from({length:count},()=>({
+    x:Math.random()*innerWidth, y:-20,
+    vx:(Math.random()-.5)*6, vy:Math.random()*4+3,
+    r:Math.random()*5+3, color:colors[Math.floor(Math.random()*colors.length)],
+    rot:Math.random()*360, rotV:(Math.random()-.5)*8,
+    life:1, decay:Math.random()*.012+.006,
+    shape:Math.random()>.5?'rect':'circle'
+  }));
+  let alive=true;
+  (function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    alive=false;
+    particles.forEach(p=>{
+      if(p.life<=0)return; alive=true;
+      p.x+=p.vx; p.y+=p.vy; p.vy+=.1;
+      p.rot+=p.rotV; p.life-=p.decay;
+      ctx.save(); ctx.globalAlpha=p.life;
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      if(p.shape==='rect'){ ctx.fillRect(-p.r,-p.r*.5,p.r*2,p.r); }
+      else { ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    if(alive)requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+  playSuccess();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACHIEVEMENT SYSTEM
+═══════════════════════════════════════════════════════════ */
+const ACHIEVEMENTS=[
+  {threshold:100,icon:'🌱',title:'첫 발걸음',desc:'월 $100 달성! 드디어 시작이야!'},
+  {threshold:300,icon:'⚡',title:'불꽃 점화',desc:'월 $300 돌파! 도라에몽 시스템 안정화 완료.'},
+  {threshold:500,icon:'🚀',title:'궤도 진입',desc:'월 $500! 아따맘마가 예산 승인했습니다.'},
+  {threshold:1000,icon:'💎',title:'다이아몬드 등급',desc:'월 $1,000 달성! 뻠뻠의 비전이 현실이 됐다!'},
+  {threshold:2000,icon:'👑',title:'King of AdSense',desc:'월 $2,000! 여보짱이 최고 등급 확인했습니다. 🏆'},
+];
+const shownAchievements=new Set();
+
+function checkAchievements(monthly) {
+  for(const ach of ACHIEVEMENTS){
+    if(monthly>=ach.threshold&&!shownAchievements.has(ach.threshold)){
+      shownAchievements.add(ach.threshold);
+      showAchievement(ach);
+      launchConfetti(60);
+      break;
+    }
+  }
+}
+
+function showAchievement(ach) {
+  document.getElementById('achieve-icon').textContent=ach.icon;
+  document.getElementById('achieve-title').textContent=ach.title;
+  document.getElementById('achieve-desc').textContent=ach.desc;
+  const toast=document.getElementById('achievement-toast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 4500);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT WAR ROOM
+═══════════════════════════════════════════════════════════ */
+const WAR_TASKS = [
+  { tasks:['새 진단 사이트 도메인 전략 수립 중...','월 UV 10만 목표 로드맵 재정의 중...','14개 사이트 확장 시나리오 검토 중...'], prog:85 },
+  { tasks:['전체 배포 체크리스트 검증 중...','규격 준수 여부 최종 심사 중...','HANDOFF.md 업데이트 중...'], prog:92 },
+  { tasks:['사용자 CS 위키 갱신 중...','민원 패턴 분석 및 대응 중...','도메인 인프라 상태 모니터링 중...'], prog:78 },
+  { tasks:['GitHub 브랜치 전략 검증 중...','sitemap.xml 유효성 검사 중...','IndexNow 핑 상태 재확인 중...'], prog:95 },
+  { tasks:['AdSense 수익 ROI 분석 중...','예산 낭비 도메인 심사 중...','월 목표 달성률 시뮬레이션 중...'], prog:70 },
+  { tasks:['관제탑 UI 색상 팔레트 비교 중...','새 애니메이션 인터랙션 설계 중...','사용자 경험 개선 시나리오 작성 중...'], prog:88 },
+  { tasks:['Canvas2D 성능 최적화 중...','보안 취약점 스캔 중...','메모리 누수 디버깅 중...'], prog:97 },
+  { tasks:['알고리즘 복잡도 분석 중...','새 스코어링 모델 구현 중...','시스템 아키텍처 재설계 중...'], prog:82 },
+];
+
+function initWarRoom() {
+  const grid=document.getElementById('war-room-grid'); if(!grid) return;
+  AGENTS.forEach((a,i)=>{
+    const card=document.createElement('div'); card.className='war-card';
+    card.style.setProperty('--wc',a.color);
+    const taskIdx=Math.floor(Math.random()*WAR_TASKS[i].tasks.length);
+    card.innerHTML=`
+      <div class="war-agent-head">
+        <div class="war-avatar" style="background:${a.glow};border-color:${hexA(a.color,.3)}">${a.emoji}</div>
+        <div>
+          <div class="war-name" style="color:${a.color}">${a.name}</div>
+          <div class="war-mbti">${a.mbti}</div>
+        </div>
+        <div class="war-status-dot" style="background:var(--emerald);box-shadow:0 0 6px var(--emerald);animation:pulse-dot 2s infinite;"></div>
+      </div>
+      <div class="war-task" id="war-task-${i}"></div>
+      <div class="war-progress">
+        <div class="war-progress-label"><span>진행률</span><span style="color:${a.color}" id="war-pct-${i}">0%</span></div>
+        <div class="war-bar-track"><div class="war-bar-fill" id="war-bar-${i}" style="width:0%;background:${a.color};box-shadow:0 0 6px ${hexA(a.color,.4)};"></div></div>
+      </div>`;
+    grid.appendChild(card);
+    // Typewriter for task
+    typeWriter(`war-task-${i}`, WAR_TASKS[i].tasks[taskIdx], 30);
+    // Animate progress
+    setTimeout(()=>{
+      const pct=WAR_TASKS[i].prog;
+      document.getElementById(`war-bar-${i}`).style.width=pct+'%';
+      document.getElementById(`war-pct-${i}`).textContent=pct+'%';
+    }, 200+i*100);
+    // Cycle tasks
+    setInterval(()=>{
+      const t=WAR_TASKS[i].tasks[Math.floor(Math.random()*WAR_TASKS[i].tasks.length)];
+      typeWriter(`war-task-${i}`, t, 25);
+    }, 8000+i*1200);
+  });
+}
+
+function typeWriter(elId, text, speed=30) {
+  const el=document.getElementById(elId); if(!el) return;
+  el.textContent=''; let i=0;
+  const iv=setInterval(()=>{
+    el.textContent+=text[i++];
+    if(i>=text.length) clearInterval(iv);
+  }, speed);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONSTELLATION FULLSCREEN
+═══════════════════════════════════════════════════════════ */
+function toggleConstellationFS() {
+  const wrap=document.querySelector('.constellation-wrap');
+  if(!wrap) return;
+  if(!document.fullscreenElement){ wrap.requestFullscreen?.(); }
+  else { document.exitFullscreen?.(); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL KEYBOARD SHORTCUTS
+═══════════════════════════════════════════════════════════ */
+function initKeyboard() {
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openCmdPalette();return;}
+    if(e.key==='Escape'){document.getElementById('cmd-overlay').classList.remove('open');return;}
+    if(e.key==='s'||e.key==='S'){toggleAudio();return;}
+    if(e.key==='f'||e.key==='F'){toggleConstellationFS();return;}
+    if(e.key==='1'){document.querySelectorAll('.filter-tab')[0]?.click();return;}
+    if(e.key==='2'){document.querySelectorAll('.filter-tab')[1]?.click();return;}
+    if(e.key==='3'){document.querySelectorAll('.filter-tab')[2]?.click();return;}
+  });
+}
+
+/* patch updateSpotlight to also apply agent theme */
+const _origUpdateSpotlight=updateSpotlight;
+function updateSpotlight(idx) {
+  _origUpdateSpotlight(idx);
+  applyAgentTheme(idx);
+}
+
+/* patch calcAdsense to check achievements */
+const _origCalcAdsense=calcAdsense;
+function calcAdsense() {
+  _origCalcAdsense();
+  const monthly=parseFloat(document.getElementById('r-monthly').textContent.replace(/[$,]/g,''))||0;
+  checkAchievements(monthly);
 }
 
 function initScrollReveal() {
