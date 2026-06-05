@@ -1036,9 +1036,62 @@ input[type=password].meta-input { letter-spacing:.12em; }
   <div class="section-title reveal" style="margin-top:40px;">Harness Dev Team</div>
   <div class="team-grid reveal" id="team-grid"></div>
 
-  <footer class="site-footer">
-    <span>🗼 HARNESS CONTROL TOWER · Anti Workspace · 2026</span>
-    <span id="footer-time"></span>
+  <!-- ─── KNOWLEDGE HUB (AdSense SEO Content) ───────────────────────────────────────────── -->
+  <div class="section-title reveal" style="margin-top:40px;">Knowledge Hub & Architecture Guide</div>
+  <div class="knowledge-hub reveal" style="display:flex;flex-direction:column;gap:12px;margin-bottom:40px;">
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">하이퍼 오토메이션(Hyper Automation)이 바꾸는 백엔드 인프라의 미래</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        하이퍼 오토메이션(Hyper Automation)은 로봇 프로세스 자동화(RPA), 인공지능(AI), 머신러닝(ML) 등 다양한 IT 기술을 결합하여 조직 내 모든 프로세스를 식별하고 자동화하는 포괄적 접근 방식입니다. 기존의 단일 프로세스 스크립트를 넘어, 이 시스템은 개발 워크플로우 전반의 모니터링부터 무중단 배포(Zero-downtime Deployment), 자동 복구(Auto-healing)까지 스스로 판단하고 제어합니다. 중앙 컨트롤 타워 아키텍처는 개별 마이크로서비스(MSA) 간의 트래픽 라우팅을 실시간으로 감지하고 레이턴시 스파이크를 사전에 예측하여 리소스를 동적으로 할당합니다. 이러한 고도화된 관제 시스템 구축은 클라우드 운영 비용을 최대 40% 절감하는 동시에 인적 오류(Human Error)를 원천 차단하여 비즈니스 회복탄력성을 극대화하는 21세기 IT 인프라의 필수 요건입니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">Zero Trust Architecture — 경계 없는 환경에서의 보안 패러다임</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        전통적인 네트워크 보안 모델은 내부 네트워크를 신뢰하는 성곽(Castle-and-Moat) 접근법을 사용했습니다. 그러나 원격 근무와 클라우드 네이티브 환경이 대두되면서, 내부자 위협이나 크리덴셜 스터핑 공격 앞에 이 모델은 한계를 드러냈습니다. '아무도 신뢰하지 않는다'는 철학에 기반한 제로 트러스트 아키텍처(Zero Trust Architecture)는 모든 디바이스와 사용자의 인증을 매 세션마다 지속적으로 검증합니다. 중앙 제어 대시보드는 다중 요소 인증(MFA)과 마이크로 세그멘테이션 기법을 적용하여 접근 권한을 최소 단위로 분리합니다. 이를 통해 공격자가 시스템의 한 노드를 장악하더라도 횡적 이동(Lateral Movement)을 철저히 차단할 수 있으며, 기업 데이터의 기밀성과 무결성을 지키는 가장 강력한 방어망을 제공합니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">실시간 데이터 파이프라인과 Event-Driven Architecture(EDA)</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        수백만 명의 활성 사용자(UV)와 페이지뷰(PV) 데이터를 처리하기 위해 현대의 백엔드 시스템은 배치(Batch) 처리 방식에서 벗어나 실시간 스트리밍(Real-time Streaming) 방식으로 진화했습니다. Apache Kafka, RabbitMQ 등 메시지 브로커를 활용한 이벤트 기반 아키텍처(Event-Driven Architecture)는 애플리케이션 간의 결합도를 낮추고 비동기적으로 대용량 트래픽을 처리합니다. 어떤 서비스에서 이벤트가 발생하면 컨트롤 타워는 즉시 이를 구독(Subscribe)하여 로깅, 모니터링, 알림 등 다중 파이프라인으로 분산시킵니다. 데이터 병목을 제거하고 스케일 아웃(Scale-out)을 유연하게 만드는 이 구조는 트래픽 폭증 상황에서도 서비스 가용성을 99.99% 이상 유지하게 만드는 아키텍처의 심장부입니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">AIOps — 인공지능 기반의 IT 운영 자동화</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        시스템 로그와 메트릭, 트레이스 데이터가 폭발적으로 증가함에 따라 인간 엔지니어가 수동으로 장애의 근본 원인(Root Cause)을 분석하는 것은 불가능해졌습니다. AIOps(Artificial Intelligence for IT Operations)는 머신러닝 알고리즘을 관제 대시보드에 결합하여 노이즈를 필터링하고 정상 패턴에서 벗어난 이상 징후(Anomaly Detection)를 선제적으로 포착합니다. 메모리 누수나 데이터베이스 락(Lock) 현상이 치명적인 장애로 이어지기 전에, AIOps 에이전트가 골든 타임 내에 경고를 발송하고 자동화 스크립트(Runbook)를 트리거하여 인프라를 재부팅하거나 용량을 증설합니다. 이는 SRE(Site Reliability Engineering) 팀의 수면의 질을 보장하는 동시에, 서비스 다운타임이 비즈니스 수익(AdSense 등)에 미치는 타격을 제로에 가깝게 방어합니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">FinOps — 클라우드 비용 최적화와 메타인지적 리소스 관리</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        분산 아키텍처 환경에서는 리소스 프로비저닝이 너무 쉬워진 나머지 유휴 자원(Zombie Resources)으로 인한 클라우드 요금 폭탄이라는 부작용이 흔히 발생합니다. FinOps는 재무, 개발, 운영 팀이 협력하여 클라우드 비용을 데이터 기반으로 시각화하고 최적화하는 문화이자 관행입니다. 관제 대시보드에 통합된 FinOps 모듈은 각 마이크로서비스별 리소스 소모량과 비즈니스 창출 가치(예: 프로젝트별 발생 예상 수익)를 교차 비교합니다. 트래픽 대비 서버 비용이 비대칭적으로 높은 지점을 찾아내 인스턴스 크기를 축소(Right-sizing)하거나 스팟 인스턴스(Spot Instances)를 적극 도입하는 전략은 기술적 부채를 청산하고 수익 구조(ROI)를 건전하게 리모델링하는 핀테크적 사고방식의 핵심입니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">서버리스 아키텍처(Serverless Architecture)의 한계와 극복 방안</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        AWS Lambda, Vercel Edge Network와 같은 서버리스 컴퓨팅은 개발자가 인프라 관리에 신경 쓰지 않고 오직 코드(비즈니스 로직)에만 집중할 수 있게 해주는 혁신적인 구조입니다. 하지만 트래픽이 간헐적일 때 초기 응답 속도가 느려지는 '콜드 스타트(Cold Start)' 현상과 벤더 종속성(Vendor Lock-in)이라는 양날의 검을 지니고 있습니다. 엔터프라이즈 레벨의 관제 시스템은 프로비저닝된 동시성(Provisioned Concurrency)을 지능적으로 스케줄링하여 콜드 스타트를 예방합니다. 나아가 핵심 데이터베이스와의 커넥션 풀을 효율적으로 유지하기 위해 엣지 런타임(Edge Runtime)에 특화된 경량화 라이브러리를 채택하거나 캐싱(Redis 등) 레이어를 다중화하여 성능 저하를 방어하고, 최적의 사용자 경험(UX)을 일관되게 제공합니다.
+      </div>
+    </details>
+    <details style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;cursor:pointer;">
+      <summary style="font-weight:600;color:var(--t1);outline:none;font-size:1.1rem;">UX/UI 엔지니어링에서의 마이크로 인터랙션과 인지 부하 감소</summary>
+      <div style="margin-top:12px;color:var(--t2);font-size:0.9rem;line-height:1.6;font-weight:300;word-break:keep-all;">
+        복잡한 데이터를 한눈에 파악해야 하는 관제탑(Control Tower) 대시보드는 자칫하면 사용자의 인지 부하(Cognitive Load)를 폭발시킬 수 있습니다. 이를 막기 위한 UX 철학의 정수는 '글래스모피즘(Glassmorphism)'과 '마이크로 인터랙션(Micro-interactions)'의 적절한 조화입니다. 반투명한 블러 레이어와 은은한 그라데이션 보더는 뎁스(Depth)를 형성해 데이터의 계층을 시각적으로 분리해줍니다. 데이터 업데이트나 상태 변화 시 발생하는 미세한 애니메이션과 사운드(Sonification) 피드백은 화면 변화를 뇌가 직관적으로 인지하게 돕습니다. 화려하기만 한 UI를 넘어, 사용자의 시선 흐름을 Z패턴이나 F패턴으로 정밀하게 유도하고 치명적 알림(Alert)에만 강렬한 보색을 사용하여 집중력을 배분하는 기술이야말로 데이터 시각화가 지향해야 할 진정한 미학입니다.
+      </div>
+    </details>
+  </div>
+
+  <footer class="site-footer" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="display:flex; gap:16px; font-size:0.8rem; color:var(--t3);">
+      <a href="/privacy.html" style="text-decoration:underline;color:inherit;">개인정보처리방침 (Privacy Policy)</a>
+      <a href="#terms" style="text-decoration:underline;color:inherit;">이용약관 (Terms of Service)</a>
+    </div>
+    <div style="margin-top:8px;">
+      <span>🗼 HARNESS CONTROL TOWER · Anti Workspace · 2026</span>
+      <span id="footer-time"></span>
+    </div>
   </footer>
 </div>
 
