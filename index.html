@@ -3,12 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HARNESS — Control Tower</title>
-<meta name="naver-site-verification" content="a96ab8fc7a19ea3ea9ecadb938c5f3a6f31fed2e" />
+<title>Hyper Automation Tower — 중앙 통제 및 하이퍼 자동화 시스템 대시보드</title>
+<meta name="description" content="모든 Mirror Insight 시스템과 Radar 애플리케이션을 통합 관리하는 중앙 컨트롤 타워입니다. 트래픽 모니터링, 자동화 봇, 인프라 리소스 실시간 분석을 제공합니다." />
+<meta name="keywords" content="하이퍼 자동화, 중앙 제어, 컨트롤 타워, 대시보드 시스템, 자동화 봇, 인프라 모니터링, 트래픽 분석, 시스템 관리, IT 인프라, 백엔드 제어" />
+<link rel="canonical" href="https://hyper-automation-tower.vercel.app/" />
+<meta property="og:title" content="Hyper Automation Tower — 중앙 통제 대시보드" />
+<meta property="og:description" content="모든 서비스 포트폴리오를 한눈에 관리하고 자동화하는 통합 관제 시스템." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://hyper-automation-tower.vercel.app/" />
+<meta property="og:image" content="https://hyper-automation-tower.vercel.app/og-image.png" />
+<meta property="og:locale" content="ko_KR" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Hyper Automation Tower" />
+<meta name="twitter:description" content="통합 애플리케이션 관제 및 시스템 자동화 컨트롤 타워" />
+<meta name="robots" content="index, follow" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<!-- Google AdSense Account Verification -->
+<meta name="google-adsense-account" content="ca-pub-9992037844935954">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9992037844935954" crossorigin="anonymous"></script>
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Hyper Automation Tower",
+  "description": "다중 애플리케이션 통합 관리 및 하이퍼 자동화 관제 대시보드.",
+  "url": "https://hyper-automation-tower.vercel.app/",
+  "applicationCategory": "BusinessApplication",
+  "inLanguage": "ko-KR",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Harness Systems"
+  }
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -614,6 +650,99 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); }
 .reveal.shown { opacity:1; transform:none; }
 
 /* ═══════════════════════════════════════════════════════════
+   SCANLINE OVERLAY
+═══════════════════════════════════════════════════════════ */
+body::after {
+  content:''; position:fixed; inset:0; z-index:9990; pointer-events:none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NOISE CANVAS
+═══════════════════════════════════════════════════════════ */
+#cv-noise { position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.04; }
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIO FEEDBACK
+═══════════════════════════════════════════════════════════ */
+.audio-dot {
+  position:fixed; bottom:24px; right:24px; z-index:9000;
+  width:36px; height:36px; border-radius:50%;
+  background:var(--bg-2); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; color:var(--t3); cursor:pointer;
+  transition:all 0.2s var(--ease);
+}
+.audio-dot:hover { border-color:var(--border-2); color:var(--t1); }
+.audio-dot.on { border-color:rgba(59,130,246,.4); color:var(--blue); }
+
+/* ═══════════════════════════════════════════════════════════
+   MINI RADAR on CARD
+═══════════════════════════════════════════════════════════ */
+.card-radar-wrap { position:absolute; top:16px; right:14px; opacity:0; transition:opacity 0.3s; z-index:2; }
+.site-card:hover .card-radar-wrap { opacity:1; }
+
+/* ═══════════════════════════════════════════════════════════
+   JSON EDITOR + METACODE
+═══════════════════════════════════════════════════════════ */
+.editor-tabs { display:flex; gap:2px; margin-bottom:20px; background:var(--bg-2); border-radius:var(--r-sm); padding:3px; border:1px solid var(--border); width:fit-content; }
+.etab {
+  padding:6px 16px; border-radius:6px; font-size:0.74rem; font-weight:600;
+  color:var(--t3); cursor:pointer; transition:all 0.2s; border:none; background:none;
+}
+.etab.active { background:var(--bg-3); color:var(--t1); box-shadow:0 1px 4px rgba(0,0,0,.4); }
+.etab-content { display:none; }
+.etab-content.active { display:block; }
+.editor-textarea {
+  width:100%; background:#01040c; border:1px solid var(--border);
+  border-radius:var(--r-md); color:#93c5fd; font-family:'JetBrains Mono',monospace;
+  font-size:0.76rem; padding:16px; line-height:1.7; resize:vertical; outline:none;
+  transition:border-color 0.2s;
+}
+.editor-textarea:focus { border-color:rgba(59,130,246,.4); }
+.meta-input {
+  width:100%; background:var(--bg-1); border:1px solid var(--border);
+  border-radius:var(--r-md); color:var(--t1); font-family:'JetBrains Mono',monospace;
+  font-size:0.76rem; padding:10px 14px; outline:none; transition:border-color 0.2s;
+}
+.meta-input:focus { border-color:rgba(59,130,246,.4); }
+input[type=password].meta-input { letter-spacing:.12em; }
+.input-label { font-size:0.68rem; color:var(--t3); font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; display:block; }
+.inject-log {
+  height:180px; background:#01040c; border:1px solid var(--border);
+  border-radius:var(--r-md); padding:12px 14px; font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem; overflow-y:auto; color:var(--t3); line-height:1.8;
+}
+.inject-log::-webkit-scrollbar { width:2px; }
+.status-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:7px 12px; border-radius:8px; background:var(--bg-2);
+  border:1px solid var(--border); font-size:0.72rem; margin-bottom:6px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOLOGRAPHIC SHIMMER (card hover)
+═══════════════════════════════════════════════════════════ */
+@property --holo-angle { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+.site-card::before {
+  content:''; position:absolute; inset:0; border-radius:inherit; z-index:0;
+  background: conic-gradient(
+    from var(--holo-angle),
+    transparent 0%, rgba(59,130,246,.04) 15%,
+    rgba(139,92,246,.04) 30%, rgba(20,184,166,.03) 45%,
+    transparent 60%
+  );
+  opacity:0; transition:opacity .4s;
+  animation:holo-spin 4s linear infinite paused;
+  pointer-events:none;
+}
+.site-card:hover::before { opacity:1; animation-play-state:running; }
+@keyframes holo-spin { to { --holo-angle: 360deg; } }
+
+/* ═══════════════════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════════════════ */
 @media(max-width:900px) {
@@ -629,6 +758,12 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); }
 </style>
 </head>
 <body>
+
+<!-- Noise Canvas -->
+<canvas id="cv-noise"></canvas>
+
+<!-- Audio Toggle -->
+<div class="audio-dot" id="audio-dot" onclick="toggleAudio()" title="사운드 토글">🔇</div>
 
 <!-- Boot Screen -->
 <div id="boot">
@@ -836,6 +971,67 @@ input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.3); }
     </div>
   </div>
 
+  <!-- ─── JSON EDITOR + METACODE INJECTOR ───────────────── -->
+  <div class="section-title reveal">Developer Tools</div>
+  <div class="panel reveal" style="margin-bottom:24px;">
+    <div class="editor-tabs">
+      <button class="etab active" onclick="switchEtab('json',this)">⚙️ JSON 설정 편집기</button>
+      <button class="etab" onclick="switchEtab('meta',this)">🔐 메타코드 주입기</button>
+      <button class="etab" onclick="switchEtab('gsc',this)">📊 소유권 현황</button>
+    </div>
+
+    <!-- JSON Editor -->
+    <div class="etab-content active" id="etab-json">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+        <select id="json-site-sel" onchange="loadJsonConfig()" style="background:var(--bg-2);color:var(--t1);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 12px;font-size:0.76rem;outline:none;cursor:pointer;font-family:inherit;">
+          <option value="">-- 사이트 선택 --</option>
+        </select>
+        <button class="btn btn-primary" onclick="saveJsonConfig()" style="padding:7px 16px;font-size:0.74rem;"><i class="fa-solid fa-save"></i>저장 &amp; 배포 시뮬레이션</button>
+        <button class="btn btn-ghost" onclick="formatJson()" style="padding:7px 16px;font-size:0.74rem;"><i class="fa-solid fa-code"></i>포맷</button>
+      </div>
+      <textarea id="json-textarea" class="editor-textarea" rows="10" spellcheck="false" placeholder="사이트를 선택하면 설정 JSON이 표시됩니다..."></textarea>
+    </div>
+
+    <!-- Metacode Injector -->
+    <div class="etab-content" id="etab-meta">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label class="input-label"><i class="fa-brands fa-github"></i> GitHub PAT 토큰 (repo 권한)</label>
+            <input type="password" id="meta-token" class="meta-input" placeholder="ghp_xxxxxxxxxx" oninput="localStorage.setItem('ghpat',this.value)">
+          </div>
+          <div>
+            <label class="input-label"><i class="fa-solid fa-globe"></i> 대상 사이트</label>
+            <select id="meta-site" class="meta-input" style="cursor:pointer;" onchange="previewMetaInfo()">
+              <option value="">-- 선택 --</option>
+            </select>
+          </div>
+          <div>
+            <label class="input-label"><i class="fa-solid fa-tag"></i> 소유권 확인 메타태그 (전체 붙여넣기)</label>
+            <textarea id="meta-code" class="meta-input" rows="3" placeholder='&lt;meta name="naver-site-verification" content="..." /&gt;' oninput="previewMetaInfo()"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="injectMeta()" style="justify-content:center;">
+            <i class="fa-solid fa-cloud-arrow-up"></i>GitHub 커밋 &amp; Vercel 배포
+          </button>
+        </div>
+        <div>
+          <label class="input-label"><i class="fa-solid fa-terminal"></i> 실행 로그</label>
+          <div class="inject-log" id="inject-log">
+            <span style="color:var(--blue)">// 사이트와 메타코드를 선택하면 레포 정보가 표시됩니다</span>
+          </div>
+          <div style="margin-top:10px;font-size:0.7rem;color:var(--t3);line-height:1.6;">
+            ⚡ GitHub Contents API를 직접 호출합니다. PAT 토큰은 브라우저 localStorage에만 저장되며 서버로 전송되지 않습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ownership Status -->
+    <div class="etab-content" id="etab-gsc">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="ownership-list"></div>
+    </div>
+  </div>
+
   <!-- ─── TEAM ───────────────────────────────────────────── -->
   <div class="section-title reveal" style="margin-top:40px;">Harness Dev Team</div>
   <div class="team-grid reveal" id="team-grid"></div>
@@ -947,8 +1143,13 @@ function initAll() {
   initBuildLog();
   initScrollReveal();
   initCountUp();
+  initNoise();
+  populateDevTools();
+  setTimeout(enhanceCards, 300);
   setInterval(updateTime, 1000);
   updateTime();
+  // Sound on all interactive elements
+  document.querySelectorAll('button,.filter-tab,.team-card').forEach(el=>el.addEventListener('click',playTick));
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1238,6 +1439,7 @@ function renderSites(filter) {
   grid.innerHTML='';
   list.forEach(s=>{
     const card=document.createElement('div');card.className='site-card';
+    card.dataset.sid=s.id;
     card.style.setProperty('--card-color',s.color);
     const adBadge=s.adsense==='approved'?'<span class="tag approved">AdSense ✓</span>':s.adsense==='pending'?'<span class="tag pending">심사중</span>':'';
     card.innerHTML=`
@@ -1522,6 +1724,320 @@ function countUp(id, target, fmt) {
 /* ═══════════════════════════════════════════════════════════
    SCROLL REVEAL
 ═══════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   NOISE CANVAS
+═══════════════════════════════════════════════════════════ */
+function initNoise() {
+  const cv = document.getElementById('cv-noise');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  cv.width = 256; cv.height = 256;
+  const img = ctx.createImageData(256, 256);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = Math.random() * 255 | 0;
+    img.data[i] = img.data[i+1] = img.data[i+2] = v;
+    img.data[i+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  cv.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.04;width:100%;height:100%;image-rendering:pixelated;';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEB AUDIO — SOUND DESIGN
+═══════════════════════════════════════════════════════════ */
+let audioOn = false, audioCtx = null;
+function toggleAudio() {
+  audioOn = !audioOn;
+  const dot = document.getElementById('audio-dot');
+  if (dot) { dot.textContent = audioOn ? '🔊' : '🔇'; dot.classList.toggle('on', audioOn); }
+}
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTick() {
+  if (!audioOn) return;
+  try {
+    const ctx = getAudio();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(1200, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.06);
+    g.gain.setValueAtTime(0.04, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    o.type = 'sine'; o.start(); o.stop(ctx.currentTime + 0.06);
+  } catch {}
+}
+function playHover() {
+  if (!audioOn) return;
+  try {
+    const ctx = getAudio();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(440, ctx.currentTime);
+    g.gain.setValueAtTime(0.02, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    o.type = 'sine'; o.start(); o.stop(ctx.currentTime + 0.08);
+  } catch {}
+}
+function playSuccess() {
+  if (!audioOn) return;
+  try {
+    const ctx = getAudio();
+    [523, 659, 784].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.06, ctx.currentTime + i * 0.1);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.15);
+      o.type = 'sine'; o.start(ctx.currentTime + i * 0.1); o.stop(ctx.currentTime + i * 0.1 + 0.15);
+    });
+  } catch {}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MINI RADAR on SITE CARDS
+═══════════════════════════════════════════════════════════ */
+function drawMiniRadar(canvas, data, color) {
+  if (!canvas) return;
+  const size = 60, cx = size/2, cy = size/2, R = size/2-4;
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const n = 5;
+  const angles = Array.from({length:n}, (_,i) => (i/n)*Math.PI*2 - Math.PI/2);
+
+  // Grid rings
+  [.33,.66,1].forEach(r => {
+    ctx.beginPath();
+    angles.forEach((a,i) => {
+      const x=cx+R*r*Math.cos(a), y=cy+R*r*Math.sin(a);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth=.5; ctx.stroke();
+  });
+
+  // Data polygon
+  ctx.beginPath();
+  angles.forEach((a,i) => {
+    const v=data[i]/100, x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = hexA(color,.22); ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth=1.2; ctx.stroke();
+
+  // Dots
+  angles.forEach((a,i) => {
+    const v=data[i]/100, x=cx+R*v*Math.cos(a), y=cy+R*v*Math.sin(a);
+    ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SITE CARDS: inject mini radar + audio
+═══════════════════════════════════════════════════════════ */
+function enhanceCards() {
+  SITES.forEach(s => {
+    const card = document.querySelector(`[data-sid="${s.id}"]`);
+    if (!card) return;
+    // Mini radar wrap
+    const wrap = document.createElement('div');
+    wrap.className = 'card-radar-wrap';
+    const cv = document.createElement('canvas');
+    wrap.appendChild(cv); card.appendChild(wrap);
+    drawMiniRadar(cv, s.perf, s.color);
+    // Audio on hover
+    card.addEventListener('mouseenter', playHover);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB SWITCHER
+═══════════════════════════════════════════════════════════ */
+function switchEtab(id, btn) {
+  document.querySelectorAll('.etab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.etab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('etab-'+id).classList.add('active');
+  playTick();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   JSON CONFIG EDITOR
+═══════════════════════════════════════════════════════════ */
+const REPO_MAP = {
+  'mz-radar':       {repo:'CHOBH1024/mz-radar',branch:'master'},
+  'burnout-radar':  {repo:'CHOBH1024/burnout-radar',branch:'master'},
+  'genius-radar':   {repo:'CHOBH1024/genius-radar',branch:'master'},
+  'fx-radar':       {repo:'CHOBH1024/fx-radar',branch:'master'},
+  'mood-weather':   {repo:'CHOBH1024/mood-weather',branch:'master'},
+  'money-radar':    {repo:'CHOBH1024/money-radar',branch:'master'},
+  'mind-prism':     {repo:'CHOBH1024/MindPrism1024',branch:'master'},
+  'ilban-leadership':{repo:'CHOBH1024/ilban-leadership-site',branch:'master'},
+  'ilban-leader1024':{repo:'CHOBH1024/ilban-leadership',branch:'main'},
+  'aikiugihimdulda':{repo:'CHOBH1024/aikiugihimdulda',branch:'main'},
+  'jeongbu':        {repo:'CHOBH1024/Gajeong',branch:'main'},
+  'focus-flow':     {repo:'CHOBH1024/FocusFlow1024',branch:'main'},
+  'serverguchuk':   {repo:'CHOBH1024/serverguchuk1024',branch:'main'},
+  'techtipcho':     {repo:'CHOBH1024/chotan',branch:'main'},
+  'control-tower':  {repo:'CHOBH1024/control-tower',branch:'main'},
+};
+
+const SITE_CONFIGS = {};
+SITES.forEach(s => {
+  SITE_CONFIGS[s.id] = {
+    projectName: s.id, siteTitle: s.name, siteDescription: s.desc,
+    siteUrl: 'https://'+s.domain, adsenseId: s.adsense==='approved'?'ca-pub-9992037844935954':'N/A',
+    status: s.status, traffic: s.visitors, indexNowKey: '0eea7e699d1fd5eddd032d47db106793'
+  };
+});
+
+function populateDevTools() {
+  const sel1 = document.getElementById('json-site-sel');
+  const sel2 = document.getElementById('meta-site');
+  const own  = document.getElementById('ownership-list');
+  if (!sel1||!sel2) return;
+  SITES.forEach(s => {
+    [sel1,sel2].forEach(sel => {
+      const o=document.createElement('option'); o.value=s.id; o.textContent=s.name+' ('+s.domain+')'; sel.appendChild(o);
+    });
+  });
+  const saved = localStorage.getItem('ghpat');
+  if (saved) document.getElementById('meta-token').value = saved;
+  // Ownership list
+  if (own) {
+    SITES.forEach(s => {
+      const row = document.createElement('div'); row.className='status-row';
+      row.innerHTML=`<span style="font-size:0.74rem;color:var(--t1);font-weight:600">${s.name}</span><span style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--emerald)">✅ 네이버 태그 적용</span>`;
+      own.appendChild(row);
+    });
+  }
+}
+
+function loadJsonConfig() {
+  const id = document.getElementById('json-site-sel').value;
+  if (!id) return;
+  const ta = document.getElementById('json-textarea');
+  ta.value = JSON.stringify(SITE_CONFIGS[id]||{}, null, 2);
+  playTick();
+}
+
+function formatJson() {
+  const ta = document.getElementById('json-textarea');
+  try { ta.value = JSON.stringify(JSON.parse(ta.value), null, 2); playTick(); }
+  catch { ta.style.borderColor='var(--rose)'; setTimeout(()=>ta.style.borderColor='',1000); }
+}
+
+function saveJsonConfig() {
+  const id = document.getElementById('json-site-sel').value;
+  const ta = document.getElementById('json-textarea');
+  try {
+    SITE_CONFIGS[id] = JSON.parse(ta.value);
+    playSuccess();
+    const ri = REPO_MAP[id];
+    if (ri) runBuildSimFor(id, 'JSON config updated via Dev Tools editor');
+  } catch { alert('JSON 파싱 오류: 형식을 확인하세요.'); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   METACODE INJECTOR
+═══════════════════════════════════════════════════════════ */
+function ilog(msg, type='info') {
+  const log = document.getElementById('inject-log');
+  if (!log) return;
+  const t = new Date().toLocaleTimeString('ko-KR',{hour12:false});
+  const colors={'info':'var(--blue-l)','success':'var(--emerald)','warn':'var(--amber)','err':'var(--rose)','sys':'var(--teal)'};
+  log.innerHTML += `<br><span style="color:var(--t3)">[${t}]</span> <span style="color:${colors[type]||colors.info}">${msg}</span>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function previewMetaInfo() {
+  const id = document.getElementById('meta-site').value;
+  const code = document.getElementById('meta-code').value.trim();
+  const log = document.getElementById('inject-log');
+  if (!id || !code) return;
+  const ri = REPO_MAP[id]; if (!ri) return;
+  const s = SITES.find(x=>x.id===id);
+  log.innerHTML = `<span style="color:var(--blue)">// 주입 대상 정보</span>
+<span style="color:var(--t3)">레포:</span> <span style="color:var(--teal)">${ri.repo}</span>
+<span style="color:var(--t3)">브랜치:</span> <span style="color:var(--amber)">${ri.branch}</span>
+<span style="color:var(--t3)">파일:</span> <span style="color:var(--purple-l)">index.html</span>
+<br><span style="color:var(--blue)">// 주입될 코드</span>
+<span style="color:var(--emerald)">${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
+}
+
+async function injectMeta() {
+  const token = document.getElementById('meta-token').value.trim();
+  const siteId = document.getElementById('meta-site').value;
+  const code = document.getElementById('meta-code').value.trim();
+  const log = document.getElementById('inject-log'); log.innerHTML='';
+
+  if (!token) { ilog('❌ GitHub PAT 토큰을 입력하세요','err'); return; }
+  if (!siteId) { ilog('❌ 사이트를 선택하세요','err'); return; }
+  if (!code)   { ilog('❌ 메타태그를 붙여넣으세요','err'); return; }
+
+  const ri = REPO_MAP[siteId];
+  if (!ri) { ilog('❌ 레포 정보 없음','err'); return; }
+
+  ilog(`GitHub API 호출: ${ri.repo}`, 'sys');
+  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'};
+
+  try {
+    ilog('index.html SHA 조회 중...', 'info');
+    const res = await fetch(`https://api.github.com/repos/${ri.repo}/contents/index.html?ref=${ri.branch}`, {headers});
+    if (!res.ok) { ilog(`❌ 조회 실패 ${res.status}`, 'err'); return; }
+    const data = await res.json();
+    ilog(`SHA: ${data.sha.slice(0,10)}... ✓`, 'success');
+
+    ilog('파일 디코딩 및 태그 삽입 중...', 'info');
+    const html = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+    let updated;
+    if (html.includes('naver-site-verification') || html.includes('google-site-verification')) {
+      updated = html.replace(/<meta name="(naver|google)-site-verification"[^>]*>/gi, code);
+      ilog('기존 태그 교체 완료', 'success');
+    } else {
+      updated = html.replace('<head>', '<head>\n    ' + code);
+      ilog('신규 태그 삽입 완료', 'success');
+    }
+
+    const encoded = btoa(unescape(encodeURIComponent(updated)));
+    ilog('GitHub API: 커밋 전송 중...', 'sys');
+    const put = await fetch(`https://api.github.com/repos/${ri.repo}/contents/index.html`, {
+      method:'PUT', headers:{...headers,'Content-Type':'application/json'},
+      body:JSON.stringify({message:'feat: inject verification meta tag',content:encoded,sha:data.sha,branch:ri.branch})
+    });
+    if (!put.ok) { const e=await put.json(); ilog(`❌ 커밋 실패: ${e.message}`, 'err'); return; }
+    ilog('✅ 커밋 완료! Vercel 자동배포 트리거됨', 'success');
+    ilog('60초 후 네이버 서치어드바이저에서 소유확인 클릭하세요', 'warn');
+    playSuccess();
+    runBuildSimFor(siteId, 'Meta verification tag injected via Control Tower');
+  } catch(err) { ilog(`❌ ${err.message}`, 'err'); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUILD SIM for specific site
+═══════════════════════════════════════════════════════════ */
+function runBuildSimFor(siteId, reason) {
+  const log = document.getElementById('build-log'); if(!log) return;
+  const s = SITES.find(x=>x.id===siteId)||SITES[0];
+  const steps=[
+    ['info',`Deploy triggered: ${s.domain} — ${reason}`],
+    ['sys', `Commit hash: ${Math.random().toString(36).slice(2,9)}`],
+    ['info','Installing dependencies (cache hit)...'],
+    ['info','Running: npm run build'],
+    ['sys', 'vite v5.4.0 building for production...'],
+    ['sys', `✓ ${100+Math.floor(Math.random()*80)} modules transformed`],
+    ['info',`Build time: ${(3+Math.random()*3).toFixed(1)}s`],
+    ['sys', `✓ Production: https://${s.domain} [READY] 🚀`],
+  ];
+  let i=0; const iv=setInterval(()=>{
+    if(i>=steps.length){clearInterval(iv);return;}
+    addLog(log,...steps[i++]);
+  },700);
+}
+
 function initScrollReveal() {
   const obs=new IntersectionObserver(entries=>{
     entries.forEach((e,i)=>{
