@@ -45,7 +45,7 @@
   }
 }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/chart.js@4/dist/chart.umd.js';document.head.appendChild(s);"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -1647,34 +1647,38 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function initAll() {
-  initParticles();
-  initCursor();
-  initConstellation();
-  buildSynergyMatrix();
-  renderSites('all');
-  renderTeam();
-  renderCharts();
-  renderSeoTable();
-  renderExpiryList();
-  calcAdsense();
-  initMissionFeed();
-  initBuildLog();
-  initScrollReveal();
-  initCountUp();
-  renderGscPanel();
-  initNoise();
-  initParallax();
-  initKeyboard();
-  initWarRoom();
-  initMatrixRain();
-  initWaveform();
-  initScrollCinematic();
-  startNotifSchedule();
-  populateDevTools();
+  // 에러 격리: 한 단계가 터져도 나머지 init은 계속 실행되게 한다.
+  // (특히 Chart.js CDN 로드 실패로 renderCharts가 던지면 예전엔 그 뒤 전부 중단 → 전체 검은 화면이었음)
+  const safe = (label, fn) => { try { fn(); } catch(e){ console.error('[initAll] '+label+' 실패:', e); } };
+  // 가시성 우선 — .reveal opacity:0 해제를 가장 먼저. 다른 init이 죽어도 화면은 뜬다.
+  safe('scrollReveal', initScrollReveal);
+  safe('particles', initParticles);
+  safe('cursor', initCursor);
+  safe('constellation', initConstellation);
+  safe('synergyMatrix', buildSynergyMatrix);
+  safe('renderSites', () => renderSites('all'));
+  safe('renderTeam', renderTeam);
+  safe('renderCharts', renderCharts);
+  safe('seoTable', renderSeoTable);
+  safe('expiryList', renderExpiryList);
+  safe('adsense', calcAdsense);
+  safe('missionFeed', initMissionFeed);
+  safe('buildLog', initBuildLog);
+  safe('countUp', initCountUp);
+  safe('gscPanel', renderGscPanel);
+  safe('noise', initNoise);
+  safe('parallax', initParallax);
+  safe('keyboard', initKeyboard);
+  safe('warRoom', initWarRoom);
+  safe('matrixRain', initMatrixRain);
+  safe('waveform', initWaveform);
+  safe('scrollCinematic', initScrollCinematic);
+  safe('notifSchedule', startNotifSchedule);
+  safe('devTools', populateDevTools);
   setTimeout(()=>{
-    enhanceCards();
-    initTilt();
-    initSparklines();
+    safe('enhanceCards', enhanceCards);
+    safe('tilt', initTilt);
+    safe('sparklines', initSparklines);
   }, 400);
   setInterval(updateTime, 1000);
   updateTime();
@@ -2078,6 +2082,7 @@ function closeModalDirect(){document.getElementById('modal-overlay').classList.r
    CHARTS
 ═══════════════════════════════════════════════════════════ */
 function renderCharts() {
+  if (typeof Chart === 'undefined') { console.warn('Chart.js 미로드 — 차트 렌더 건너뜀 (페이지는 정상 표시)'); return; }
   const chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{family:'Outfit',size:10}}}}};
   const gridColor='rgba(255,255,255,0.04)', tickColor='#475569';
 
