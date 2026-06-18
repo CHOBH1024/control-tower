@@ -1,0 +1,13 @@
+{
+  "name": "control-tower",
+  "version": "1.0.0",
+  "description": "Anti Control Tower — Serverless API functions",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@google-analytics/data": "^4.8.0",
+    "googleapis": "^144.0.0"
+  }
+}

@@ -1069,6 +1069,79 @@ body { transition: --theme-accent .6s ease; }
   display:flex; justify-content:center; align-items:center; padding:16px 0;
 }
 #cv-globe { border-radius:50%; }
+
+/* ═══════════════════════════════════════════════════════════
+   REAL DATA BADGE
+═══════════════════════════════════════════════════════════ */
+.realdata-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:0.58rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:999px;
+  background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.3);
+  color:var(--emerald); margin-left:8px; vertical-align:middle;
+  animation: badge-pulse 2s ease infinite;
+}
+@keyframes badge-pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+.realdata-badge.loading {
+  background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.3); color:var(--amber);
+}
+.realdata-badge.error {
+  background:rgba(244,63,94,.12); border-color:rgba(244,63,94,.3); color:var(--rose);
+  animation:none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADDITIONAL HEADER METRICS (GSC/AdSense)
+═══════════════════════════════════════════════════════════ */
+.hm-gsc-row {
+  display:flex; gap:12px; flex-wrap:wrap;
+  background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:12px 20px; margin-top:12px;
+}
+.hm-gsc-item { display:flex; flex-direction:column; gap:2px; min-width:90px; }
+.hm-gsc-label { font-size:0.6rem; color:var(--t3); font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.hm-gsc-val { font-size:1.05rem; font-weight:800; color:var(--t1); font-variant-numeric:tabular-nums; }
+.hm-gsc-sub { font-size:0.62rem; color:var(--t3); }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  body { cursor: auto; }
+  #cur-dot, #cur-ring { display:none; }
+
+  .site-header { padding: 20px 16px 16px; }
+  .header-top { flex-direction:column; gap:12px; align-items:flex-start; }
+  h1.header-title { font-size:clamp(1.6rem,6vw,2.4rem); }
+  .header-status { flex-wrap:wrap; gap:6px; }
+  .header-metrics { grid-template-columns: repeat(3,1fr); gap:10px; }
+  .hm-val { font-size:1.4rem; }
+
+  .constellation-grid { grid-template-columns:1fr; }
+  #cv-constellation { height:300px; }
+
+  #app { padding:12px; }
+  .section-title { font-size:1rem; margin-bottom:12px; }
+
+  .sites-grid { grid-template-columns: repeat(2,1fr); gap:12px; }
+  .team-grid { grid-template-columns: repeat(2,1fr); gap:12px; }
+  .war-room-grid { grid-template-columns: repeat(2,1fr); }
+
+  .kbd-bar { display:none; }
+  .hm-gsc-row { gap:8px; }
+
+  .panel-grid-3, .panel-grid-2 { grid-template-columns:1fr; }
+}
+
+@media (max-width: 540px) {
+  .header-metrics { grid-template-columns: repeat(2,1fr); }
+  .sites-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: repeat(2,1fr); }
+  .war-room-grid { grid-template-columns: 1fr; }
+  .hm-gsc-row { flex-direction:column; }
+  h1.header-title { font-size:1.5rem; }
+  .section-title { font-size:0.9rem; }
+}
 </style>
 </head>
 <body>
@@ -1176,24 +1249,24 @@ body { transition: --theme-accent .6s ease; }
     </div>
     <div class="header-metrics">
       <div class="hm-item">
-        <div class="hm-label">총 방문자 (UV)</div>
-        <div class="hm-val blue" id="hm-uv">0</div>
-        <div class="hm-delta delta-up">↑ +18.4% 이번 달</div>
+        <div class="hm-label">총 방문자 (UV) <span class="realdata-badge loading" id="badge-ga4">⟳ 로딩중</span></div>
+        <div class="hm-val blue" id="hm-uv">—</div>
+        <div class="hm-delta delta-up" id="hm-uv-delta">GA4 실제 데이터</div>
       </div>
       <div class="hm-item">
         <div class="hm-label">운영 사이트</div>
-        <div class="hm-val purple">15</div>
-        <div class="hm-delta delta-up">↑ +3 신규</div>
+        <div class="hm-val purple" id="hm-sites">—</div>
+        <div class="hm-delta delta-up" id="hm-sites-delta">실시간 ping 체크</div>
       </div>
       <div class="hm-item">
-        <div class="hm-label">AdSense 월 수익</div>
-        <div class="hm-val emerald" id="hm-rev">$0</div>
-        <div class="hm-delta delta-up">↑ +12.1% 전월비</div>
+        <div class="hm-label">AdSense 이번 달 <span class="realdata-badge loading" id="badge-ads">⟳ 로딩중</span></div>
+        <div class="hm-val emerald" id="hm-rev">—</div>
+        <div class="hm-delta delta-up" id="hm-rev-delta">AdSense 실제 수익</div>
       </div>
       <div class="hm-item">
-        <div class="hm-label">IndexNow 핑</div>
-        <div class="hm-val teal">14/14</div>
-        <div class="hm-delta delta-up">✓ Bing + Yandex</div>
+        <div class="hm-label">GSC 클릭수 <span class="realdata-badge loading" id="badge-gsc">⟳ 로딩중</span></div>
+        <div class="hm-val teal" id="hm-gsc-clicks">—</div>
+        <div class="hm-delta" id="hm-gsc-delta">Search Console 실측</div>
       </div>
       <div class="hm-item">
         <div class="hm-label">평균 응답속도</div>
@@ -1201,9 +1274,37 @@ body { transition: --theme-accent .6s ease; }
         <div class="hm-delta">실시간 핑 측정</div>
       </div>
       <div class="hm-item">
-        <div class="hm-label">에이전트 수</div>
-        <div class="hm-val rose">8</div>
-        <div class="hm-delta delta-up">All Active</div>
+        <div class="hm-label">AdSense 오늘</div>
+        <div class="hm-val rose" id="hm-today-rev">—</div>
+        <div class="hm-delta" id="hm-today-delta">오늘 실수익</div>
+      </div>
+    </div>
+    <!-- Real Data Row: GSC Details -->
+    <div class="hm-gsc-row" id="hm-gsc-row" style="display:none">
+      <div class="hm-gsc-item">
+        <div class="hm-gsc-label">GSC 노출수</div>
+        <div class="hm-gsc-val" id="hm-gsc-impressions">—</div>
+        <div class="hm-gsc-sub">최근 30일</div>
+      </div>
+      <div class="hm-gsc-item">
+        <div class="hm-gsc-label">평균 CTR</div>
+        <div class="hm-gsc-val" id="hm-gsc-ctr">—</div>
+        <div class="hm-gsc-sub">클릭율</div>
+      </div>
+      <div class="hm-gsc-item">
+        <div class="hm-gsc-label">총 PV</div>
+        <div class="hm-gsc-val" id="hm-pv">—</div>
+        <div class="hm-gsc-sub">GA4 페이지뷰</div>
+      </div>
+      <div class="hm-gsc-item">
+        <div class="hm-gsc-label">AdSense 전월</div>
+        <div class="hm-gsc-val" id="hm-last-rev">—</div>
+        <div class="hm-gsc-sub">지난달 수익</div>
+      </div>
+      <div class="hm-gsc-item">
+        <div class="hm-gsc-label">데이터 갱신</div>
+        <div class="hm-gsc-val" id="hm-updated-at" style="font-size:0.72rem;font-weight:500;">—</div>
+        <div class="hm-gsc-sub">캐시 1시간</div>
       </div>
     </div>
   </header>
@@ -3314,6 +3415,208 @@ function initScrollReveal() {
     });
   },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REAL DATA INTEGRATION — GA4 / AdSense / GSC
+═══════════════════════════════════════════════════════════ */
+
+function setBadge(id, state, label) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'realdata-badge' + (state === 'ok' ? '' : state === 'loading' ? ' loading' : ' error');
+  el.textContent = state === 'ok' ? '✓ LIVE' : state === 'loading' ? '⟳ 로딩중' : '✗ 오류';
+}
+
+async function loadRealData() {
+  // Run all 3 API calls in parallel
+  const [ga4Result, adsenseResult, gscResult] = await Promise.allSettled([
+    fetch('/api/ga4').then(r => r.json()).catch(e => ({ ok: false, error: e.message })),
+    fetch('/api/adsense').then(r => r.json()).catch(e => ({ ok: false, error: e.message })),
+    fetch('/api/gsc').then(r => r.json()).catch(e => ({ ok: false, error: e.message })),
+  ]);
+
+  const ga4     = ga4Result.status     === 'fulfilled' ? ga4Result.value     : { ok: false };
+  const adsense = adsenseResult.status === 'fulfilled' ? adsenseResult.value : { ok: false };
+  const gsc     = gscResult.status     === 'fulfilled' ? gscResult.value     : { ok: false };
+
+  let anyReal = false;
+
+  // ── GA4 ─────────────────────────────────
+  if (ga4.ok && ga4.total) {
+    setBadge('badge-ga4', 'ok');
+    const uv = ga4.total.uv;
+    const pv = ga4.total.pv;
+    countUp('hm-uv', uv, v => v.toLocaleString());
+    const pvEl = document.getElementById('hm-pv');
+    if (pvEl) pvEl.textContent = pv.toLocaleString();
+    // Update per-site visitors in SITES array
+    if (ga4.sites) {
+      SITES.forEach(s => {
+        if (ga4.sites[s.id]) {
+          s.visitors = ga4.sites[s.id].uv || s.visitors;
+        }
+      });
+    }
+    const deltaEl = document.getElementById('hm-uv-delta');
+    if (deltaEl) deltaEl.textContent = '↑ GA4 실측값 (30일)';
+    anyReal = true;
+  } else {
+    setBadge('badge-ga4', 'error');
+    // Fallback to mock countup
+    const totalUV = SITES.reduce((s,x) => s+x.visitors, 0);
+    countUp('hm-uv', totalUV, v => v.toLocaleString());
+    const deltaEl = document.getElementById('hm-uv-delta');
+    if (deltaEl) { deltaEl.textContent = '⚠ Mock 데이터'; deltaEl.style.color = 'var(--amber)'; }
+  }
+
+  // ── AdSense ──────────────────────────────
+  if (adsense.ok && adsense.thisMonth) {
+    setBadge('badge-ads', 'ok');
+    const monthEarnings = adsense.thisMonth.earnings;
+    const todayEarnings = adsense.today?.earnings || 0;
+    const lastEarnings  = adsense.lastMonth?.earnings || 0;
+
+    const revEl = document.getElementById('hm-rev');
+    if (revEl) revEl.textContent = '$' + monthEarnings.toFixed(2);
+
+    const todayEl = document.getElementById('hm-today-rev');
+    if (todayEl) todayEl.textContent = '$' + todayEarnings.toFixed(2);
+
+    const lastEl = document.getElementById('hm-last-rev');
+    if (lastEl) lastEl.textContent = '$' + lastEarnings.toFixed(2);
+
+    const revDelta = document.getElementById('hm-rev-delta');
+    if (revDelta && lastEarnings > 0) {
+      const pct = ((monthEarnings - lastEarnings) / lastEarnings * 100).toFixed(1);
+      const sign = pct >= 0 ? '↑ +' : '↓ ';
+      revDelta.textContent = sign + pct + '% 전월비';
+      revDelta.style.color = pct >= 0 ? 'var(--emerald)' : 'var(--rose)';
+    }
+    anyReal = true;
+  } else {
+    setBadge('badge-ads', 'error');
+    // Fallback mock
+    const totalUV = SITES.reduce((s,x) => s+x.visitors, 0);
+    countUp('hm-rev', Math.round(totalUV*.0075*30), v => '$'+v.toLocaleString());
+    const revDelta = document.getElementById('hm-rev-delta');
+    if (revDelta) { revDelta.textContent = '⚠ 예상값 (Mock)'; revDelta.style.color = 'var(--amber)'; }
+  }
+
+  // ── GSC ──────────────────────────────────
+  if (gsc.ok && gsc.total) {
+    setBadge('badge-gsc', 'ok');
+    const clicks      = gsc.total.clicks;
+    const impressions = gsc.total.impressions;
+    const ctr         = (gsc.total.avgCtr * 100).toFixed(2) + '%';
+
+    const clicksEl = document.getElementById('hm-gsc-clicks');
+    if (clicksEl) clicksEl.textContent = clicks.toLocaleString();
+
+    const impEl = document.getElementById('hm-gsc-impressions');
+    if (impEl) impEl.textContent = impressions.toLocaleString();
+
+    const ctrEl = document.getElementById('hm-gsc-ctr');
+    if (ctrEl) ctrEl.textContent = ctr;
+
+    const gscDelta = document.getElementById('hm-gsc-delta');
+    if (gscDelta) gscDelta.textContent = '노출 ' + impressions.toLocaleString() + '회';
+
+    anyReal = true;
+  } else {
+    setBadge('badge-gsc', 'error');
+    const clicksEl = document.getElementById('hm-gsc-clicks');
+    if (clicksEl) { clicksEl.textContent = '—'; }
+    const gscDelta = document.getElementById('hm-gsc-delta');
+    if (gscDelta) { gscDelta.textContent = '⚠ API 미설정'; gscDelta.style.color = 'var(--amber)'; }
+  }
+
+  // ── 공통: 갱신 시각 + GSC 상세행 표시 ───────
+  if (anyReal) {
+    const gscRow = document.getElementById('hm-gsc-row');
+    if (gscRow) gscRow.style.display = 'flex';
+
+    const updatedEl = document.getElementById('hm-updated-at');
+    if (updatedEl) {
+      const t = new Date();
+      updatedEl.textContent = t.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+    }
+  }
+
+  // ── 운영 사이트 수 업데이트 (ping 결과 기반) ──
+  // Wait a bit for pingAll to complete, then update
+  setTimeout(() => {
+    const badges = document.querySelectorAll('[id^="badge-"][class*="badge-online"]');
+    const onlineCount = badges.length;
+    const sitesEl = document.getElementById('hm-sites');
+    const sitesDelta = document.getElementById('hm-sites-delta');
+    if (sitesEl && onlineCount > 0) {
+      sitesEl.textContent = onlineCount + '/' + SITES.length;
+      if (sitesDelta) sitesDelta.textContent = '✓ ' + onlineCount + '개 정상 운영중';
+    } else if (sitesEl) {
+      sitesEl.textContent = SITES.filter(s => s.status === 'running').length;
+    }
+  }, 8000);
+}
+
+// Override initCountUp to NOT clobber real data if already loaded
+const _origInitCountUp = initCountUp;
+function initCountUp() {
+  // Will be overridden by loadRealData() results
+  // But run mock first so something shows
+  const totalUV = SITES.reduce((s,x) => s+x.visitors, 0);
+  countUp('hm-uv',  totalUV, v => v.toLocaleString());
+  countUp('hm-rev', Math.round(totalUV*.0075*30), v => '$'+v.toLocaleString());
+  const sitesEl = document.getElementById('hm-sites');
+  if (sitesEl) sitesEl.textContent = SITES.filter(s => s.status === 'running').length;
+}
+
+// Kick off real data load after page is visible
+const _origInitAll = initAll;
+window.addEventListener('DOMContentLoaded', () => {
+  // loadRealData() is called after boot animation completes
+});
+
+// Patch initAll to also load real data
+const __patchedInitAll = initAll;
+function initAll() {
+  // Call original init logic
+  const safe = (label, fn) => { try { fn(); } catch(e){ console.error('[initAll] '+label+' 실패:', e); } };
+  safe('scrollReveal', initScrollReveal);
+  safe('particles', initParticles);
+  safe('cursor', initCursor);
+  safe('constellation', initConstellation);
+  safe('synergyMatrix', buildSynergyMatrix);
+  safe('renderSites', () => renderSites('all'));
+  safe('renderTeam', renderTeam);
+  safe('renderCharts', renderCharts);
+  safe('seoTable', renderSeoTable);
+  safe('expiryList', renderExpiryList);
+  safe('adsense', calcAdsense);
+  safe('missionFeed', initMissionFeed);
+  safe('buildLog', initBuildLog);
+  safe('countUp', initCountUp);
+  safe('gscPanel', renderGscPanel);
+  safe('noise', initNoise);
+  safe('parallax', initParallax);
+  safe('keyboard', initKeyboard);
+  safe('warRoom', initWarRoom);
+  safe('matrixRain', initMatrixRain);
+  safe('waveform', initWaveform);
+  safe('scrollCinematic', initScrollCinematic);
+  safe('notifSchedule', startNotifSchedule);
+  safe('devTools', populateDevTools);
+  setTimeout(() => {
+    safe('enhanceCards', enhanceCards);
+    safe('tilt', initTilt);
+    safe('sparklines', initSparklines);
+  }, 400);
+  setInterval(updateTime, 1000);
+  updateTime();
+  document.querySelectorAll('button,.filter-tab').forEach(el => el.addEventListener('click', playTick));
+
+  // 🔴 REAL DATA: Load after 500ms (give DOM time to render)
+  setTimeout(() => loadRealData(), 500);
 }
 </script>
 </body>
