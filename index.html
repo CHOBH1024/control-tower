@@ -51,31 +51,33 @@
    DESIGN TOKENS
 ═══════════════════════════════════════════════════════════ */
 :root {
-  --bg:          #030712;
-  --bg-1:        rgba(255,255,255,0.025);
-  --bg-2:        rgba(255,255,255,0.045);
-  --bg-3:        rgba(255,255,255,0.07);
-  --border:      rgba(255,255,255,0.07);
-  --border-2:    rgba(255,255,255,0.13);
+  --bg:          #020610;
+  --bg-1:        rgba(255,255,255,0.03);
+  --bg-2:        rgba(255,255,255,0.055);
+  --bg-3:        rgba(255,255,255,0.09);
+  --border:      rgba(255,255,255,0.08);
+  --border-2:    rgba(255,255,255,0.16);
 
-  --blue:        #3b82f6;
+  --blue:        #4f8ef7;
   --blue-l:      #93c5fd;
-  --blue-g:      rgba(59,130,246,0.18);
-  --purple:      #8b5cf6;
-  --purple-l:    #c4b5fd;
-  --purple-g:    rgba(139,92,246,0.18);
-  --teal:        #14b8a6;
-  --teal-g:      rgba(20,184,166,0.18);
-  --rose:        #f43f5e;
-  --rose-g:      rgba(244,63,94,0.18);
-  --amber:       #f59e0b;
-  --amber-g:     rgba(245,158,11,0.18);
-  --emerald:     #10b981;
-  --emerald-g:   rgba(16,185,129,0.18);
+  --blue-g:      rgba(79,142,247,0.22);
+  --purple:      #9f6ef6;
+  --purple-l:    #d4b8ff;
+  --purple-g:    rgba(159,110,246,0.22);
+  --teal:        #2dd4bf;
+  --teal-g:      rgba(45,212,191,0.2);
+  --rose:        #fb4570;
+  --rose-g:      rgba(251,69,112,0.2);
+  --amber:       #fbbf24;
+  --amber-g:     rgba(251,191,36,0.2);
+  --emerald:     #22c55e;
+  --emerald-g:   rgba(34,197,94,0.2);
+  --gold:        #f59e0b;
+  --gold-g:      rgba(245,158,11,0.2);
 
-  --t1: #f8fafc;
-  --t2: #94a3b8;
-  --t3: #475569;
+  --t1: #f0f4ff;
+  --t2: #8fabc8;
+  --t3: #4a6080;
 
   --r-sm:  8px; --r-md: 14px; --r-lg: 20px; --r-xl: 26px;
   --ease:  cubic-bezier(0.16,1,0.3,1);
@@ -171,11 +173,13 @@ button { font-family: inherit; cursor: none; }
   margin-bottom: 40px; overflow: hidden;
 }
 .header-glow {
-  position:absolute; top:-60px; left:50%; transform:translateX(-50%);
-  width:800px; height:300px;
-  background: radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.08) 40%, transparent 70%);
+  position:absolute; top:-80px; left:50%; transform:translateX(-50%);
+  width:1100px; height:400px;
+  background: radial-gradient(ellipse, rgba(79,142,247,0.18) 0%, rgba(159,110,246,0.12) 35%, rgba(45,212,191,0.06) 60%, transparent 75%);
   pointer-events:none;
+  animation: glow-pulse 5s ease-in-out infinite;
 }
+@keyframes glow-pulse { 0%,100%{opacity:1;transform:translateX(-50%) scaleX(1)} 50%{opacity:0.8;transform:translateX(-50%) scaleX(1.08)} }
 .header-scan {
   position:absolute; bottom:0; left:-100%; width:60%; height:1px;
   background: linear-gradient(90deg,transparent,var(--blue),transparent);
@@ -189,9 +193,12 @@ button { font-family: inherit; cursor: none; }
 .header-title {
   font-size: clamp(2.4rem,5vw,4.5rem);
   font-weight:900; letter-spacing:-0.04em; line-height:1;
-  background: linear-gradient(135deg, #fff 0%, var(--blue-l) 50%, var(--purple-l) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #93c5fd 30%, #d4b8ff 60%, #2dd4bf 100%);
   -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation: title-shimmer 6s ease-in-out infinite;
+  background-size: 200% auto;
 }
+@keyframes title-shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
 .header-sub {
   font-size:0.8rem; color:var(--t3); font-family:'JetBrains Mono',monospace;
   letter-spacing:0.1em; margin-top:10px; text-transform:uppercase;
@@ -267,6 +274,62 @@ button { font-family: inherit; cursor: none; }
   margin-bottom:20px; display:flex; align-items:center; gap:10px;
 }
 .panel-title i { color:var(--blue); font-size:0.9rem; }
+
+/* ═══════════════════════════════════════════════════════════
+   ADSENSE STATUS TRACKER
+═══════════════════════════════════════════════════════════ */
+.adsense-tracker {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px;
+  margin-bottom:40px;
+}
+.ads-site-card {
+  border:1px solid var(--border); border-radius:var(--r-lg);
+  background:var(--bg-1); padding:16px 18px;
+  display:flex; flex-direction:column; gap:10px;
+  position:relative; overflow:hidden;
+  transition:border-color .3s, box-shadow .3s;
+}
+.ads-site-card:hover { border-color:var(--border-2); }
+.ads-site-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--ads-color, var(--blue));
+}
+.ads-site-name { font-size:0.9rem; font-weight:700; }
+.ads-site-domain { font-size:0.66rem; color:var(--t3); font-family:'JetBrains Mono',monospace; }
+.ads-status-row { display:flex; align-items:center; justify-content:space-between; }
+.ads-status-pill {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:999px; font-size:0.68rem; font-weight:700;
+  border:1px solid;
+}
+.ads-pill-approved { color:var(--emerald); border-color:rgba(34,197,94,.3); background:rgba(34,197,94,.1); }
+.ads-pill-pending  { color:var(--amber);   border-color:rgba(251,191,36,.3); background:rgba(251,191,36,.1); }
+.ads-pill-seo-done { color:var(--teal);    border-color:rgba(45,212,191,.3); background:rgba(45,212,191,.1); }
+.ads-pill-none     { color:var(--t3);      border-color:var(--border);       background:var(--bg-2); }
+.ads-tasks { display:flex; flex-direction:column; gap:4px; }
+.ads-task {
+  font-size:0.68rem; color:var(--t3); display:flex; align-items:center; gap:6px;
+}
+.ads-task.done { color:var(--emerald); }
+.ads-task.todo { color:var(--t3); }
+.ads-task-icon { font-size:0.75rem; flex-shrink:0; }
+.ads-summary-bar {
+  background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:24px 28px; margin-bottom:20px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+}
+.ads-summary-item {
+  display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center;
+  border-right:1px solid var(--border);
+}
+.ads-summary-item:last-child { border-right:none; }
+.ads-summary-val { font-size:2.2rem; font-weight:900; letter-spacing:-.04em; }
+.ads-summary-label { font-size:0.66rem; color:var(--t3); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.ads-progress-bar {
+  height:4px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; margin-top:8px;
+  width:80%;
+}
+.ads-progress-fill { height:100%; border-radius:2px; transition:width 1s var(--ease); }
 
 /* ═══════════════════════════════════════════════════════════
    CONSTELLATION SECTION
@@ -1342,13 +1405,41 @@ body { transition: --theme-accent .6s ease; }
     </div>
   </div>
 
+  <!-- ─── ADSENSE REVIEW TRACKER ──────────────────────────── -->
+  <div class="section-title reveal" style="margin-top:8px;">🎯 AdSense 심사 현황 트래커</div>
+  <!-- Summary Bar -->
+  <div class="ads-summary-bar reveal" id="ads-summary-bar">
+    <div class="ads-summary-item">
+      <div class="ads-summary-val emerald" id="ads-count-approved" style="color:var(--emerald)">0</div>
+      <div class="ads-summary-label">승인 완료</div>
+      <div class="ads-progress-bar"><div class="ads-progress-fill" id="ads-bar-approved" style="background:var(--emerald);width:0%"></div></div>
+    </div>
+    <div class="ads-summary-item">
+      <div class="ads-summary-val" id="ads-count-pending" style="color:var(--amber)">0</div>
+      <div class="ads-summary-label">심사 중</div>
+      <div class="ads-progress-bar"><div class="ads-progress-fill" id="ads-bar-pending" style="background:var(--amber);width:0%"></div></div>
+    </div>
+    <div class="ads-summary-item">
+      <div class="ads-summary-val" id="ads-count-seo" style="color:var(--teal)">0</div>
+      <div class="ads-summary-label">SEO 강화 완료</div>
+      <div class="ads-progress-bar"><div class="ads-progress-fill" id="ads-bar-seo" style="background:var(--teal);width:0%"></div></div>
+    </div>
+    <div class="ads-summary-item">
+      <div class="ads-summary-val" id="ads-count-none" style="color:var(--t3)">0</div>
+      <div class="ads-summary-label">미신청</div>
+      <div class="ads-progress-bar"><div class="ads-progress-fill" id="ads-bar-none" style="background:var(--t3);width:0%"></div></div>
+    </div>
+  </div>
+  <div class="adsense-tracker reveal" id="adsense-tracker"></div>
+
   <!-- ─── SITES ───────────────────────────────────────────── -->
-  <div class="section-title reveal">관제 사이트 목록 (16)</div>
+  <div class="section-title reveal">관제 사이트 목록 (<span id="site-count-label">0</span>)</div>
   <div class="filter-row reveal">
     <button class="filter-tab active" onclick="filterCards('all',this)">ALL</button>
     <button class="filter-tab" onclick="filterCards('running',this)">운영중</button>
     <button class="filter-tab" onclick="filterCards('maintenance',this)">점검중</button>
-    <button class="filter-tab" onclick="filterCards('adsense',this)">AdSense</button>
+    <button class="filter-tab" onclick="filterCards('adsense',this)">AdSense 승인</button>
+    <button class="filter-tab" onclick="filterCards('pending',this)">심사중</button>
   </div>
   <div class="sites-grid reveal" id="sites-grid"></div>
 
@@ -1669,26 +1760,29 @@ body { transition: --theme-accent .6s ease; }
    DATA
 ═══════════════════════════════════════════════════════════ */
 const SITES = [
-  { id:"mz-radar",         name:"MZ 레이더",          sub:"MZ 직장인 유형 진단",    status:"running",     adsense:"approved", gsc:false, domain:"mz-radar.vercel.app",                 github:"CHOBH1024/mz-radar",            icon:"fa-rocket",             color:"#3b82f6", visitors:8200, desc:"MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석.", perf:[85,90,95,80,95], sslDays:45, domDays:280 },
-  { id:"burnout-radar",    name:"번아웃 레이더",        sub:"번아웃 위험도 진단",      status:"maintenance", adsense:"pending",  gsc:false, domain:"burnout-radar1024.vercel.app",         github:"CHOBH1024/burnout-radar",        icon:"fa-fire-extinguisher",  color:"#f43f5e", visitors:4100, desc:"직장인 번아웃의 6가지 영역을 MBI 모델 기반으로 측정하여 스트레스 완화 솔루션 제공.", perf:[60,50,80,45,90], sslDays:8, domDays:140 },
-  { id:"genius-radar",     name:"지니어스 레이더",      sub:"천재 유형 진단",          status:"running",     adsense:"approved", gsc:false, domain:"genius-radar.vercel.app",              github:"CHOBH1024/genius-radar",         icon:"fa-brain",              color:"#8b5cf6", visitors:7600, desc:"하워드 가드너의 다중지능 이론을 응용한 지능 강점 및 최적 학습법 분석 도구.", perf:[90,85,90,88,96], sslDays:60, domDays:320 },
-  { id:"fx-radar",         name:"FX 레이더",           sub:"환율 투자 심리 진단",     status:"running",     adsense:"approved", gsc:false, domain:"fx-radar1024.vercel.app",              github:"CHOBH1024/fx-radar",             icon:"fa-arrow-trend-up",     color:"#14b8a6", visitors:6200, desc:"행동경제학 이론을 접목한 외환 거래 투자 편향 분석 및 트레이딩 마인드 컨트롤 가이드.", perf:[88,92,94,85,95], sslDays:55, domDays:310 },
-  { id:"mood-weather",     name:"무드 웨더",            sub:"감정 날씨 일기",          status:"running",     adsense:"approved", gsc:false, domain:"mood-weather1024.vercel.app",          github:"CHOBH1024/mood-weather",         icon:"fa-cloud-sun",          color:"#f59e0b", visitors:4800, desc:"기분 변화를 기상 현상에 빗대어 기록하고 긍정 심리 피드백으로 감정 회복 탄력성을 돕는 다이어리.", perf:[72,78,88,70,92], sslDays:48, domDays:290 },
-  { id:"money-radar",      name:"머니 레이더",          sub:"소비 유형 진단",          status:"running",     adsense:"none",     gsc:false, domain:"money-radar-five.vercel.app",          github:"CHOBH1024/money-radar",          icon:"fa-coins",              color:"#10b981", visitors:3900, desc:"소비 패턴과 재정 심리를 분석하여 맞춤형 금융 행동 가이드를 제공하는 머니 성향 진단 앱.", perf:[75,82,88,72,93], sslDays:42, domDays:260 },
-  { id:"mind-prism",       name:"마인드 프리즘",        sub:"심리 유형 분석",          status:"running",     adsense:"pending",  gsc:true,  domain:"mind-prism1024.vercel.app",            github:"CHOBH1024/MindPrism1024",        icon:"fa-shapes",             color:"#6366f1", visitors:3200, desc:"인지 기능과 자아 지향을 분석하여 16가지 성격 유형의 대인관계 적합성과 정서 훈련 팁 제공.", perf:[65,40,85,50,94], sslDays:52, domDays:160 },
-  { id:"ilban-leadership", name:"일반 리더십",          sub:"조직 리더십 진단",        status:"maintenance", adsense:"none",     gsc:false, domain:"ilban-leadership.vercel.app",          github:"CHOBH1024/ilban-leadership-site", icon:"fa-people-group",       color:"#94a3b8", visitors:900,  desc:"비전형·코칭형 등 6가지 리더십 스타일을 측정하여 조직 맞춤 리더십 훈련 가이드 제공.", perf:[30,10,75,25,88], sslDays:42, domDays:120 },
-  { id:"ilban-leader1024", name:"일반 리더십1024",      sub:"조직 리더십 (1024)",      status:"running",     adsense:"pending",  gsc:true,  domain:"ilbanleadership1024.vercel.app",        github:"CHOBH1024/ilban-leadership",     icon:"fa-user-tie",           color:"#0ea5e9", visitors:1100, desc:"리더십 아키타입 진단 사이트 1024 버전. 다차원 리더십 역량 평가 및 강점 피드백 제공.", perf:[45,25,82,35,90], sslDays:78, domDays:340 },
-  { id:"aikiugihimdulda",  name:"아이키우기힘들다",      sub:"Mirror Inside Parenting", status:"running",     adsense:"pending",  gsc:true,  domain:"aikiugihimdulda.vercel.app",           github:"CHOBH1024/aikiugihimdulda",      icon:"fa-baby",               color:"#f472b6", visitors:2100, desc:"육아 스타일을 5가지 차원으로 분석하여 맞춤형 육아 페르소나와 가이드를 제공하는 진단 앱.", perf:[55,30,80,48,91], sslDays:38, domDays:200 },
-  { id:"jeongbu-lead",     name:"정부지원 리더십",       sub:"리더십 진단 (정부용)",    status:"maintenance", adsense:"none",     gsc:false, domain:"jeongbuleadership1024.vercel.app",      github:"CHOBH1024/Gajeong",              icon:"fa-building-columns",   color:"#64748b", visitors:1800, desc:"정부 공직자를 위한 리더십 아키타입 진단 사이트.", perf:[40,15,78,30,85], sslDays:22, domDays:95 },
-  { id:"focus-flow",       name:"FocusFlow",            sub:"생산성 집중 도구",        status:"maintenance", adsense:"pending",  gsc:true,  domain:"focus-flow1024.vercel.app",            github:"CHOBH1024/FocusFlow1024",        icon:"fa-hourglass-half",     color:"#a855f7", visitors:800,  desc:"포모도로 업무 시간 구조화와 딥워크 실천 가이드를 결합한 집중력 향상 웹 앱.", perf:[35,15,78,30,84], sslDays:14, domDays:95 },
-  { id:"serverguchuk",     name:"서버구축1024",          sub:"서버 구축 가이드",        status:"running",     adsense:"pending",  gsc:true,  domain:"serverguchuk1024.vercel.app",          github:"CHOBH1024/serverguchuk1024",     icon:"fa-server",             color:"#22d3ee", visitors:1500, desc:"중소기업 및 개인을 위한 서버 구축 실전 가이드. AWS, GCP 등 클라우드 플랫폼 튜토리얼 제공.", perf:[50,25,82,42,89], sslDays:35, domDays:180 },
-  { id:"techtipcho",       name:"테크팁KR",              sub:"AI 기술 레퍼런스",        status:"running",     adsense:"pending",  gsc:true,  domain:"techtipcho.vercel.app",                github:"CHOBH1024/chotan",               icon:"fa-laptop-code",        color:"#f97316", visitors:1400, desc:"ChatGPT, Claude 및 자동화 툴 활용 팁을 정리한 가이드 웹사이트. 실무 생산성 향상 전문.", perf:[50,30,80,40,86], sslDays:35, domDays:115 },
-  { id:"chotan",           name:"Mirror Inside 커리어",  sub:"목회자 커리어 코칭",      status:"running",     adsense:"pending",  gsc:true,  domain:"cho-tan.vercel.app",                   github:"CHOBH1024/chotan",               icon:"fa-user-tie",           color:"#e879f9", visitors:1100, desc:"가정연합 내부 목회자를 타겟으로 설계된 역량 종합 분석 플랫폼.", perf:[45,25,82,35,96], sslDays:78, domDays:340 },
-  { id:"jeongbu",          name:"정부지원 가이드",        sub:"보조금 정보",             status:"running",     adsense:"pending",  gsc:true,  domain:"jeongbu.vercel.app",                   github:"CHOBH1024/jeongbu",              icon:"fa-landmark",           color:"#84cc16", visitors:2200, desc:"정부 보조금 및 지원 사업 정보를 큐레이션하고 자격 조건 매칭을 도와주는 정보 플랫폼.", perf:[55,20,82,45,88], sslDays:30, domDays:160 },
-  { id:"jikjang",          name:"직장인 가이드",          sub:"직장 생활 정보",          status:"running",     adsense:"pending",  gsc:true,  domain:"jikjang.vercel.app",                   github:"CHOBH1024/jikjang",              icon:"fa-briefcase",          color:"#fb7185", visitors:1800, desc:"직장인을 위한 실무 가이드와 커리어 성장 정보를 제공하는 정보 플랫폼.", perf:[50,20,80,42,87], sslDays:28, domDays:150 },
-  { id:"sinang-inside",    name:"신앙인사이드",            sub:"신앙 성향 진단",           status:"running",     adsense:"pending",  gsc:false, domain:"sinang-inside.vercel.app",             github:"CHOBH1024/sinang-inside",        icon:"fa-hands-praying",      color:"#0d5c3a", visitors:500,  desc:"신앙인의 성향과 심정 스펙트럼을 5가지 페르소나로 진단하는 자기성찰 도구.", perf:[70,65,85,72,90], sslDays:60, domDays:365 },
-  { id:"regulation-hub",   name:"규정 허브",             sub:"규정 문서 통합 관리",     status:"running",     adsense:"none",     gsc:false, domain:"regulation-hub-henna.vercel.app",      github:"CHOBH1024/regulation-hub",       icon:"fa-scale-balanced",     color:"#475569", visitors:300,  desc:"FFWPU 총무국 규정·지침 문서를 6개 카테고리로 통합 관리하고 모든 포맷을 PDF 통일 보기로 제공하는 규정 허브.", perf:[82,75,88,80,95], sslDays:60, domDays:365 },
-  { id:"control-tower",    name:"Anti 관제탑",           sub:"통합 대시보드",           status:"running",     adsense:"none",     gsc:false, domain:"anti-control-tower.vercel.app",        github:"CHOBH1024/control-tower",        icon:"fa-tower-broadcast",    color:"#38bdf8", visitors:500,  desc:"CHOBH1024 운영 중인 전체 사이트 실시간 관제 및 트래픽·AdSense 통계 대시보드.", perf:[80,60,90,70,99], sslDays:90, domDays:365 },
+  { id:"mz-radar",         name:"MZ 레이더",          sub:"MZ 직장인 유형 진단",    status:"running",     adsense:"approved", gsc:true,  seoText:true,  domain:"mz-radar.vercel.app",                 github:"CHOBH1024/mz-radar",            icon:"fa-rocket",             color:"#4f8ef7", visitors:8200, desc:"MZ세대 직장인의 업무 유형과 조직 내 포지셔닝을 에니어그램 기반으로 분석.", perf:[85,90,95,80,95], sslDays:45, domDays:280 },
+  { id:"burnout-radar",    name:"번아웃 레이더",        sub:"번아웃 위험도 진단",      status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"burnout-radar.vercel.app",            github:"CHOBH1024/burnout-radar",        icon:"fa-fire-extinguisher",  color:"#fb4570", visitors:4100, desc:"직장인 번아웃의 6가지 영역을 MBI 모델 기반으로 측정하여 스트레스 완화 솔루션 제공.", perf:[75,72,88,70,92], sslDays:90, domDays:140 },
+  { id:"genius-radar",     name:"지니어스 레이더",      sub:"천재 유형 진단",          status:"running",     adsense:"approved", gsc:true,  seoText:true,  domain:"genius-radar.vercel.app",              github:"CHOBH1024/genius-radar",         icon:"fa-brain",              color:"#9f6ef6", visitors:7600, desc:"하워드 가드너의 다중지능 이론을 응용한 지능 강점 및 최적 학습법 분석 도구.", perf:[90,85,90,88,96], sslDays:60, domDays:320 },
+  { id:"fx-radar",         name:"FX 레이더",           sub:"환율 투자 심리 진단",     status:"running",     adsense:"approved", gsc:true,  seoText:false, domain:"fx-radar1024.vercel.app",              github:"CHOBH1024/fx-radar",             icon:"fa-arrow-trend-up",     color:"#2dd4bf", visitors:6200, desc:"행동경제학 이론을 접목한 외환 거래 투자 편향 분석 및 트레이딩 마인드 컨트롤 가이드.", perf:[88,92,94,85,95], sslDays:55, domDays:310 },
+  { id:"mood-weather",     name:"무드 웨더",            sub:"감정 날씨 일기",          status:"running",     adsense:"approved", gsc:true,  seoText:false, domain:"mood-weather1024.vercel.app",          github:"CHOBH1024/mood-weather",         icon:"fa-cloud-sun",          color:"#fbbf24", visitors:4800, desc:"기분 변화를 기상 현상에 빗대어 기록하고 긍정 심리 피드백으로 감정 회복 탄력성을 돕는 다이어리.", perf:[72,78,88,70,92], sslDays:48, domDays:290 },
+  { id:"money-radar",      name:"머니 레이더",          sub:"소비 유형 진단",          status:"running",     adsense:"none",     gsc:false, seoText:false, domain:"money-radar-five.vercel.app",          github:"CHOBH1024/money-radar",          icon:"fa-coins",              color:"#22c55e", visitors:3900, desc:"소비 패턴과 재정 심리를 분석하여 맞춤형 금융 행동 가이드를 제공하는 머니 성향 진단 앱.", perf:[75,82,88,72,93], sslDays:42, domDays:260 },
+  { id:"mind-prism",       name:"마인드 프리즘",        sub:"심리 유형 분석",          status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"mind-prism1024.vercel.app",            github:"CHOBH1024/MindPrism1024",        icon:"fa-shapes",             color:"#6366f1", visitors:3200, desc:"인지 기능과 자아 지향을 분석하여 16가지 성격 유형의 대인관계 적합성과 정서 훈련 팁 제공.", perf:[65,40,85,50,94], sslDays:52, domDays:160 },
+  { id:"ilban-leadership", name:"일반 리더십",          sub:"조직 리더십 진단",        status:"maintenance", adsense:"none",     gsc:false, seoText:false, domain:"ilban-leadership.vercel.app",          github:"CHOBH1024/ilban-leadership-site", icon:"fa-people-group",       color:"#94a3b8", visitors:900,  desc:"비전형·코칭형 등 6가지 리더십 스타일을 측정하여 조직 맞춤 리더십 훈련 가이드 제공.", perf:[30,10,75,25,88], sslDays:42, domDays:120 },
+  { id:"ilban-leader1024", name:"일반 리더십1024",      sub:"조직 리더십 (1024)",      status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"ilbanleadership1024.vercel.app",        github:"CHOBH1024/ilban-leadership",     icon:"fa-user-tie",           color:"#0ea5e9", visitors:1100, desc:"리더십 아키타입 진단 사이트 1024 버전. 다차원 리더십 역량 평가 및 강점 피드백 제공.", perf:[45,25,82,35,90], sslDays:78, domDays:340 },
+  { id:"aikiugihimdulda",  name:"아이키우기힘들다",      sub:"Mirror Inside Parenting", status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"aikiugihimdulda.vercel.app",           github:"CHOBH1024/aikiugihimdulda",      icon:"fa-baby",               color:"#f472b6", visitors:2100, desc:"육아 스타일을 5가지 차원으로 분석하여 맞춤형 육아 페르소나와 가이드를 제공하는 진단 앱.", perf:[55,30,80,48,91], sslDays:38, domDays:200 },
+  { id:"jeongbu-lead",     name:"정부지원 리더십",       sub:"리더십 진단 (정부용)",    status:"maintenance", adsense:"none",     gsc:false, seoText:false, domain:"jeongbuleadership1024.vercel.app",      github:"CHOBH1024/Gajeong",              icon:"fa-building-columns",   color:"#64748b", visitors:1800, desc:"정부 공직자를 위한 리더십 아키타입 진단 사이트.", perf:[40,15,78,30,85], sslDays:22, domDays:95 },
+  { id:"focus-flow",       name:"FocusFlow",            sub:"생산성 집중 도구",        status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"focus-flow1024.vercel.app",            github:"CHOBH1024/FocusFlow1024",        icon:"fa-hourglass-half",     color:"#a855f7", visitors:800,  desc:"포모도로 업무 시간 구조화와 딥워크 실천 가이드를 결합한 집중력 향상 웹 앱.", perf:[60,50,85,55,88], sslDays:90, domDays:95 },
+  { id:"serverguchuk",     name:"서버구축1024",          sub:"서버 구축 가이드",        status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"serverguchuk1024.vercel.app",          github:"CHOBH1024/serverguchuk1024",     icon:"fa-server",             color:"#22d3ee", visitors:1500, desc:"중소기업 및 개인을 위한 서버 구축 실전 가이드. AWS, GCP 등 클라우드 플랫폼 튜토리얼 제공.", perf:[50,25,82,42,89], sslDays:35, domDays:180 },
+  { id:"techtipcho",       name:"테크팁KR",              sub:"AI 기술 레퍼런스",        status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"techtipcho.vercel.app",                github:"CHOBH1024/hyper-automation-tower",icon:"fa-laptop-code",        color:"#f97316", visitors:1400, desc:"ChatGPT, Claude 및 자동화 툴 활용 팁을 정리한 가이드 웹사이트. 실무 생산성 향상 전문.", perf:[50,30,80,40,86], sslDays:35, domDays:115 },
+  { id:"chotan",           name:"신앙인사이드 커리어",   sub:"목회자 커리어 코칭",      status:"running",     adsense:"pending",  gsc:true,  seoText:false, domain:"cho-tan.vercel.app",                   github:"CHOBH1024/chotan",               icon:"fa-user-tie",           color:"#e879f9", visitors:1100, desc:"가정연합 내부 목회자를 타겟으로 설계된 역량 종합 분석 플랫폼.", perf:[45,25,82,35,96], sslDays:78, domDays:340 },
+  { id:"jeongbu",          name:"정부지원 가이드",        sub:"보조금 정보",             status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"jeongbu.vercel.app",                   github:"CHOBH1024/jeongbu",              icon:"fa-landmark",           color:"#84cc16", visitors:2200, desc:"정부 보조금 및 지원 사업 정보를 큐레이션하고 자격 조건 매칭을 도와주는 정보 플랫폼.", perf:[55,20,82,45,88], sslDays:30, domDays:160 },
+  { id:"jikjang",          name:"직장인 가이드",          sub:"직장 생활 정보",          status:"running",     adsense:"pending",  gsc:true,  seoText:false, domain:"jikjang.vercel.app",                   github:"CHOBH1024/jikjang",              icon:"fa-briefcase",          color:"#fb7185", visitors:1800, desc:"직장인을 위한 실무 가이드와 커리어 성장 정보를 제공하는 정보 플랫폼.", perf:[50,20,80,42,87], sslDays:28, domDays:150 },
+  { id:"sinang-inside",    name:"신앙인사이드",            sub:"신앙 성향 진단",           status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"sinang-inside.vercel.app",             github:"CHOBH1024/sinang-inside",        icon:"fa-hands-praying",      color:"#4ade80", visitors:500,  desc:"신앙인의 성향과 심정 스펙트럼을 5가지 페르소나로 진단하는 자기성찰 도구.", perf:[70,65,85,72,90], sslDays:60, domDays:365 },
+  { id:"regulation-hub",   name:"규정 허브",             sub:"규정 문서 통합 관리",     status:"running",     adsense:"none",     gsc:false, seoText:false, domain:"regulation-hub-henna.vercel.app",      github:"CHOBH1024/regulation-hub",       icon:"fa-scale-balanced",     color:"#475569", visitors:300,  desc:"FFWPU 총무국 규정·지침 문서를 6개 카테고리로 통합 관리하고 모든 포맷을 PDF 통일 보기로 제공하는 규정 허브.", perf:[82,75,88,80,95], sslDays:60, domDays:365 },
+  { id:"control-tower",    name:"Anti 관제탑",           sub:"통합 대시보드",           status:"running",     adsense:"none",     gsc:false, seoText:false, domain:"hyper-automation-tower.vercel.app",    github:"CHOBH1024/control-tower",        icon:"fa-tower-broadcast",    color:"#38bdf8", visitors:500,  desc:"CHOBH1024 운영 중인 전체 사이트 실시간 관제 및 트래픽·AdSense 통계 대시보드.", perf:[80,60,90,70,99], sslDays:90, domDays:365 },
+  { id:"side-hustle-radar",name:"사이드허슬 레이더",     sub:"N잡러 성향 진단",         status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"side-hustle-radar.vercel.app",         github:"CHOBH1024/side-hustle-radar",    icon:"fa-money-bill-trend-up",color:"#eab308", visitors:150,  desc:"N잡러의 업무 스타일과 강점을 분석해 최적의 부업을 추천하는 진단 시스템.", perf:[85,85,85,85,85], sslDays:90, domDays:365 },
+  { id:"mirror-insight",   name:"미러 인사이트",         sub:"심리 진단 템플릿",        status:"running",     adsense:"pending",  gsc:true,  seoText:true,  domain:"mirror-insight-system.vercel.app",     github:"CHOBH1024/MIRRIOR-APP",          icon:"fa-clone",              color:"#64748b", visitors:120,  desc:"모든 레이더 진단 사이트의 베이스가 되는 미러 인사이트 시스템 기본 템플릿.", perf:[90,90,90,90,90], sslDays:90, domDays:365 },
+  { id:"mijeonshi",        name:"미전시",                sub:"미래 전략 시스템",        status:"running",     adsense:"none",     gsc:false, seoText:false, domain:"mijeonshi.vercel.app",                 github:"CHOBH1024/mijeonshi",            icon:"fa-chess-knight",       color:"#be185d", visitors:80,   desc:"전략적 의사결정 및 미래 시나리오 분석을 위한 기획·전략 시스템.", perf:[85,85,85,85,85], sslDays:90, domDays:365 }
 ];
 
 const AGENTS = [
@@ -1757,6 +1851,7 @@ function initAll() {
   safe('cursor', initCursor);
   safe('constellation', initConstellation);
   safe('synergyMatrix', buildSynergyMatrix);
+  safe('renderAdsenseTracker', renderAdsenseTracker);
   safe('renderSites', () => renderSites('all'));
   safe('renderTeam', renderTeam);
   safe('renderCharts', renderCharts);
@@ -2066,10 +2161,86 @@ function buildSynergyMatrix() {
 /* ═══════════════════════════════════════════════════════════
    SITE CARDS
 ═══════════════════════════════════════════════════════════ */
+// renderAdsenseTracker - SEO 심사 현황 패널 렌더링
+const _origRenderSites = renderSites;
+
+function renderAdsenseTracker() {
+  const tracker = document.getElementById('adsense-tracker');
+  if (!tracker) return;
+
+  const adSites = SITES.filter(s => s.adsense !== 'none');
+  const approved = SITES.filter(s => s.adsense === 'approved').length;
+  const pending  = SITES.filter(s => s.adsense === 'pending').length;
+  const seoText  = SITES.filter(s => s.seoText).length;
+  const none     = SITES.filter(s => s.adsense === 'none').length;
+  const total    = SITES.length;
+
+  const set = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  const setW = (id, pct) => { const e = document.getElementById(id); if(e) e.style.width = pct+'%'; };
+  set('ads-count-approved', approved);
+  set('ads-count-pending', pending);
+  set('ads-count-seo', seoText);
+  set('ads-count-none', none);
+  setTimeout(() => {
+    setW('ads-bar-approved', Math.round(approved/total*100));
+    setW('ads-bar-pending', Math.round(pending/total*100));
+    setW('ads-bar-seo', Math.round(seoText/total*100));
+    setW('ads-bar-none', Math.round(none/total*100));
+  }, 600);
+
+  tracker.innerHTML = '';
+  adSites.forEach(s => {
+    const pill = s.adsense === 'approved'
+      ? `<span class="ads-status-pill ads-pill-approved">\u2713 승인완료</span>`
+      : `<span class="ads-status-pill ads-pill-pending">\u23F3 심사중</span>`;
+
+    const tasks = [
+      { label: 'ads.txt 등록',     done: true },
+      { label: 'sitemap.xml 제출', done: !!s.gsc },
+      { label: 'SEO 텍스트 강화',  done: !!s.seoText },
+      { label: 'AdSense 승인',     done: s.adsense === 'approved' },
+    ];
+    const taskHtml = tasks.map(t => `
+      <div class="ads-task ${t.done?'done':'todo'}">
+        <span class="ads-task-icon">${t.done?'✅':'○'}</span>
+        <span>${t.label}</span>
+      </div>`).join('');
+
+    const doneCount = tasks.filter(t=>t.done).length;
+    const progressPct = Math.round(doneCount / tasks.length * 100);
+    const progressColor = s.adsense==='approved' ? 'var(--emerald)' : progressPct>=75 ? 'var(--teal)' : progressPct>=50 ? 'var(--amber)' : 'var(--rose)';
+
+    const card = document.createElement('div');
+    card.className = 'ads-site-card';
+    card.style.setProperty('--ads-color', s.color);
+    card.innerHTML = `
+      <div class="ads-status-row">
+        <div>
+          <div class="ads-site-name">${s.name}</div>
+          <div class="ads-site-domain">${s.domain}</div>
+        </div>
+        ${pill}
+      </div>
+      <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;">
+        <div style="height:100%;width:0%;background:${progressColor};border-radius:2px;transition:width 1s var(--ease);" data-pct="${progressPct}"></div>
+      </div>
+      <div class="ads-tasks">${taskHtml}</div>
+    `;
+    tracker.appendChild(card);
+  });
+
+  // animate progress bars
+  setTimeout(() => {
+    tracker.querySelectorAll('[data-pct]').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 300);
+}
+
 function renderSites(filter) {
   const grid = document.getElementById('sites-grid');
   if (!grid) return;
-  const list = filter==='all'?SITES:filter==='running'?SITES.filter(s=>s.status==='running'):filter==='maintenance'?SITES.filter(s=>s.status==='maintenance'):SITES.filter(s=>s.adsense==='approved'||s.adsense==='pending');
+  const list = filter==='all'?SITES:filter==='running'?SITES.filter(s=>s.status==='running'):filter==='maintenance'?SITES.filter(s=>s.status==='maintenance'):filter==='pending'?SITES.filter(s=>s.adsense==='pending'):SITES.filter(s=>s.adsense==='approved');
   grid.innerHTML='';
   list.forEach(s=>{
     const card=document.createElement('div');card.className='site-card';
