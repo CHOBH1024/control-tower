@@ -1,112 +1,124 @@
-// api/ga4.js — Google Analytics 4 Data API v1
-// Vercel Serverless Function
-// 환경변수: GOOGLE_SA_JSON (Service Account JSON, base64 인코딩)
-//           GA4_PROPERTY_MAP (JSON: { "siteId": "properties/XXXXXXX" })
+// api/ga4.js — Google Analytics 4 Data API
+// 환경변수: GOOGLE_SA_JSON, GA4_PROPERTY_MAP (optional JSON)
 
-const { BetaAnalyticsDataClient } = require('@google-analytics/data');
+const { SITES } = require('../lib/sites');
+const {
+  isConfigured,
+  parseCredentials,
+  setCors,
+  notConfigured,
+} = require('../lib/google-auth');
 
-const SITE_PROPERTY_MAP = {
-  'mz-radar':         'properties/462745473',
-  'burnout-radar':    'properties/462745473', // 같은 GA 속성 공유 시 예시
-  'genius-radar':     'properties/462745473',
-  'fx-radar':         'properties/462745473',
-  'mood-weather':     'properties/462745473',
-  'money-radar':      'properties/462745473',
-  'mind-prism':       'properties/462745473',
-  'ilban-leadership': 'properties/462745473',
-  'ilban-leader1024': 'properties/462745473',
-  'aikiugihimdulda':  'properties/462745473',
-  'jeongbu-lead':     'properties/462745473',
-  'focus-flow':       'properties/462745473',
-  'serverguchuk':     'properties/462745473',
-  'techtipcho':       'properties/462745473',
-  'chotan':           'properties/462745473',
-  'jeongbu':          'properties/462745473',
-  'jikjang':          'properties/462745473',
-  'sinang-inside':    'properties/462745473',
-  'regulation-hub':   'properties/462745473',
-  'control-tower':    'properties/462745473',
-};
+const DEFAULT_PROPERTY = process.env.GA4_DEFAULT_PROPERTY || 'properties/462745473';
 
-function getAnalyticsClient() {
-  const saJson = process.env.GOOGLE_SA_JSON;
-  if (!saJson) throw new Error('GOOGLE_SA_JSON 환경변수가 없습니다.');
-  const credentials = JSON.parse(
-    Buffer.from(saJson, 'base64').toString('utf-8')
-  );
-  return new BetaAnalyticsDataClient({ credentials });
+function buildDefaultMap() {
+  const map = {};
+  for (const s of SITES) map[s.id] = DEFAULT_PROPERTY;
+  return map;
 }
 
-async function fetchPropertyMetrics(client, propertyId, dateRange = '30daysAgo') {
+async function fetchPropertyMetrics(client, propertyId, startDate = '30daysAgo') {
   const [response] = await client.runReport({
     property: propertyId,
-    dateRanges: [{ startDate: dateRange, endDate: 'today' }],
+    dateRanges: [{ startDate, endDate: 'today' }],
     metrics: [
       { name: 'activeUsers' },
       { name: 'sessions' },
       { name: 'screenPageViews' },
     ],
-    dimensions: [{ name: 'date' }],
+    metricAggregations: ['TOTAL'],
   });
 
-  let uv = 0, pv = 0, sessions = 0;
-  (response.rows || []).forEach(row => {
-    uv       += parseInt(row.metricValues[0].value || '0', 10);
-    sessions += parseInt(row.metricValues[1].value || '0', 10);
-    pv       += parseInt(row.metricValues[2].value || '0', 10);
-  });
+  const totals = response.totals?.[0]?.metricValues;
+  if (totals && totals.length >= 3) {
+    return {
+      uv: parseInt(totals[0].value || '0', 10),
+      sessions: parseInt(totals[1].value || '0', 10),
+      pv: parseInt(totals[2].value || '0', 10),
+    };
+  }
 
-  return { uv, sessions, pv };
+  const row = response.rows?.[0];
+  if (row) {
+    return {
+      uv: parseInt(row.metricValues[0].value || '0', 10),
+      sessions: parseInt(row.metricValues[1].value || '0', 10),
+      pv: parseInt(row.metricValues[2].value || '0', 10),
+    };
+  }
+  return { uv: 0, sessions: 0, pv: 0 };
 }
 
 module.exports = async (req, res) => {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  setCors(res);
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=600');
 
-  // 캐시: 1시간 (CDN 레이어에서 캐싱)
-  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=600');
+  if (!isConfigured()) return notConfigured(res, 'ga4');
 
   try {
-    // 환경변수에서 property map 오버라이드 가능
-    const propertyMapEnv = process.env.GA4_PROPERTY_MAP;
-    const propertyMap = propertyMapEnv
-      ? JSON.parse(propertyMapEnv)
-      : SITE_PROPERTY_MAP;
+    const { BetaAnalyticsDataClient } = require('@google-analytics/data');
+    const credentials = parseCredentials();
+    const client = new BetaAnalyticsDataClient({ credentials });
 
-    const client = getAnalyticsClient();
+    const propertyMap = process.env.GA4_PROPERTY_MAP
+      ? JSON.parse(process.env.GA4_PROPERTY_MAP)
+      : buildDefaultMap();
 
-    // 사이트별 GA4 property ID가 다를 경우 개별 쿼리, 같을 경우 하나만 호출
-    const uniqueProperties = [...new Set(Object.values(propertyMap))];
-    
+    const uniqueProperties = [
+      ...new Set(Object.values(propertyMap).filter(Boolean)),
+    ];
+
     const propertyResults = {};
     await Promise.all(
       uniqueProperties.map(async (propId) => {
         try {
           propertyResults[propId] = await fetchPropertyMetrics(client, propId);
         } catch (e) {
-          propertyResults[propId] = { uv: 0, pv: 0, sessions: 0, error: e.message };
+          propertyResults[propId] = {
+            uv: 0,
+            pv: 0,
+            sessions: 0,
+            error: e.message,
+          };
         }
       })
     );
 
-    // 사이트별 결과 조합
     const siteData = {};
     for (const [siteId, propId] of Object.entries(propertyMap)) {
-      siteData[siteId] = propertyResults[propId] || { uv: 0, pv: 0, sessions: 0 };
+      siteData[siteId] = {
+        ...(propertyResults[propId] || { uv: 0, pv: 0, sessions: 0 }),
+        propertyId: propId,
+      };
+    }
+    for (const s of SITES) {
+      if (!siteData[s.id]) {
+        siteData[s.id] = { uv: 0, pv: 0, sessions: 0, missing: true };
+      }
     }
 
-    const totalUV = Object.values(siteData).reduce((s, d) => s + (d.uv || 0), 0);
-    const totalPV = Object.values(siteData).reduce((s, d) => s + (d.pv || 0), 0);
+    const totalUV = Object.values(siteData).reduce((a, d) => a + (d.uv || 0), 0);
+    const totalPV = Object.values(siteData).reduce((a, d) => a + (d.pv || 0), 0);
+    const totalSessions = Object.values(siteData).reduce(
+      (a, d) => a + (d.sessions || 0),
+      0
+    );
 
     res.status(200).json({
       ok: true,
+      configured: true,
       updatedAt: new Date().toISOString(),
+      range: '30days',
       sites: siteData,
-      total: { uv: totalUV, pv: totalPV },
+      total: { uv: totalUV, pv: totalPV, sessions: totalSessions },
     });
   } catch (err) {
-    console.error('[api/ga4] Error:', err);
-    res.status(500).json({ ok: false, error: err.message });
+    console.error('[api/ga4]', err);
+    res.status(err.code === 'NOT_CONFIGURED' ? 200 : 500).json({
+      ok: false,
+      configured: err.code !== 'NOT_CONFIGURED',
+      error: err.message,
+    });
   }
 };
