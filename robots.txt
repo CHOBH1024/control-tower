@@ -1,4 +1,4 @@
 ﻿User-agent: *
 Allow: /
 
-Sitemap: https://control-tower.vercel.app/sitemap.xml
+Sitemap: https://anti-control-tower.vercel.app/sitemap.xml
