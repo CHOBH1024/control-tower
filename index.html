@@ -317,6 +317,68 @@
   }
   .footer a { color: var(--accent-blue); text-decoration: none; }
 
+  .problem-panel {
+    display: none; margin-bottom: 18px; padding: 14px 16px;
+    background: rgba(244,63,94,.08); border: 1px solid rgba(244,63,94,.28);
+    border-radius: var(--radius-md);
+  }
+  .problem-panel.show { display: block; }
+  .problem-panel h3 {
+    font-size: 13px; font-weight: 600; color: #fda4af;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .problem-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .problem-chip {
+    font-size: 12px; font-family: Inter, sans-serif;
+    padding: 6px 10px; border-radius: 8px;
+    background: rgba(0,0,0,.3); border: 1px solid rgba(244,63,94,.25);
+    color: #fecdd3; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .problem-chip a { color: inherit; text-decoration: none; }
+  .problem-chip a:hover { text-decoration: underline; }
+
+  .latency-row {
+    display: none; margin-bottom: 18px; gap: 10px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .latency-row.show { display: flex; }
+  .latency-label {
+    font-size: 12px; color: var(--text-muted); font-weight: 600;
+    margin-right: 4px;
+  }
+  .latency-chip {
+    font-size: 11px; font-family: Inter, sans-serif;
+    padding: 5px 10px; border-radius: 20px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+  }
+  .latency-chip strong { color: var(--text-main); font-weight: 600; }
+
+  .sort-select {
+    height: 42px; padding: 0 12px; border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border); background: var(--glass-bg);
+    color: var(--text-main); font-family: inherit; font-size: 13px;
+    outline: none; cursor: pointer;
+  }
+  .sort-select:focus { border-color: var(--accent-blue); }
+  .sort-select option { background: #0f172a; color: #f8fafc; }
+
+  .cat-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px; margin-top: 4px;
+    background: rgba(255,255,255,.06); color: var(--text-muted);
+    letter-spacing: .02em; text-transform: uppercase;
+  }
+  .cat-diagnosis { color: #93c5fd; background: rgba(59,130,246,.12); }
+  .cat-ministry { color: #f0abfc; background: rgba(217,70,239,.12); }
+  .cat-content { color: #fcd34d; background: rgba(245,158,11,.12); }
+  .cat-tools { color: #6ee7b7; background: rgba(16,185,129,.12); }
+  .cat-ops { color: #67e8f9; background: rgba(6,182,212,.12); }
+
+  .countdown {
+    font-family: Inter, sans-serif; font-size: 11px; color: var(--text-muted);
+  }
+
   @media (max-width: 640px) {
     .title h1 { font-size: 20px; }
     .summary-value { font-size: 26px; }
@@ -344,6 +406,7 @@
           <span id="system-label">체크 중…</span>
         </span>
         <span class="status-chip" id="checked-at" style="display:none"></span>
+        <span class="status-chip countdown" id="countdown" style="display:none">다음 갱신 —</span>
         <button class="btn primary" id="btn-refresh" onclick="refresh()" title="지금 다시 체크">
           <i class="fa-solid fa-rotate" id="refresh-icon"></i> 새로고침
         </button>
@@ -373,12 +436,20 @@
       <span class="svc-pill" id="pill-gsc"><i class="fa-solid fa-magnifying-glass"></i> GSC …</span>
     </div>
 
+    <div class="problem-panel" id="problem-panel">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> 문제 사이트 <span id="problem-count"></span></h3>
+      <div class="problem-list" id="problem-list"></div>
+    </div>
+
     <div class="summary-grid" id="summary-grid">
       <div class="summary-card"><div class="summary-title">전체</div><div class="summary-value skeleton" style="height:36px;width:60%"></div></div>
       <div class="summary-card"><div class="summary-title">Online</div><div class="summary-value skeleton" style="height:36px;width:50%"></div></div>
       <div class="summary-card"><div class="summary-title">Offline</div><div class="summary-value skeleton" style="height:36px;width:50%"></div></div>
       <div class="summary-card"><div class="summary-title">AdSense</div><div class="summary-value skeleton" style="height:36px;width:50%"></div></div>
+      <div class="summary-card"><div class="summary-title">Avg Latency</div><div class="summary-value skeleton" style="height:36px;width:50%"></div></div>
     </div>
+
+    <div class="latency-row" id="latency-row"></div>
 
     <div class="metrics-grid" id="metrics-grid">
       <div class="metrics-card muted"><div class="metrics-label">로딩</div><div class="metrics-value skeleton" style="height:28px;width:70%"></div></div>
@@ -389,10 +460,20 @@
         <i class="fa-solid fa-search"></i>
         <input type="text" id="search-input" placeholder="이름 · 도메인 검색…" oninput="handleSearch()">
       </div>
+      <select class="sort-select" id="sort-select" onchange="handleSort()">
+        <option value="health">정렬: 문제 우선</option>
+        <option value="latency">정렬: 느린 순</option>
+        <option value="name">정렬: 이름</option>
+        <option value="adsense">정렬: AdSense</option>
+      </select>
       <div class="filter-tabs" id="filter-tabs">
         <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">전체</button>
         <button class="filter-btn" data-filter="online" onclick="setFilter('online', this)">Online</button>
         <button class="filter-btn" data-filter="offline" onclick="setFilter('offline', this)">문제</button>
+        <button class="filter-btn" data-filter="diagnosis" onclick="setFilter('diagnosis', this)">진단</button>
+        <button class="filter-btn" data-filter="ministry" onclick="setFilter('ministry', this)">사역</button>
+        <button class="filter-btn" data-filter="content" onclick="setFilter('content', this)">콘텐츠</button>
+        <button class="filter-btn" data-filter="tools" onclick="setFilter('tools', this)">도구</button>
         <button class="filter-btn" data-filter="approved" onclick="setFilter('approved', this)">AdSense 승인</button>
         <button class="filter-btn" data-filter="pending" onclick="setFilter('pending', this)">심사중</button>
       </div>
@@ -413,11 +494,26 @@
   let SITES = [];
   /** @type {object|null} */
   let METRICS = null;
+  /** @type {object|null} */
+  let LAST_SUMMARY = null;
+  /** @type {Array} */
+  let PROBLEMS = [];
   let currentFilter = 'all';
+  let currentSort = 'health';
   let currentSearch = '';
   let isLoading = false;
   let lastCheckedAt = null;
+  let nextRefreshAt = null;
+  let countdownTimer = null;
   const REFRESH_MS = 5 * 60 * 1000;
+
+  const CAT_LABEL = {
+    diagnosis: '진단',
+    ministry: '사역',
+    content: '콘텐츠',
+    tools: '도구',
+    ops: '관제',
+  };
 
   function hexToRgba(hex, alpha) {
     if (!hex || hex.length < 7) return `rgba(59,130,246,${alpha})`;
@@ -484,8 +580,13 @@
       offline: SITES.filter(x => x.health === 'offline').length,
       adsenseApproved: SITES.filter(x => x.adsense === 'approved').length,
       adsensePending: SITES.filter(x => x.adsense === 'pending').length,
+      avgMs: null,
+      maxMs: null,
     };
+    LAST_SUMMARY = s;
     const problem = (s.offline || 0) + (s.degraded || 0);
+    const avgLabel = s.avgMs != null ? s.avgMs : '—';
+    const maxHint = s.maxMs != null ? `max ${s.maxMs}ms` : '';
 
     document.getElementById('summary-grid').innerHTML = `
       <div class="summary-card">
@@ -504,13 +605,60 @@
         <div class="summary-title"><i class="fa-solid fa-dollar-sign" style="color:var(--accent-amber)"></i>AdSense 승인 / 심사</div>
         <div class="summary-value">${s.adsenseApproved}<span class="unit">/ ${s.adsensePending}</span></div>
       </div>
+      <div class="summary-card">
+        <div class="summary-title"><i class="fa-solid fa-gauge-high" style="color:var(--accent-teal)"></i>평균 응답</div>
+        <div class="summary-value">${avgLabel}<span class="unit">${s.avgMs != null ? 'ms' : ''}</span></div>
+        <div class="summary-sub">${maxHint}</div>
+      </div>
     `;
+
+    renderLatencyRow(s);
+    renderProblemPanel(PROBLEMS);
 
     if (problem > 0) {
       setSystemState('err', `문제 ${problem}건 감지`);
     } else if (s.total > 0) {
       setSystemState('ok', 'All Systems Online');
     }
+  }
+
+  function renderLatencyRow(s) {
+    const row = document.getElementById('latency-row');
+    const slowest = s.slowest || [];
+    if (!slowest.length && s.avgMs == null) {
+      row.classList.remove('show');
+      row.innerHTML = '';
+      return;
+    }
+    const chips = slowest.map(x =>
+      `<span class="latency-chip" title="${escapeHtml(x.domain)}">${escapeHtml(x.name)} <strong>${x.ms}ms</strong></span>`
+    ).join('');
+    row.innerHTML = `
+      <span class="latency-label"><i class="fa-solid fa-stopwatch"></i> 느린 사이트 TOP</span>
+      ${chips || '<span class="latency-chip">데이터 없음</span>'}
+    `;
+    row.classList.add('show');
+  }
+
+  function renderProblemPanel(problems) {
+    const panel = document.getElementById('problem-panel');
+    const list = document.getElementById('problem-list');
+    const countEl = document.getElementById('problem-count');
+    if (!problems || !problems.length) {
+      panel.classList.remove('show');
+      list.innerHTML = '';
+      return;
+    }
+    countEl.textContent = `(${problems.length})`;
+    list.innerHTML = problems.map(p => {
+      const tag = p.health === 'offline' ? 'OFF' : String(p.statusCode || '4xx');
+      return `<span class="problem-chip">
+        <strong>${escapeHtml(tag)}</strong>
+        <a href="https://${escapeHtml(p.domain)}" target="_blank" rel="noopener">${escapeHtml(p.name)}</a>
+        <span style="opacity:.7">${escapeHtml(p.error || p.domain)}</span>
+      </span>`;
+    }).join('');
+    panel.classList.add('show');
   }
 
   function renderMetrics() {
@@ -602,21 +750,41 @@
   }
 
   function filteredList() {
-    return SITES.filter(s => {
+    let list = SITES.filter(s => {
       if (currentFilter === 'online' && s.health !== 'online') return false;
       if (currentFilter === 'offline' && s.health === 'online') return false;
       if (currentFilter === 'approved' && s.adsense !== 'approved') return false;
       if (currentFilter === 'pending' && s.adsense !== 'pending') return false;
+      if (['diagnosis', 'ministry', 'content', 'tools', 'ops'].includes(currentFilter)
+          && s.category !== currentFilter) return false;
       if (currentSearch) {
         const q = currentSearch.toLowerCase();
         return (
           (s.name || '').toLowerCase().includes(q) ||
           (s.domain || '').toLowerCase().includes(q) ||
-          (s.sub || '').toLowerCase().includes(q)
+          (s.sub || '').toLowerCase().includes(q) ||
+          (s.category || '').toLowerCase().includes(q)
         );
       }
       return true;
     });
+
+    const healthOrder = { offline: 0, degraded: 1, online: 2, loading: 3 };
+    const adsenseOrder = { approved: 0, pending: 1, none: 2 };
+
+    list = [...list].sort((a, b) => {
+      if (currentSort === 'latency') return (b.ms || 0) - (a.ms || 0);
+      if (currentSort === 'name') return (a.name || '').localeCompare(b.name || '', 'ko');
+      if (currentSort === 'adsense') {
+        return (adsenseOrder[a.adsense] ?? 9) - (adsenseOrder[b.adsense] ?? 9);
+      }
+      // health default
+      const ho = (healthOrder[a.health] ?? 9) - (healthOrder[b.health] ?? 9);
+      if (ho !== 0) return ho;
+      return (b.ms || 0) - (a.ms || 0);
+    });
+
+    return list;
   }
 
   function renderSites() {
@@ -678,6 +846,7 @@
             <div class="card-name">${escapeHtml(s.name)}</div>
             <div class="card-domain">${escapeHtml(s.domain)}</div>
             <div class="card-sub">${escapeHtml(s.sub || '')}</div>
+            <span class="cat-badge cat-${escapeHtml(s.category || 'ops')}">${escapeHtml(CAT_LABEL[s.category] || s.category || '기타')}</span>
           </div>
           <div class="ping-badge ${health}">${healthLabel}</div>
         </div>
@@ -766,10 +935,12 @@
       if (!health.ok) throw new Error(health.error || 'Health API 오류');
 
       SITES = health.sites || [];
+      PROBLEMS = health.problems || (health.sites || []).filter(x => x.health !== 'online');
       lastCheckedAt = health.checkedAt;
       const checkedEl = document.getElementById('checked-at');
       checkedEl.style.display = 'inline-flex';
       checkedEl.textContent = '갱신 ' + formatKST(lastCheckedAt);
+      startCountdown();
 
       renderSummary(health.summary);
 
@@ -810,6 +981,27 @@
   function handleSearch() {
     currentSearch = document.getElementById('search-input').value.trim();
     renderSites();
+  }
+
+  function handleSort() {
+    currentSort = document.getElementById('sort-select').value;
+    renderSites();
+  }
+
+  function startCountdown() {
+    nextRefreshAt = Date.now() + REFRESH_MS;
+    const el = document.getElementById('countdown');
+    el.style.display = 'inline-flex';
+    if (countdownTimer) clearInterval(countdownTimer);
+    const tick = () => {
+      const left = Math.max(0, nextRefreshAt - Date.now());
+      const sec = Math.ceil(left / 1000);
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      el.textContent = `다음 갱신 ${m}:${String(s).padStart(2, '0')}`;
+    };
+    tick();
+    countdownTimer = setInterval(tick, 1000);
   }
 
   function copyDomain(domain) {

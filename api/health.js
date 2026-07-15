@@ -1,10 +1,10 @@
 // api/health.js — 전체 사이트 HTTP 헬스체크
-// GET /api/health  →  사이트별 statusCode · latency · health
+// GET /api/health  →  사이트별 statusCode · latency · health + 요약 지표
 // 캐시: CDN 60초 (과도한 외부 핑 방지)
 
 const https = require('https');
 const http = require('http');
-const { SITES } = require('../lib/sites');
+const { SITES, CATEGORY_LABELS } = require('../lib/sites');
 
 const TIMEOUT_MS = 8000;
 
@@ -25,17 +25,15 @@ function checkSite(domain) {
           'User-Agent': 'AntiControlTower/1.0 (health-check)',
           Accept: 'text/html,*/*',
         },
-        // Vercel 앱은 redirect 가 있을 수 있음 — 기본 follow 없이 status 만 봄
       },
       (res) => {
-        // 응답 바디는 버림
         res.resume();
         const ms = Date.now() - t0;
         const statusCode = res.statusCode || 0;
         const ok = statusCode >= 200 && statusCode < 400;
         let health = 'offline';
         if (ok) health = 'online';
-        else if (statusCode >= 400 && statusCode < 500) health = 'degraded'; // 404 등
+        else if (statusCode >= 400 && statusCode < 500) health = 'degraded';
         else if (statusCode >= 500) health = 'offline';
 
         resolve({ domain, statusCode, ok, health, ms });
@@ -65,6 +63,56 @@ function checkSite(domain) {
       });
     });
   });
+}
+
+function buildLatencySummary(results) {
+  const onlineMs = results
+    .filter((r) => r.health === 'online' && typeof r.ms === 'number')
+    .map((r) => r.ms);
+
+  if (!onlineMs.length) {
+    return { avgMs: null, maxMs: null, minMs: null, slowest: [] };
+  }
+
+  const sum = onlineMs.reduce((a, b) => a + b, 0);
+  const avgMs = Math.round(sum / onlineMs.length);
+  const maxMs = Math.max(...onlineMs);
+  const minMs = Math.min(...onlineMs);
+
+  const slowest = [...results]
+    .filter((r) => r.health === 'online')
+    .sort((a, b) => (b.ms || 0) - (a.ms || 0))
+    .slice(0, 5)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      domain: r.domain,
+      ms: r.ms,
+    }));
+
+  return { avgMs, maxMs, minMs, slowest };
+}
+
+function buildCategoryBreakdown(results) {
+  const map = {};
+  for (const r of results) {
+    const cat = r.category || 'other';
+    if (!map[cat]) {
+      map[cat] = {
+        id: cat,
+        label: CATEGORY_LABELS[cat] || cat,
+        total: 0,
+        online: 0,
+        degraded: 0,
+        offline: 0,
+      };
+    }
+    map[cat].total += 1;
+    if (r.health === 'online') map[cat].online += 1;
+    else if (r.health === 'degraded') map[cat].degraded += 1;
+    else map[cat].offline += 1;
+  }
+  return Object.values(map);
 }
 
 module.exports = async (req, res) => {
@@ -107,6 +155,21 @@ module.exports = async (req, res) => {
     const order = { offline: 0, degraded: 1, online: 2 };
     results.sort((a, b) => (order[a.health] ?? 9) - (order[b.health] ?? 9));
 
+    const latency = buildLatencySummary(results);
+    const byCategory = buildCategoryBreakdown(results);
+
+    const problems = results
+      .filter((r) => r.health !== 'online')
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        domain: r.domain,
+        health: r.health,
+        statusCode: r.statusCode,
+        ms: r.ms,
+        error: r.error,
+      }));
+
     const summary = {
       total: results.length,
       online: results.filter((r) => r.health === 'online').length,
@@ -115,12 +178,21 @@ module.exports = async (req, res) => {
       adsenseApproved: results.filter((r) => r.adsense === 'approved').length,
       adsensePending: results.filter((r) => r.adsense === 'pending').length,
       adsenseNone: results.filter((r) => r.adsense === 'none').length,
+      avgMs: latency.avgMs,
+      maxMs: latency.maxMs,
+      minMs: latency.minMs,
+      slowest: latency.slowest,
+      byCategory,
+      problemCount:
+        results.filter((r) => r.health === 'offline').length +
+        results.filter((r) => r.health === 'degraded').length,
     };
 
     res.status(200).json({
       ok: true,
       checkedAt: new Date().toISOString(),
       summary,
+      problems,
       sites: results,
     });
   } catch (err) {
