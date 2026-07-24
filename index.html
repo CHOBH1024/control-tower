@@ -271,8 +271,9 @@
   .status-pill {
     padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
   }
-  .pill-approved { background: rgba(16,185,129,.12); color: var(--accent-emerald); }
-  .pill-pending { background: rgba(245,158,11,.12); color: var(--accent-amber); }
+  .pill-approved, .pill-ready { background: rgba(16,185,129,.12); color: var(--accent-emerald); }
+  .pill-pending, .pill-getting_ready { background: rgba(245,158,11,.12); color: var(--accent-amber); }
+  .pill-attention { background: rgba(244,63,94,.12); color: var(--accent-rose); }
   .pill-none { background: rgba(255,255,255,.05); color: var(--text-muted); }
 
   .task-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -474,8 +475,10 @@
         <button class="filter-btn" data-filter="ministry" onclick="setFilter('ministry', this)">사역</button>
         <button class="filter-btn" data-filter="content" onclick="setFilter('content', this)">콘텐츠</button>
         <button class="filter-btn" data-filter="tools" onclick="setFilter('tools', this)">도구</button>
-        <button class="filter-btn" data-filter="approved" onclick="setFilter('approved', this)">AdSense 승인</button>
-        <button class="filter-btn" data-filter="pending" onclick="setFilter('pending', this)">심사중</button>
+        <button class="filter-btn" data-filter="attention" onclick="setFilter('attention', this)">주의 필요</button>
+        <button class="filter-btn" data-filter="getting_ready" onclick="setFilter('getting_ready', this)">준비 중</button>
+        <button class="filter-btn" data-filter="ready" onclick="setFilter('ready', this)">준비됨</button>
+        <button class="filter-btn" data-filter="none" onclick="setFilter('none', this)">미등록</button>
       </div>
     </div>
 
@@ -578,8 +581,10 @@
       online: SITES.filter(x => x.health === 'online').length,
       degraded: SITES.filter(x => x.health === 'degraded').length,
       offline: SITES.filter(x => x.health === 'offline').length,
-      adsenseApproved: SITES.filter(x => x.adsense === 'approved').length,
-      adsensePending: SITES.filter(x => x.adsense === 'pending').length,
+      adsenseReady: SITES.filter(x => x.adsense === 'ready' || x.adsense === 'approved').length,
+      adsenseGettingReady: SITES.filter(x => x.adsense === 'getting_ready' || x.adsense === 'pending').length,
+      adsenseAttention: SITES.filter(x => x.adsense === 'attention').length,
+      adsenseNone: SITES.filter(x => x.adsense === 'none').length,
       avgMs: null,
       maxMs: null,
     };
@@ -587,6 +592,9 @@
     const problem = (s.offline || 0) + (s.degraded || 0);
     const avgLabel = s.avgMs != null ? s.avgMs : '—';
     const maxHint = s.maxMs != null ? `max ${s.maxMs}ms` : '';
+    const gr = s.adsenseGettingReady ?? s.adsensePending ?? 0;
+    const att = s.adsenseAttention ?? 0;
+    const ready = s.adsenseReady ?? s.adsenseApproved ?? 0;
 
     document.getElementById('summary-grid').innerHTML = `
       <div class="summary-card">
@@ -602,8 +610,9 @@
         <div class="summary-value" style="color:${problem ? 'var(--accent-rose)' : 'var(--text-main)'}">${problem}<span class="unit">개</span></div>
       </div>
       <div class="summary-card">
-        <div class="summary-title"><i class="fa-solid fa-dollar-sign" style="color:var(--accent-amber)"></i>AdSense 승인 / 심사</div>
-        <div class="summary-value">${s.adsenseApproved}<span class="unit">/ ${s.adsensePending}</span></div>
+        <div class="summary-title"><i class="fa-solid fa-dollar-sign" style="color:var(--accent-amber)"></i>AdSense (준비중/주의)</div>
+        <div class="summary-value">${gr}<span class="unit">/ ${att}</span></div>
+        <div class="summary-sub">준비됨 ${ready} · 미등록 ${s.adsenseNone ?? '—'} · 콘솔 수동동기</div>
       </div>
       <div class="summary-card">
         <div class="summary-title"><i class="fa-solid fa-gauge-high" style="color:var(--accent-teal)"></i>평균 응답</div>
@@ -753,8 +762,12 @@
     let list = SITES.filter(s => {
       if (currentFilter === 'online' && s.health !== 'online') return false;
       if (currentFilter === 'offline' && s.health === 'online') return false;
-      if (currentFilter === 'approved' && s.adsense !== 'approved') return false;
-      if (currentFilter === 'pending' && s.adsense !== 'pending') return false;
+      if (currentFilter === 'approved' && s.adsense !== 'approved' && s.adsense !== 'ready') return false;
+      if (currentFilter === 'ready' && s.adsense !== 'ready' && s.adsense !== 'approved') return false;
+      if (currentFilter === 'pending' && !['pending', 'getting_ready', 'attention'].includes(s.adsense)) return false;
+      if (currentFilter === 'getting_ready' && s.adsense !== 'getting_ready' && s.adsense !== 'pending') return false;
+      if (currentFilter === 'attention' && s.adsense !== 'attention') return false;
+      if (currentFilter === 'none' && s.adsense !== 'none') return false;
       if (['diagnosis', 'ministry', 'content', 'tools', 'ops'].includes(currentFilter)
           && s.category !== currentFilter) return false;
       if (currentSearch) {
@@ -770,7 +783,7 @@
     });
 
     const healthOrder = { offline: 0, degraded: 1, online: 2, loading: 3 };
-    const adsenseOrder = { approved: 0, pending: 1, none: 2 };
+    const adsenseOrder = { attention: 0, getting_ready: 1, pending: 1, ready: 2, approved: 2, none: 3 };
 
     list = [...list].sort((a, b) => {
       if (currentSort === 'latency') return (b.ms || 0) - (a.ms || 0);
@@ -808,15 +821,20 @@
         health === 'offline' ? (s.error === 'timeout' ? 'Timeout' : (s.statusCode || 'Down')) :
         '…';
 
-      let pillHtml = '<span class="status-pill pill-none">미신청</span>';
+      let pillHtml = '<span class="status-pill pill-none">미등록</span>';
       let progressPct = 0;
       let pColor = 'var(--text-muted)';
-      if (s.adsense === 'approved') {
-        pillHtml = '<span class="status-pill pill-approved"><i class="fa-solid fa-check"></i> 승인</span>';
+      const ad = s.adsense;
+      if (ad === 'ready' || ad === 'approved') {
+        pillHtml = '<span class="status-pill pill-ready"><i class="fa-solid fa-check"></i> 준비됨</span>';
         progressPct = 100;
         pColor = 'var(--accent-emerald)';
-      } else if (s.adsense === 'pending') {
-        pillHtml = '<span class="status-pill pill-pending"><i class="fa-solid fa-hourglass-half"></i> 심사중</span>';
+      } else if (ad === 'attention') {
+        pillHtml = '<span class="status-pill pill-attention"><i class="fa-solid fa-triangle-exclamation"></i> 주의 필요</span>';
+        progressPct = 40;
+        pColor = 'var(--accent-rose)';
+      } else if (ad === 'getting_ready' || ad === 'pending') {
+        pillHtml = '<span class="status-pill pill-getting_ready"><i class="fa-solid fa-hourglass-half"></i> 준비 중</span>';
         const done = 1 + (s.gsc ? 1 : 0) + (s.seoText ? 1 : 0);
         progressPct = Math.round((done / 4) * 100);
         pColor = progressPct >= 75 ? 'var(--accent-teal)' : progressPct >= 50 ? 'var(--accent-amber)' : 'var(--accent-rose)';
@@ -825,13 +843,13 @@
       const sm = siteMetrics(s.id);
       const hasLive = METRICS?.configured;
 
-      const taskHtml = s.adsense === 'none'
-        ? '<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:6px 0;">AdSense 신청 없음</div>'
+      const taskHtml = ad === 'none'
+        ? '<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:6px 0;">AdSense 미등록</div>'
         : `<div class="task-list">
             <div class="task-item done"><i class="fa-solid fa-circle-check"></i> ads.txt</div>
             <div class="task-item ${s.gsc ? 'done' : 'todo'}"><i class="fa-solid ${s.gsc ? 'fa-circle-check' : 'fa-circle'}"></i> GSC 제출</div>
             <div class="task-item ${s.seoText ? 'done' : 'todo'}"><i class="fa-solid ${s.seoText ? 'fa-circle-check' : 'fa-circle'}"></i> SEO 강화</div>
-            <div class="task-item ${s.adsense === 'approved' ? 'done' : 'todo'}"><i class="fa-solid ${s.adsense === 'approved' ? 'fa-circle-check' : 'fa-circle'}"></i> 승인</div>
+            <div class="task-item ${ad === 'ready' || ad === 'approved' ? 'done' : 'todo'}"><i class="fa-solid ${ad === 'ready' || ad === 'approved' ? 'fa-circle-check' : 'fa-circle'}"></i> 준비됨</div>
           </div>
           <div class="progress-wrap"><div class="progress-fill" style="background:${pColor};width:${progressPct}%"></div></div>`;
 
